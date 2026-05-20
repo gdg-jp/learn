@@ -283,7 +283,7 @@ code .
 
 > **Note:** `flutter pub get` は依存パッケージのダウンロードです。初回は少し時間がかかることがあります。
 
-```
+---
 
 ## Flutter 基礎
 Duration: 0:20:00

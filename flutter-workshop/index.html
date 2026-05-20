@@ -245,59 +245,66 @@ flutter run -d chrome
 <pre><code language="language-bash" class="language-bash">code .
 </code></pre>
 <p><strong>Note: </strong><code>flutter pub get</code> は依存パッケージのダウンロードです。初回は少し時間がかかることがあります。</p>
-<pre><code>## Flutter 基礎
-Duration: 0:20:00
 
-### Flutter とは
 
-Google が作っている**マルチプラットフォーム UI フレームワーク**です。
-
-- 1 つのコードで **iOS / Android / Web / デスクトップ**に対応
-- 言語は **Dart**
-- 描画は Skia / Impeller で自前 (ネイティブ UI 部品は使わない)
-- 今日は **Web ターゲット**だけ使います！
-
-### Web 開発との対比
-
-すでに知っている概念と紐付けると速いです。
-
-| Web (HTML/CSS/JS) | Flutter |
-|-------------------|---------|
-| DOM ツリー | Widget ツリー |
-| `&lt;div&gt;` / `&lt;button&gt;` などの要素 | `Container` / `ElevatedButton` 等の Widget |
-| CSS のスタイル | Widget のプロパティ (色・余白・角丸など) |
-| useState などのフック | StatefulWidget / Riverpod |
-| Vite の HMR | ホットリロード |
-
-### すべては Widget
-
-Flutter では**画面のすべてが Widget** です。
-
-- ボタンも文字も余白も Widget
-- Widget が**入れ子になって 1 本のツリー**を作る
-- ツリーのルートが `MaterialApp`
-- 親 Widget が子 Widget を `child` / `children` で持つ
-
-### Stateless と Stateful
-
-**StatelessWidget**
-
-- 状態を持たない
-- 渡された値を表示するだけ
-- ボタンやラベルなど
-- React の純粋なコンポーネント相当
-
-**StatefulWidget**
-
-- 内部で状態を持つ
-- 値が変わると**再描画**する
-- カウンター / チェックボックスなど
-- 今回は **Riverpod に任せる**
-
-### main.dart の最小構造
-
-```dart
-import &#39;package:flutter/material.dart&#39;;
+      </google-codelab-step>
+    
+      <google-codelab-step label="Flutter 基礎" duration="20">
+        <h2 is-upgraded>Flutter とは</h2>
+<p>Google が作っている<strong>マルチプラットフォーム UI フレームワーク</strong>です。</p>
+<ul>
+<li>1 つのコードで <strong>iOS / Android / Web / デスクトップ</strong>に対応</li>
+<li>言語は <strong>Dart</strong></li>
+<li>描画は Skia / Impeller で自前 (ネイティブ UI 部品は使わない)</li>
+<li>今日は <strong>Web ターゲット</strong>だけ使います！</li>
+</ul>
+<h2 is-upgraded>Web 開発との対比</h2>
+<p>すでに知っている概念と紐付けると速いです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Web (HTML/CSS/JS)</p>
+</td><td colspan="1" rowspan="1"><p>Flutter</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>DOM ツリー</p>
+</td><td colspan="1" rowspan="1"><p>Widget ツリー</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>&lt;div&gt;</code> / <code>&lt;button&gt;</code> などの要素</p>
+</td><td colspan="1" rowspan="1"><p><code>Container</code> / <code>ElevatedButton</code> 等の Widget</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>CSS のスタイル</p>
+</td><td colspan="1" rowspan="1"><p>Widget のプロパティ (色・余白・角丸など)</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>useState などのフック</p>
+</td><td colspan="1" rowspan="1"><p>StatefulWidget / Riverpod</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Vite の HMR</p>
+</td><td colspan="1" rowspan="1"><p>ホットリロード</p>
+</td></tr>
+</table>
+<h2 is-upgraded>すべては Widget</h2>
+<p>Flutter では<strong>画面のすべてが Widget</strong> です。</p>
+<ul>
+<li>ボタンも文字も余白も Widget</li>
+<li>Widget が<strong>入れ子になって 1 本のツリー</strong>を作る</li>
+<li>ツリーのルートが <code>MaterialApp</code></li>
+<li>親 Widget が子 Widget を <code>child</code> / <code>children</code> で持つ</li>
+</ul>
+<h2 is-upgraded>Stateless と Stateful</h2>
+<p><strong>StatelessWidget</strong></p>
+<ul>
+<li>状態を持たない</li>
+<li>渡された値を表示するだけ</li>
+<li>ボタンやラベルなど</li>
+<li>React の純粋なコンポーネント相当</li>
+</ul>
+<p><strong>StatefulWidget</strong></p>
+<ul>
+<li>内部で状態を持つ</li>
+<li>値が変わると<strong>再描画</strong>する</li>
+<li>カウンター / チェックボックスなど</li>
+<li>今回は <strong>Riverpod に任せる</strong></li>
+</ul>
+<h2 is-upgraded>main.dart の最小構造</h2>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
 import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
 
 Future&lt;void&gt; main() async {
