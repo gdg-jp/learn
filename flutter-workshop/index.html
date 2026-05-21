@@ -933,30 +933,34 @@ return posts.when(
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
-Widget build(BuildContext context, WidgetRef ref) {
-  // TODO
--  ref.watch(postsProvider);
-+  final posts = ref.watch(postsProvider);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
 
--  return const Scaffold(
--    body: Center(
--      child: Text(&#39;TODO: 投稿一覧を表示する&#39;),
--    ),
--  );
-+  return Scaffold(
-+    body: posts.when(
-+      data: (items) {
-+        return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
-+      },
-+      error: (error, stackTrace) {
-+        return Center(child: Text(&#39;エラー: $error&#39;));
-+      },
-+      loading: () {
-+        return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
-+      },
-+    ),
-+  );
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // TODO
+-    ref.watch(postsProvider);
++    final posts = ref.watch(postsProvider);
+
+-    return const Scaffold(
+-      body: Center(
+-        child: Text(&#39;TODO: 投稿一覧を表示する&#39;),
+-      ),
+-    );
++    return Scaffold(
++      body: posts.when(
++        data: (items) {
++          return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
++        },
++        error: (error, stackTrace) {
++          return Center(child: Text(&#39;エラー: $error&#39;));
++        },
++        loading: () {
++          return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
++        },
++      ),
++    );
+  }
 }
 </code></pre>
 </div>
@@ -1073,7 +1077,11 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">final firestoreProvider = Provider&lt;FirebaseFirestore&gt;((ref) {
+  return FirebaseFirestore.instance;
+});
+
+final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
 -  // TODO
 -  return const Stream&lt;List&lt;Post&gt;&gt;.empty();
 +  final firestore = ref.watch(firestoreProvider);
@@ -1086,6 +1094,10 @@ return firestore
 +        return snapshot.docs.map(Post.fromDocument).toList();
 +      });
 });
+
+final likedPostIdsProvider = NotifierProvider&lt;LikedPostIds, Set&lt;String&gt;&gt;(
+  LikedPostIds.new,
+);
 </code></pre>
 </div>
 <p>この Provider は <code>List&lt;Post&gt;</code> の stream を返します。Firestore のデータが増えたり、いいね数が変わったりすると、<code>FeedPage</code> が再描画されます。</p>
@@ -1124,7 +1136,11 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;widgets/post_card.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;providers/post_providers.dart&#39;;
++import &#39;widgets/post_card.dart&#39;;
 </code></pre>
 </div>
 <p>この import により、<code>FeedPage</code> から <code>PostCard</code> と <code>currentPostProvider</code> を使えるようになります。</p>
@@ -1139,30 +1155,49 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> data: (items) {
--  return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
-+  if (items.isEmpty) {
-+    return const _EmptyFeed();
-+  }
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+
+    return Scaffold(
+      body: posts.when(
+        data: (items) {
+-          return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
++          if (items.isEmpty) {
++            return const _EmptyFeed();
++          }
 +
-+  return RefreshIndicator(
-+    onRefresh: () {
-+      return ref.refresh(postsProvider.future);
-+    },
-+    child: ListView.builder(
-+      padding: EdgeInsets.zero,
-+      itemCount: items.length,
-+      itemBuilder: (context, index) {
-+        return ProviderScope(
-+          overrides: [
-+            currentPostProvider.overrideWithValue(items[index]),
-+          ],
-+          child: const PostCard(),
-+        );
-+      },
-+    ),
-+  );
- },
++          return RefreshIndicator(
++            onRefresh: () {
++              return ref.refresh(postsProvider.future);
++            },
++            child: ListView.builder(
++              padding: EdgeInsets.zero,
++              itemCount: items.length,
++              itemBuilder: (context, index) {
++                return ProviderScope(
++                  overrides: [
++                    currentPostProvider.overrideWithValue(items[index]),
++                  ],
++                  child: const PostCard(),
++                );
++              },
++            ),
++          );
+        },
+        error: (error, stackTrace) {
+          return Center(child: Text(&#39;エラー: $error&#39;));
+        },
+        loading: () {
+          return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
+        },
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。Pull to Refresh では <code>postsProvider</code> を再作成し、Firestore の stream から次の投稿一覧が届くまで待ちます。</p>
@@ -1177,7 +1212,50 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+class _EmptyFeed extends StatelessWidget {
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+
+    return Scaffold(
+      body: posts.when(
+        data: (items) {
+          if (items.isEmpty) {
+            return const _EmptyFeed();
+          }
+
+          return RefreshIndicator(
+            onRefresh: () {
+              return ref.refresh(postsProvider.future);
+            },
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ProviderScope(
+                  overrides: [
+                    currentPostProvider.overrideWithValue(items[index]),
+                  ],
+                  child: const PostCard(),
+                );
+              },
+            ),
+          );
+        },
+        error: (error, stackTrace) {
+          return Center(child: Text(&#39;エラー: $error&#39;));
+        },
+        loading: () {
+          return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
+        },
+      ),
+    );
+  }
+}
+
++class _EmptyFeed extends StatelessWidget {
 +  const _EmptyFeed();
 +
 +  @override
@@ -1209,10 +1287,49 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> error: (error, stackTrace) {
--  return Center(child: Text(&#39;エラー: $error&#39;));
-+  return _ErrorView(message: error.toString());
- },
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+
+    return Scaffold(
+      body: posts.when(
+        data: (items) {
+          if (items.isEmpty) {
+            return const _EmptyFeed();
+          }
+
+          return RefreshIndicator(
+            onRefresh: () {
+              return ref.refresh(postsProvider.future);
+            },
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ProviderScope(
+                  overrides: [
+                    currentPostProvider.overrideWithValue(items[index]),
+                  ],
+                  child: const PostCard(),
+                );
+              },
+            ),
+          );
+        },
+        error: (error, stackTrace) {
+-          return Center(child: Text(&#39;エラー: $error&#39;));
++          return _ErrorView(message: error.toString());
+        },
+        loading: () {
+          return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
+        },
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <aside class="special"><p><strong>Tip:</strong> ここでの <code>error</code> は発生した例外オブジェクト、<code>stackTrace</code> はその例外がどこから発生したかを示す呼び出し経路です。画面には <code>error.toString()</code> のような短い情報を表示し、<code>stackTrace</code> はログや Crashlytics などの調査用に使います。</p></aside>
@@ -1226,7 +1343,24 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+class _ErrorView extends StatelessWidget {
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class _EmptyFeed extends StatelessWidget {
+  const _EmptyFeed();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          &#39;投稿がまだありません。Firestore に posts データを追加してください。&#39;,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
++class _ErrorView extends StatelessWidget {
 +  const _ErrorView({required this.message});
 +
 +  final String message;
@@ -1277,10 +1411,49 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> loading: () {
--  return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
-+  return const Center(child: CircularProgressIndicator());
- },
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+
+    return Scaffold(
+      body: posts.when(
+        data: (items) {
+          if (items.isEmpty) {
+            return const _EmptyFeed();
+          }
+
+          return RefreshIndicator(
+            onRefresh: () {
+              return ref.refresh(postsProvider.future);
+            },
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ProviderScope(
+                  overrides: [
+                    currentPostProvider.overrideWithValue(items[index]),
+                  ],
+                  child: const PostCard(),
+                );
+              },
+            ),
+          );
+        },
+        error: (error, stackTrace) {
+          return _ErrorView(message: error.toString());
+        },
+        loading: () {
+-          return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
++          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <p>読み込み中はテキストではなく、Flutter 標準のインジケータを表示します。</p>
@@ -1342,41 +1515,45 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
-Widget build(BuildContext context, WidgetRef ref) {
--  // TODO
--  ref.watch(currentPostProvider);
-+  final post = ref.watch(currentPostProvider);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
 
--  return const AspectRatio(
-+  return AspectRatio(
-    aspectRatio: 9 / 16,
--    child: ColoredBox(
--      color: Color(0xFF1D1D21),
--      child: Center(
--        child: Text(&#39;TODO: 投稿カードを作る&#39;),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+-    // TODO
+-    ref.watch(currentPostProvider);
++    final post = ref.watch(currentPostProvider);
+
+-    return const AspectRatio(
++    return AspectRatio(
+      aspectRatio: 9 / 16,
+-      child: ColoredBox(
+-        color: Color(0xFF1D1D21),
+-        child: Center(
+-          child: Text(&#39;TODO: 投稿カードを作る&#39;),
+-        ),
 -      ),
--    ),
-+    child: Image.network(
-+      post.imageUrl,
-+      fit: BoxFit.cover,
-+      loadingBuilder: (context, child, loadingProgress) {
-+        if (loadingProgress == null) {
-+          return child;
-+        }
++      child: Image.network(
++        post.imageUrl,
++        fit: BoxFit.cover,
++        loadingBuilder: (context, child, loadingProgress) {
++          if (loadingProgress == null) {
++            return child;
++          }
 +
-+        return const Center(child: CircularProgressIndicator());
-+      },
-+      errorBuilder: (context, error, stackTrace) {
-+        return const ColoredBox(
-+          color: Color(0xFF1D1D21),
-+          child: Center(
-+            child: Icon(Icons.broken_image_outlined, size: 48),
-+          ),
-+        );
-+      },
-+    ),
-  );
++          return const Center(child: CircularProgressIndicator());
++        },
++        errorBuilder: (context, error, stackTrace) {
++          return const ColoredBox(
++            color: Color(0xFF1D1D21),
++            child: Center(
++              child: Icon(Icons.broken_image_outlined, size: 48),
++            ),
++          );
++        },
++      ),
+    );
+  }
 }
 </code></pre>
 </div>
@@ -1411,84 +1588,88 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
-Widget build(BuildContext context, WidgetRef ref) {
-  final post = ref.watch(currentPostProvider);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
 
-  return AspectRatio(
-    aspectRatio: 9 / 16,
--    child: Image.network(
--      post.imageUrl,
--      fit: BoxFit.cover,
--      loadingBuilder: (context, child, loadingProgress) {
--        if (loadingProgress == null) {
--          return child;
--        }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(currentPostProvider);
+
+    return AspectRatio(
+      aspectRatio: 9 / 16,
+-      child: Image.network(
+-        post.imageUrl,
+-        fit: BoxFit.cover,
+-        loadingBuilder: (context, child, loadingProgress) {
+-          if (loadingProgress == null) {
+-            return child;
+-          }
 -
--        return const Center(child: CircularProgressIndicator());
--      },
--      errorBuilder: (context, error, stackTrace) {
--        return const ColoredBox(
--          color: Color(0xFF1D1D21),
--          child: Center(
--            child: Icon(Icons.broken_image_outlined, size: 48),
--          ),
--        );
--      },
--    ),
-+    child: Stack(
-+      fit: StackFit.expand,
-+      children: [
-+        Image.network(
-+          post.imageUrl,
-+          fit: BoxFit.cover,
-+          loadingBuilder: (context, child, loadingProgress) {
-+            if (loadingProgress == null) {
-+              return child;
-+            }
+-          return const Center(child: CircularProgressIndicator());
+-        },
+-        errorBuilder: (context, error, stackTrace) {
+-          return const ColoredBox(
+-            color: Color(0xFF1D1D21),
+-            child: Center(
+-              child: Icon(Icons.broken_image_outlined, size: 48),
+-            ),
+-          );
+-        },
+-      ),
++      child: Stack(
++        fit: StackFit.expand,
++        children: [
++          Image.network(
++            post.imageUrl,
++            fit: BoxFit.cover,
++            loadingBuilder: (context, child, loadingProgress) {
++              if (loadingProgress == null) {
++                return child;
++              }
 +
-+            return const Center(child: CircularProgressIndicator());
-+          },
-+          errorBuilder: (context, error, stackTrace) {
-+            return const ColoredBox(
-+              color: Color(0xFF1D1D21),
-+              child: Center(
-+                child: Icon(Icons.broken_image_outlined, size: 48),
++              return const Center(child: CircularProgressIndicator());
++            },
++            errorBuilder: (context, error, stackTrace) {
++              return const ColoredBox(
++                color: Color(0xFF1D1D21),
++                child: Center(
++                  child: Icon(Icons.broken_image_outlined, size: 48),
++                ),
++              );
++            },
++          ),
++          const DecoratedBox(
++            decoration: BoxDecoration(
++              gradient: LinearGradient(
++                begin: Alignment.topCenter,
++                end: Alignment.bottomCenter,
++                colors: [
++                  Colors.transparent,
++                  Colors.transparent,
++                  Color(0xB0000000),
++                ],
 +              ),
-+            );
-+          },
-+        ),
-+        const DecoratedBox(
-+          decoration: BoxDecoration(
-+            gradient: LinearGradient(
-+              begin: Alignment.topCenter,
-+              end: Alignment.bottomCenter,
-+              colors: [
-+                Colors.transparent,
-+                Colors.transparent,
-+                Color(0xB0000000),
-+              ],
 +            ),
 +          ),
-+        ),
-+        Positioned(
-+          left: 16,
-+          right: 80,
-+          bottom: 28,
-+          child: Text(
-+            post.text,
-+            maxLines: 3,
-+            overflow: TextOverflow.ellipsis,
-+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-+              color: Colors.white,
-+              fontWeight: FontWeight.w600,
-+              shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
++          Positioned(
++            left: 16,
++            right: 80,
++            bottom: 28,
++            child: Text(
++              post.text,
++              maxLines: 3,
++              overflow: TextOverflow.ellipsis,
++              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
++                color: Colors.white,
++                fontWeight: FontWeight.w600,
++                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
++              ),
 +            ),
 +          ),
-+        ),
-+      ],
-    ),
-  );
++        ],
+      ),
+    );
+  }
 }
 </code></pre>
 </div>
@@ -1519,7 +1700,11 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;../providers/post_providers.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;../models/post.dart&#39;;
++import &#39;../providers/post_providers.dart&#39;;
 </code></pre>
 </div>
 <p><code>likedPostIdsProvider</code> と <code>postActionsProvider</code> を使うための import です。</p>
@@ -1534,9 +1719,72 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> final post = ref.watch(currentPostProvider);
-+final likedPostIds = ref.watch(likedPostIdsProvider);
-+final isLiked = likedPostIds.contains(post.id);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(currentPostProvider);
++    final likedPostIds = ref.watch(likedPostIdsProvider);
++    final isLiked = likedPostIds.contains(post.id);
+
+    return AspectRatio(
+      aspectRatio: 9 / 16,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            post.imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const ColoredBox(
+                color: Color(0xFF1D1D21),
+                child: Center(
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
+              );
+            },
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Color(0xB0000000),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 80,
+            bottom: 28,
+            child: Text(
+              post.text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <p>いいね済みかどうかは、いいね済み投稿 ID の集合に <code>post.id</code> が含まれているかで判断します。</p>
@@ -1551,35 +1799,101 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+Positioned(
-+  right: 8,
-+  bottom: 20,
-+  child: Column(
-+    mainAxisSize: MainAxisSize.min,
-+    children: [
-+      IconButton.filledTonal(
-+        tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
-+        onPressed: () async {
-+          await ref
-+              .read(postActionsProvider)
-+              .toggleLike(post, isLiked: isLiked);
-+        },
-+        icon: Icon(
-+          isLiked ? Icons.favorite : Icons.favorite_border,
-+          color: isLiked ? Colors.pinkAccent : Colors.white,
-+        ),
-+      ),
-+      Text(
-+        &#39;${post.likes}&#39;,
-+        style: const TextStyle(
-+          color: Colors.white,
-+          fontWeight: FontWeight.w700,
-+          shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-+        ),
-+      ),
-+    ],
-+  ),
-+),
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(currentPostProvider);
+    final likedPostIds = ref.watch(likedPostIdsProvider);
+    final isLiked = likedPostIds.contains(post.id);
+
+    return AspectRatio(
+      aspectRatio: 9 / 16,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            post.imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const ColoredBox(
+                color: Color(0xFF1D1D21),
+                child: Center(
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
+              );
+            },
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Color(0xB0000000),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 80,
+            bottom: 28,
+            child: Text(
+              post.text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+              ),
+            ),
+          ),
++          Positioned(
++            right: 8,
++            bottom: 20,
++            child: Column(
++              mainAxisSize: MainAxisSize.min,
++              children: [
++                IconButton.filledTonal(
++                  tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
++                  onPressed: () async {
++                    await ref
++                        .read(postActionsProvider)
++                        .toggleLike(post, isLiked: isLiked);
++                  },
++                  icon: Icon(
++                    isLiked ? Icons.favorite : Icons.favorite_border,
++                    color: isLiked ? Colors.pinkAccent : Colors.white,
++                  ),
++                ),
++                Text(
++                  &#39;${post.likes}&#39;,
++                  style: const TextStyle(
++                    color: Colors.white,
++                    fontWeight: FontWeight.w700,
++                    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
++                  ),
++                ),
++              ],
++            ),
++          ),
+        ],
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。表示に使う値は <code>watch</code>、操作を呼び出す Provider は <code>read</code> と使い分けます。</p>
@@ -1595,47 +1909,142 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+Positioned(
-+  top: 12,
-+  left: 12,
-+  right: 12,
-+  child: SafeArea(
-+    bottom: false,
-+    child: Row(
-+      children: [
-+        CircleAvatar(
-+          radius: 17,
-+          backgroundColor: Colors.white,
-+          child: CircleAvatar(
-+            radius: 15,
-+            backgroundColor: const Color(0xFF2A2A2E),
-+            backgroundImage: post.authorUrl.isEmpty
-+                ? null
-+                : NetworkImage(post.authorUrl),
-+            child: post.authorUrl.isEmpty
-+                ? const Icon(
-+                    Icons.person,
-+                    color: Colors.white,
-+                    size: 18,
-+                  )
-+                : null,
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(currentPostProvider);
+    final likedPostIds = ref.watch(likedPostIdsProvider);
+    final isLiked = likedPostIds.contains(post.id);
+
+    return AspectRatio(
+      aspectRatio: 9 / 16,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            post.imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const ColoredBox(
+                color: Color(0xFF1D1D21),
+                child: Center(
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
+              );
+            },
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Color(0xB0000000),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 80,
+            bottom: 28,
+            child: Text(
+              post.text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+              ),
+            ),
+          ),
+          Positioned(
+            right: 8,
+            bottom: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton.filledTonal(
+                  tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
+                  onPressed: () async {
+                    await ref
+                        .read(postActionsProvider)
+                        .toggleLike(post, isLiked: isLiked);
+                  },
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.pinkAccent : Colors.white,
+                  ),
+                ),
+                Text(
+                  &#39;${post.likes}&#39;,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+                  ),
+                ),
+              ],
+            ),
+          ),
++          Positioned(
++            top: 12,
++            left: 12,
++            right: 12,
++            child: SafeArea(
++              bottom: false,
++              child: Row(
++                children: [
++                  CircleAvatar(
++                    radius: 17,
++                    backgroundColor: Colors.white,
++                    child: CircleAvatar(
++                      radius: 15,
++                      backgroundColor: const Color(0xFF2A2A2E),
++                      backgroundImage: post.authorUrl.isEmpty
++                          ? null
++                          : NetworkImage(post.authorUrl),
++                      child: post.authorUrl.isEmpty
++                          ? const Icon(
++                              Icons.person,
++                              color: Colors.white,
++                              size: 18,
++                            )
++                          : null,
++                    ),
++                  ),
++                  const SizedBox(width: 10),
++                  Text(
++                    post.authorId,
++                    maxLines: 1,
++                    overflow: TextOverflow.ellipsis,
++                    style: const TextStyle(
++                      color: Colors.white,
++                      fontWeight: FontWeight.w700,
++                      shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
++                    ),
++                  ),
++                ],
++              ),
++            ),
 +          ),
-+        ),
-+        const SizedBox(width: 10),
-+        Text(
-+          post.authorId,
-+          maxLines: 1,
-+          overflow: TextOverflow.ellipsis,
-+          style: const TextStyle(
-+            color: Colors.white,
-+            fontWeight: FontWeight.w700,
-+            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-+          ),
-+        ),
-+      ],
-+    ),
-+  ),
-+),
+        ],
+      ),
+    );
+  }
+}
 </code></pre>
 </div>
 <p><code>SafeArea</code> を使うと、スマートフォンのノッチやステータスバーに近い位置でも UI が隠れにくくなります。</p>
@@ -1769,34 +2178,34 @@ Flutter run key commands
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;package:firebase_auth/firebase_auth.dart&#39;;
-import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
-
-final firebaseAuthProvider = Provider&lt;FirebaseAuth&gt;((ref) {
-  return FirebaseAuth.instance;
-});
-
-final authStateProvider = StreamProvider&lt;User?&gt;((ref) {
-  return ref.watch(firebaseAuthProvider).authStateChanges();
-});
-
-final authActionsProvider = Provider&lt;AuthActions&gt;((ref) {
-  return AuthActions(ref.watch(firebaseAuthProvider));
-});
-
-class AuthActions {
-  const AuthActions(this._auth);
-
-  final FirebaseAuth _auth;
-
-  Future&lt;void&gt; signInAnonymously() async {
-    await _auth.signInAnonymously();
-  }
-
-  Future&lt;void&gt; signOut() async {
-    await _auth.signOut();
-  }
-}
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;package:firebase_auth/firebase_auth.dart&#39;;
++import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
++
++final firebaseAuthProvider = Provider&lt;FirebaseAuth&gt;((ref) {
++  return FirebaseAuth.instance;
++});
++
++final authStateProvider = StreamProvider&lt;User?&gt;((ref) {
++  return ref.watch(firebaseAuthProvider).authStateChanges();
++});
++
++final authActionsProvider = Provider&lt;AuthActions&gt;((ref) {
++  return AuthActions(ref.watch(firebaseAuthProvider));
++});
++
++class AuthActions {
++  const AuthActions(this._auth);
++
++  final FirebaseAuth _auth;
++
++  Future&lt;void&gt; signInAnonymously() async {
++    await _auth.signInAnonymously();
++  }
++
++  Future&lt;void&gt; signOut() async {
++    await _auth.signOut();
++  }
++}
 </code></pre>
 </div>
 <p><code>authStateProvider</code> はログイン状態の stream を返します。ログインすると <code>User</code> が届き、ログアウトすると <code>null</code> が届きます。</p>
@@ -1811,61 +2220,61 @@ class AuthActions {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
-import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
-
-import &#39;feed_page.dart&#39;;
-import &#39;providers/auth_providers.dart&#39;;
-
-class AuthGate extends ConsumerWidget {
-  const AuthGate({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-
-    return authState.when(
-      data: (user) {
-        if (user == null) {
-          return const _SignInView();
-        }
-
-        return const FeedPage();
-      },
-      error: (error, stackTrace) {
-        return Scaffold(
-          body: Center(
-            child: Text(&#39;ログイン状態を確認できませんでした: $error&#39;),
-          ),
-        );
-      },
-      loading: () {
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
-      },
-    );
-  }
-}
-
-class _SignInView extends ConsumerWidget {
-  const _SignInView();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Center(
-        child: FilledButton.icon(
-          onPressed: () async {
-            await ref.read(authActionsProvider).signInAnonymously();
-          },
-          icon: const Icon(Icons.login),
-          label: const Text(&#39;匿名でログイン&#39;),
-        ),
-      ),
-    );
-  }
-}
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;package:flutter/material.dart&#39;;
++import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
++
++import &#39;feed_page.dart&#39;;
++import &#39;providers/auth_providers.dart&#39;;
++
++class AuthGate extends ConsumerWidget {
++  const AuthGate({super.key});
++
++  @override
++  Widget build(BuildContext context, WidgetRef ref) {
++    final authState = ref.watch(authStateProvider);
++
++    return authState.when(
++      data: (user) {
++        if (user == null) {
++          return const _SignInView();
++        }
++
++        return const FeedPage();
++      },
++      error: (error, stackTrace) {
++        return Scaffold(
++          body: Center(
++            child: Text(&#39;ログイン状態を確認できませんでした: $error&#39;),
++          ),
++        );
++      },
++      loading: () {
++        return const Scaffold(
++          body: Center(child: CircularProgressIndicator()),
++        );
++      },
++    );
++  }
++}
++
++class _SignInView extends ConsumerWidget {
++  const _SignInView();
++
++  @override
++  Widget build(BuildContext context, WidgetRef ref) {
++    return Scaffold(
++      body: Center(
++        child: FilledButton.icon(
++          onPressed: () async {
++            await ref.read(authActionsProvider).signInAnonymously();
++          },
++          icon: const Icon(Icons.login),
++          label: const Text(&#39;匿名でログイン&#39;),
++        ),
++      ),
++    );
++  }
++}
 </code></pre>
 </div>
 <p><code>AuthGate</code> はログイン状態に応じて、ログイン画面か <code>FeedPage</code> を出し分けます。</p>
@@ -1880,7 +2289,10 @@ class _SignInView extends ConsumerWidget {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;auth_gate.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">import &#39;package:flutter/material.dart&#39;;
+
++import &#39;auth_gate.dart&#39;;
+-import &#39;feed_page.dart&#39;;
 </code></pre>
 </div>
 <p><code>MaterialApp</code> の <code>home</code> を次のように変更します。</p>
@@ -1893,7 +2305,38 @@ class _SignInView extends ConsumerWidget {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">home: const AuthGate(),
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class MiniInstagramApp extends StatelessWidget {
+  const MiniInstagramApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: &#39;Flutter Feed&#39;,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.pinkAccent,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.pinkAccent,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.dark,
+-      home: const FeedPage(),
++      home: const AuthGate(),
+    );
+  }
+}
 </code></pre>
 </div>
 <p>これでアプリ起動時に、ログイン状態を見てから画面を選ぶようになります。</p>
@@ -1931,11 +2374,15 @@ class _SignInView extends ConsumerWidget {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">Future&lt;void&gt; createPost({
-  required String authorId,
-  required String imageUrl,
-  required String text,
-});
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">abstract class PostActions {
+  Future&lt;void&gt; toggleLike(Post post, {required bool isLiked});
++
++  Future&lt;void&gt; createPost({
++    required String authorId,
++    required String imageUrl,
++    required String text,
++  });
+}
 </code></pre>
 </div>
 <p>次に、<code>FirestorePostActions</code> に実装を追加します。</p>
@@ -1948,20 +2395,48 @@ class _SignInView extends ConsumerWidget {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">@override
-Future&lt;void&gt; createPost({
-  required String authorId,
-  required String imageUrl,
-  required String text,
-}) async {
-  await _firestore.collection(&#39;posts&#39;).add({
-    &#39;authorId&#39;: authorId,
-    &#39;authorUrl&#39;: &#39;&#39;,
-    &#39;imageUrl&#39;: imageUrl,
-    &#39;text&#39;: text,
-    &#39;likes&#39;: 0,
-    &#39;createdAt&#39;: FieldValue.serverTimestamp(),
-  });
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FirestorePostActions implements PostActions {
+  const FirestorePostActions({
+    required FirebaseFirestore firestore,
+    required LikedPostIds likedPostIds,
+  }) : _firestore = firestore,
+       _likedPostIds = likedPostIds;
+
+  final FirebaseFirestore _firestore;
+  final LikedPostIds _likedPostIds;
+
+  @override
+  Future&lt;void&gt; toggleLike(Post post, {required bool isLiked}) async {
+    final nextLiked = !isLiked;
+    final likeDelta = nextLiked ? 1 : -1;
+
+    _likedPostIds.setLiked(post.id, liked: nextLiked);
+
+    try {
+      await _firestore.collection(&#39;posts&#39;).doc(post.id).update({
+        &#39;likes&#39;: FieldValue.increment(likeDelta),
+      });
+    } catch (_) {
+      _likedPostIds.setLiked(post.id, liked: isLiked);
+      rethrow;
+    }
+  }
++
++  @override
++  Future&lt;void&gt; createPost({
++    required String authorId,
++    required String imageUrl,
++    required String text,
++  }) async {
++    await _firestore.collection(&#39;posts&#39;).add({
++      &#39;authorId&#39;: authorId,
++      &#39;authorUrl&#39;: &#39;&#39;,
++      &#39;imageUrl&#39;: imageUrl,
++      &#39;text&#39;: text,
++      &#39;likes&#39;: 0,
++      &#39;createdAt&#39;: FieldValue.serverTimestamp(),
++    });
++  }
 }
 </code></pre>
 </div>
@@ -1977,112 +2452,112 @@ Future&lt;void&gt; createPost({
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
-import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
-
-import &#39;providers/auth_providers.dart&#39;;
-import &#39;providers/post_providers.dart&#39;;
-
-class CreatePostPage extends ConsumerStatefulWidget {
-  const CreatePostPage({super.key});
-
-  @override
-  ConsumerState&lt;CreatePostPage&gt; createState() =&gt; _CreatePostPageState();
-}
-
-class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
-  final _imageUrlController = TextEditingController();
-  final _textController = TextEditingController();
-  bool _isSaving = false;
-
-  @override
-  void dispose() {
-    _imageUrlController.dispose();
-    _textController.dispose();
-    super.dispose();
-  }
-
-  Future&lt;void&gt; _submit() async {
-    final imageUrl = _imageUrlController.text.trim();
-    final text = _textController.text.trim();
-
-    if (imageUrl.isEmpty || text.isEmpty) {
-      return;
-    }
-
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      final user = ref.read(authStateProvider).value;
-      await ref.read(postActionsProvider).createPost(
-            authorId: user?.uid ?? &#39;anonymous_user&#39;,
-            imageUrl: imageUrl,
-            text: text,
-          );
-
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.of(context).pop();
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(&#39;投稿に失敗しました: $error&#39;)),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text(&#39;投稿を作成&#39;)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _imageUrlController,
-            decoration: const InputDecoration(
-              labelText: &#39;画像 URL&#39;,
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _textController,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: &#39;本文&#39;,
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _isSaving ? null : _submit,
-            icon: _isSaving
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send),
-            label: const Text(&#39;投稿する&#39;),
-          ),
-        ],
-      ),
-    );
-  }
-}
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;package:flutter/material.dart&#39;;
++import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
++
++import &#39;providers/auth_providers.dart&#39;;
++import &#39;providers/post_providers.dart&#39;;
++
++class CreatePostPage extends ConsumerStatefulWidget {
++  const CreatePostPage({super.key});
++
++  @override
++  ConsumerState&lt;CreatePostPage&gt; createState() =&gt; _CreatePostPageState();
++}
++
++class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
++  final _imageUrlController = TextEditingController();
++  final _textController = TextEditingController();
++  bool _isSaving = false;
++
++  @override
++  void dispose() {
++    _imageUrlController.dispose();
++    _textController.dispose();
++    super.dispose();
++  }
++
++  Future&lt;void&gt; _submit() async {
++    final imageUrl = _imageUrlController.text.trim();
++    final text = _textController.text.trim();
++
++    if (imageUrl.isEmpty || text.isEmpty) {
++      return;
++    }
++
++    setState(() {
++      _isSaving = true;
++    });
++
++    try {
++      final user = ref.read(authStateProvider).value;
++      await ref.read(postActionsProvider).createPost(
++            authorId: user?.uid ?? &#39;anonymous_user&#39;,
++            imageUrl: imageUrl,
++            text: text,
++          );
++
++      if (!mounted) {
++        return;
++      }
++
++      Navigator.of(context).pop();
++    } catch (error) {
++      if (!mounted) {
++        return;
++      }
++
++      ScaffoldMessenger.of(context).showSnackBar(
++        SnackBar(content: Text(&#39;投稿に失敗しました: $error&#39;)),
++      );
++    } finally {
++      if (mounted) {
++        setState(() {
++          _isSaving = false;
++        });
++      }
++    }
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    return Scaffold(
++      appBar: AppBar(title: const Text(&#39;投稿を作成&#39;)),
++      body: ListView(
++        padding: const EdgeInsets.all(16),
++        children: [
++          TextField(
++            controller: _imageUrlController,
++            decoration: const InputDecoration(
++              labelText: &#39;画像 URL&#39;,
++              border: OutlineInputBorder(),
++            ),
++          ),
++          const SizedBox(height: 12),
++          TextField(
++            controller: _textController,
++            maxLines: 4,
++            decoration: const InputDecoration(
++              labelText: &#39;本文&#39;,
++              border: OutlineInputBorder(),
++            ),
++          ),
++          const SizedBox(height: 16),
++          FilledButton.icon(
++            onPressed: _isSaving ? null : _submit,
++            icon: _isSaving
++                ? const SizedBox.square(
++                    dimension: 18,
++                    child: CircularProgressIndicator(strokeWidth: 2),
++                  )
++                : const Icon(Icons.send),
++            label: const Text(&#39;投稿する&#39;),
++          ),
++        ],
++      ),
++    );
++  }
++}
 </code></pre>
 </div>
 <p>この画面では、入力された画像 URL と本文を <code>postActionsProvider</code> 経由で Firestore に保存します。</p>
@@ -2097,7 +2572,12 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;create_post_page.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
++import &#39;create_post_page.dart&#39;;
+import &#39;providers/post_providers.dart&#39;;
+import &#39;widgets/post_card.dart&#39;;
 </code></pre>
 </div>
 <p><code>Scaffold</code> に <code>floatingActionButton</code> を追加します。</p>
@@ -2110,16 +2590,58 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    Navigator.of(context).push(
-      MaterialPageRoute&lt;void&gt;(
-        builder: (context) =&gt; const CreatePostPage(),
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final posts = ref.watch(postsProvider);
+
+    return Scaffold(
+      body: posts.when(
+        data: (items) {
+          if (items.isEmpty) {
+            return const _EmptyFeed();
+          }
+
+          return RefreshIndicator(
+            onRefresh: () {
+              return ref.refresh(postsProvider.future);
+            },
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ProviderScope(
+                  overrides: [
+                    currentPostProvider.overrideWithValue(items[index]),
+                  ],
+                  child: const PostCard(),
+                );
+              },
+            ),
+          );
+        },
+        error: (error, stackTrace) {
+          return _ErrorView(message: error.toString());
+        },
+        loading: () {
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
++      floatingActionButton: FloatingActionButton(
++        onPressed: () {
++          Navigator.of(context).push(
++            MaterialPageRoute&lt;void&gt;(
++              builder: (context) =&gt; const CreatePostPage(),
++            ),
++          );
++        },
++        child: const Icon(Icons.add),
++      ),
     );
-  },
-  child: const Icon(Icons.add),
-),
+  }
+}
 </code></pre>
 </div>
 <p><code>Scaffold</code> には <code>body</code> と同じ階層で <code>floatingActionButton</code> を渡します。</p>
@@ -2149,24 +2671,161 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">String formatCreatedAt(DateTime value) {
-  final now = DateTime.now();
-  final difference = now.difference(value);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">class PostCard extends ConsumerWidget {
+  const PostCard({super.key});
 
-  if (difference.inMinutes &lt; 1) {
-    return &#39;たった今&#39;;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final post = ref.watch(currentPostProvider);
+    final likedPostIds = ref.watch(likedPostIdsProvider);
+    final isLiked = likedPostIds.contains(post.id);
+
+    return AspectRatio(
+      aspectRatio: 9 / 16,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            post.imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const ColoredBox(
+                color: Color(0xFF1D1D21),
+                child: Center(
+                  child: Icon(Icons.broken_image_outlined, size: 48),
+                ),
+              );
+            },
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Color(0xB0000000),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 80,
+            bottom: 28,
+            child: Text(
+              post.text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+              ),
+            ),
+          ),
+          Positioned(
+            right: 8,
+            bottom: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton.filledTonal(
+                  tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
+                  onPressed: () async {
+                    await ref
+                        .read(postActionsProvider)
+                        .toggleLike(post, isLiked: isLiked);
+                  },
+                  icon: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.pinkAccent : Colors.white,
+                  ),
+                ),
+                Text(
+                  &#39;${post.likes}&#39;,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: SafeArea(
+              bottom: false,
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 17,
+                    backgroundColor: Colors.white,
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: const Color(0xFF2A2A2E),
+                      backgroundImage: post.authorUrl.isEmpty
+                          ? null
+                          : NetworkImage(post.authorUrl),
+                      child: post.authorUrl.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 18,
+                            )
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    post.authorId,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  if (difference.inHours &lt; 1) {
-    return &#39;${difference.inMinutes}分前&#39;;
-  }
-
-  if (difference.inDays &lt; 1) {
-    return &#39;${difference.inHours}時間前&#39;;
-  }
-
-  return &#39;${difference.inDays}日前&#39;;
 }
+
++String formatCreatedAt(DateTime value) {
++  final now = DateTime.now();
++  final difference = now.difference(value);
++
++  if (difference.inMinutes &lt; 1) {
++    return &#39;たった今&#39;;
++  }
++
++  if (difference.inHours &lt; 1) {
++    return &#39;${difference.inMinutes}分前&#39;;
++  }
++
++  if (difference.inDays &lt; 1) {
++    return &#39;${difference.inHours}時間前&#39;;
++  }
++
++  return &#39;${difference.inDays}日前&#39;;
++}
 </code></pre>
 </div>
 <p><code>intl</code> などの追加パッケージを使わず、相対時間を簡単に表示する関数です。</p>
@@ -2181,14 +2840,56 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">Text(
-  formatCreatedAt(post.createdAt),
-  maxLines: 1,
-  overflow: TextOverflow.ellipsis,
-  style: const TextStyle(
-    color: Colors.white70,
-    fontWeight: FontWeight.w500,
-    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">Positioned(
+  top: 12,
+  left: 12,
+  right: 12,
+  child: SafeArea(
+    bottom: false,
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 17,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 15,
+            backgroundColor: const Color(0xFF2A2A2E),
+            backgroundImage: post.authorUrl.isEmpty
+                ? null
+                : NetworkImage(post.authorUrl),
+            child: post.authorUrl.isEmpty
+                ? const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 18,
+                  )
+                : null,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          post.authorId,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+          ),
+        ),
++        const SizedBox(width: 8),
++        Text(
++          formatCreatedAt(post.createdAt),
++          maxLines: 1,
++          overflow: TextOverflow.ellipsis,
++          style: const TextStyle(
++            color: Colors.white70,
++            fontWeight: FontWeight.w500,
++            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
++          ),
++        ),
+      ],
+    ),
   ),
 ),
 </code></pre>
@@ -2290,14 +2991,11 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {
       if (code.dataset.claatDiffEnhanced === 'true') return;
       var language = code.dataset.claatDiffLanguage || '';
-      var source = code.textContent.replace(/
-$/, '');
+      var source = code.textContent.replace(/\n$/, '');
       code.classList.add('claat-diff-code');
-      code.innerHTML = source.split('
-').map(function (line) {
+      code.innerHTML = source.split('\n').map(function (line) {
         return diffLineHtml(line, language);
-      }).join('
-');
+      }).join('');
       code.dataset.claatDiffEnhanced = 'true';
     });
   }
