@@ -321,6 +321,30 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     return Promise.resolve();
   }}
 
+  function diffCopyText(source) {{
+    return source.replace(/\\n$/, '').split('\\n').reduce(function (lines, line) {{
+      if (/^@@/.test(line) || /^(\\+\\+\\+|---)/.test(line)) return lines;
+      var marker = line.charAt(0);
+      if (marker === '-') return lines;
+      if (marker === '+' || marker === ' ') {{
+        var body = line.slice(1);
+        if (marker === '+' && /^ [^\\s]/.test(body)) body = body.slice(1);
+        lines.push(body);
+        return lines;
+      }}
+      lines.push(line);
+      return lines;
+    }}, []).join('\\n');
+  }}
+
+  function codeTextForCopy(code) {{
+    if (!code) return '';
+    if (code.dataset && (code.dataset.claatDiff === 'true' || code.classList.contains('language-diff'))) {{
+      return diffCopyText(code.dataset.claatDiffSource || code.textContent);
+    }}
+    return code.innerText;
+  }}
+
   function escapeHtml(value) {{
     return value
       .replace(/&/g, '&amp;')
@@ -368,9 +392,10 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {{
       if (code.dataset.claatDiffEnhanced === 'true') return;
       var language = code.dataset.claatDiffLanguage || '';
-      var source = code.textContent.replace(/\\\\n$/, '');
+      var source = code.textContent.replace(/\\n$/, '');
+      code.dataset.claatDiffSource = source;
       code.classList.add('claat-diff-code');
-      code.innerHTML = source.split('\\\\n').map(function (line) {{
+      code.innerHTML = source.split('\\n').map(function (line) {{
         return diffLineHtml(line, language);
       }}).join('');
       code.dataset.claatDiffEnhanced = 'true';
@@ -386,9 +411,9 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     if (!block) return;
 
     if (copyButton) {{
-      var code = block.querySelector('pre');
+      var code = block.querySelector('pre > code') || block.querySelector('pre');
       if (!code) return;
-      copyText(code.innerText).then(function () {{
+      copyText(codeTextForCopy(code)).then(function () {{
         var icon = copyButton.querySelector('.material-icons');
         if (!icon) return;
         icon.textContent = 'done';
@@ -908,7 +933,7 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
             n_style = 1
 
     if f'id="{SCRIPT_ID}"' not in html:
-        html, n_script = re.subn(r"</body>", LOCAL_SCRIPT + "\n</body>", html, count=1)
+        html, n_script = re.subn(r"</body>", lambda m: LOCAL_SCRIPT + "\n" + m.group(0), html, count=1)
         if n_script == 0:
             html = html + "\n" + LOCAL_SCRIPT + "\n"
             n_script = 1
