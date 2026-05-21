@@ -224,6 +224,7 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
     display: inline-block;
     width: 1ch;
     font-weight: 600;
+    user-select: none;
   }}
 
   google-codelab-step .instructions .claat-code-block .claat-diff-line-add {{
