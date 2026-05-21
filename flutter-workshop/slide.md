@@ -118,7 +118,7 @@ GDG on Campus University of Osaka
 
 ## 今日作るもの
 
-![bg right:60% fit](../img/final-app-screenshot.png)
+![bg right:70% fit](../img/final-app-screenshot.png)
 
 縦スクロールで投稿を眺めるミニ SNS フィードです
 
@@ -176,7 +176,7 @@ GDG on Campus University of Osaka
 
 ## 触るファイルは 3 つ
 
-![bg right:60% fit](../img/app-architecture.svg)
+![bg right:70% fit](../img/app-architecture.svg)
 
 本編ではテンプレートの TODO を順に埋めます
 
@@ -275,7 +275,7 @@ flutter run -d chrome
 
 ## Flutter は Widget で画面を作ります
 
-![bg right:60% fit](../img/widget-tree.svg)
+![bg right:70% fit](../img/widget-tree.svg)
 
 Flutter では画面の部品を Widget と呼びます
 
@@ -349,7 +349,7 @@ Future<void> main() async {
 
 ## アプリ全体の構成
 
-![bg right:60% fit](../img/app-architecture.svg)
+![bg right:70% fit](../img/app-architecture.svg)
 
 Flutter の UI、Riverpod の Provider、Firebase のサービスをつなぎます
 
@@ -362,7 +362,7 @@ Flutter の UI、Riverpod の Provider、Firebase のサービスをつなぎま
 
 ## なぜ Riverpod を使う?
 
-![bg right:60% fit](../img/state-flow.svg)
+![bg right:70% fit](../img/state-flow.svg)
 
 `StatefulWidget` だけだと、状態は Widget の中に閉じます
 
@@ -527,7 +527,7 @@ Firestore の `posts` を購読して
 
 ## Riverpod と Firestore の流れ
 
-![bg right:60% fit](../img/riverpod-firestore-flow.svg)
+![bg right:70% fit](../img/riverpod-firestore-flow.svg)
 
 `postsProvider` は Firestore の変更を stream として返します
 
@@ -686,7 +686,7 @@ TODO: 投稿カードを作る
 
 ## 投稿カードの重なり
 
-![bg right:50% fit](../img/post-card-layout.svg)
+![bg right:70% fit](../img/post-card-layout.svg)
 
 `Stack` で背景画像の上に UI を重ねます
 

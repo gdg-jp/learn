@@ -287,6 +287,14 @@ section[data-marpit-advanced-background]:not(.title):not(.lead):not(.section):no
   padding-right: 80px;
 }
 
+section[data-marpit-advanced-background="content"][data-marpit-advanced-background-split="right"]:not(.title):not(.lead):not(.section):not(.invert):not(.split) {
+  padding-right: 00px;
+}
+
+section[data-marpit-advanced-background="content"][data-marpit-advanced-background-split="left"]:not(.title):not(.lead):not(.section):not(.invert):not(.split) {
+  padding-left: 40px;
+}
+
 section:has(> .container):not(.title):not(.lead):not(.section):not(.invert):not(.split) {
   background-image: none;
   padding-right: 80px;
@@ -538,14 +546,24 @@ section.split h1, section.split h2 {
   min-width: 0;
 }
 
-/* Marp's `![bg right:* fit]` renders images as background figures that
-   otherwise run flush to the slide edge. Keep right-side figures inside a
-   comfortable content box so QR codes and diagrams do not get clipped. */
+/* Marp's `![bg right:* fit]` / `![bg left:* fit]` renders images as
+   background figures that otherwise run flush to the slide edge. Keep
+   side figures inside a comfortable content box so QR codes and diagrams
+   do not get clipped. */
 section[data-marpit-advanced-background="background"][data-marpit-advanced-background-split="right"]
   > div[data-marpit-advanced-background-container]
   > figure {
   box-sizing: border-box !important;
-  padding: 64px 72px 92px 28px !important;
+  padding: 64px 72px 92px 14px !important;
+  background-origin: content-box !important;
+  background-clip: content-box !important;
+}
+
+section[data-marpit-advanced-background="background"][data-marpit-advanced-background-split="left"]
+  > div[data-marpit-advanced-background-container]
+  > figure {
+  box-sizing: border-box !important;
+  padding: 64px 14px 92px 72px !important;
   background-origin: content-box !important;
   background-clip: content-box !important;
 }
