@@ -418,10 +418,10 @@ return posts.when(
 
 この形を次のステップで `FeedPage` に組み込みます。
 
-## 投稿一覧を表示する
-Duration: 0:20:00
+## 投稿一覧の状態を分ける
+Duration: 0:10:00
 
-このステップでは、`postsProvider` から投稿リストを受け取り、縦スクロールのリストとして表示します。
+このステップでは、`postsProvider` から届く値を `AsyncValue.when()` で `data` / `error` / `loading` に分けます。まずは最小限の表示だけを作り、あとで各状態の UI を整えます。
 
 ### 現在の FeedPage を確認する
 
@@ -447,150 +447,47 @@ class FeedPage extends ConsumerWidget {
 
 `postsProvider` を `watch` していますが、まだ画面には使っていません。
 
-### 投稿リストを PostCard に渡す
+### posts.when の形を作る
 
-`ListView.builder` で投稿の数だけ `PostCard` を作ります。1 件分の投稿は `ProviderScope` の `overrides` で `currentPostProvider` に渡します。
-
-```dart
-ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    return ProviderScope(
-      overrides: [
-        currentPostProvider.overrideWithValue(items[index]),
-      ],
-      child: const PostCard(),
-    );
-  },
-)
-```
-
-この書き方にすると、`PostCard` は引数を増やさずに `currentPostProvider` から投稿データを読めます。
-
-### FeedPage を実装する
-
-`lib/feed_page.dart` を以下の内容で上書きします。
+`lib/feed_page.dart` の `build` メソッドを以下に置き換えます。
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final posts = ref.watch(postsProvider);
 
-import 'providers/post_providers.dart';
-import 'widgets/post_card.dart';
-
-class FeedPage extends ConsumerWidget {
-  const FeedPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(postsProvider);
-
-    return Scaffold(
-      body: posts.when(
-        data: (items) {
-          if (items.isEmpty) {
-            return const _EmptyFeed();
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(postsProvider);
-            },
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return ProviderScope(
-                  overrides: [
-                    currentPostProvider.overrideWithValue(items[index]),
-                  ],
-                  child: const PostCard(),
-                );
-              },
-            ),
-          );
-        },
-        error: (error, stackTrace) {
-          return _ErrorView(message: error.toString());
-        },
-        loading: () {
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
-    );
-  }
-}
-
-class _EmptyFeed extends StatelessWidget {
-  const _EmptyFeed();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(
-          '投稿がまだありません。Firestore に posts データを追加してください。',
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_outlined,
-              size: 40,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Firestore から投稿を読み込めませんでした。',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  return Scaffold(
+    body: posts.when(
+      data: (items) {
+        return Center(child: Text('投稿数: ${items.length}'));
+      },
+      error: (error, stackTrace) {
+        return Center(child: Text('エラー: $error'));
+      },
+      loading: () {
+        return const Center(child: Text('投稿を読み込んでいます...'));
+      },
+    ),
+  );
 }
 ```
 
-このコードは `AsyncValue.when()` で 3 つの状態を分けています。`data` では投稿が空のときの表示、投稿があるときの `ListView`、Pull to Refresh の処理をまとめています。
+`ref.watch(postsProvider)` の戻り値は `AsyncValue<List<Post>>` です。`when()` を使うと、データ取得の結果ごとに表示する Widget を分けられます。
 
-### 画面を確認する
+### loading の表示を確認する
 
 ファイルを保存し、必要に応じてターミナルで `R` を押します。
 
 **期待される表示:**
 
-* Firestore にまだ接続していない場合は、読み込み中のぐるぐるが表示される
-* もし空配列が届いた場合は、`投稿がまだありません。Firestore に posts データを追加してください。` と表示される
-* エラーが起きた場合は、エラーメッセージが表示される
+```text
+投稿を読み込んでいます...
+```
 
-次のステップで `postsProvider` を Firestore に接続します。
+この時点では `postsProvider` がまだ Firestore に接続されていないため、読み込み中の表示だけが見えます。次のステップで Firestore の stream を返すようにします。
 
 ## Firestore から投稿を取得する
-Duration: 0:20:00
+Duration: 0:15:00
 
 このステップでは、`postsProvider` を Firestore に接続します。Firestore の `posts` コレクションを購読し、変更があれば画面へリアルタイムに反映します。
 
@@ -667,15 +564,166 @@ final postsProvider = StreamProvider<List<Post>>((ref) {
 
 **期待される表示:**
 
-* Firestore に `posts` データがある場合は、縦長のプレースホルダーが投稿数分表示される
-* `PostCard` はまだ未実装なので、各カードには `TODO: 投稿カードを作る` と表示される
+```text
+投稿数: 3
+```
+
+Firestore に `posts` データがある場合は、件数が表示されます。ここではまだリスト UI を作っていないため、投稿カードは表示されません。
 
 > **Troubleshooting:** Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。
 
-## 投稿カードを作る
-Duration: 0:20:00
+## 投稿一覧を表示する
+Duration: 0:15:00
 
-このステップでは、`PostCard` を完成させます。投稿画像を背景に表示し、その上にユーザー情報、本文、いいねボタンを重ねます。
+このステップでは、`posts.when(data: ...)` に渡す UI を作ります。投稿数のテキスト表示から、縦スクロールのリスト表示へ変えます。
+
+### PostCard を import する
+
+`lib/feed_page.dart` の import に `PostCard` を追加します。
+
+```dart
+import 'widgets/post_card.dart';
+```
+
+この import により、`FeedPage` から `PostCard` と `currentPostProvider` を使えるようになります。
+
+### data の UI をリストにする
+
+`lib/feed_page.dart` の `posts.when(data: ...)` の中身を以下に置き換えます。
+
+```dart
+data: (items) {
+  if (items.isEmpty) {
+    return const _EmptyFeed();
+  }
+
+  return RefreshIndicator(
+    onRefresh: () async {
+      ref.invalidate(postsProvider);
+    },
+    child: ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return ProviderScope(
+          overrides: [
+            currentPostProvider.overrideWithValue(items[index]),
+          ],
+          child: const PostCard(),
+        );
+      },
+    ),
+  );
+},
+```
+
+`ListView.builder` で投稿の数だけ `PostCard` を作ります。1 件分の投稿は `ProviderScope` の `overrides` で `currentPostProvider` に渡します。
+
+### 空状態の UI を追加する
+
+`lib/feed_page.dart` の `FeedPage` クラスの下に、空状態用の Widget を追加します。
+
+```dart
+class _EmptyFeed extends StatelessWidget {
+  const _EmptyFeed();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          '投稿がまだありません。Firestore に posts データを追加してください。',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+```
+
+Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。
+
+### error の UI を整える
+
+`lib/feed_page.dart` の `posts.when(error: ...)` の中身を以下に置き換えます。
+
+```dart
+error: (error, stackTrace) {
+  return _ErrorView(message: error.toString());
+},
+```
+
+> **Tip:** ここでの `error` は発生した例外オブジェクト、`stackTrace` はその例外がどこから発生したかを示す呼び出し経路です。画面には `error.toString()` のような短い情報を表示し、`stackTrace` はログや Crashlytics などの調査用に使います。
+
+`lib/feed_page.dart` の `_EmptyFeed` クラスの下に、エラー表示用の Widget を追加します。
+
+```dart
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 40,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Firestore から投稿を読み込めませんでした。',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+この Widget は、エラーの概要と実際のメッセージを分けて表示します。
+
+### loading の UI を整える
+
+`lib/feed_page.dart` の `posts.when(loading: ...)` の中身を以下に置き換えます。
+
+```dart
+loading: () {
+  return const Center(child: CircularProgressIndicator());
+},
+```
+
+読み込み中はテキストではなく、Flutter 標準のインジケータを表示します。
+
+### 投稿一覧を確認する
+
+ファイルを保存し、必要に応じて `R` を押して Hot restart します。
+
+**期待される表示:**
+
+* Firestore に `posts` データがある場合は、縦長のプレースホルダーが投稿数分表示される
+* `PostCard` はまだ未実装なので、各カードには `TODO: 投稿カードを作る` と表示される
+* Pull to Refresh してもエラーにならない
+
+## 投稿画像を表示する
+Duration: 0:10:00
+
+このステップでは、`PostCard` で投稿データを読み、まずは投稿画像だけを表示します。投稿一覧の各プレースホルダーが画像に変わるところを確認します。
 
 ### 現在の PostCard を確認する
 
@@ -705,7 +753,58 @@ class PostCard extends ConsumerWidget {
 
 `currentPostProvider` を `watch` していますが、まだ投稿データを表示していません。
 
-### Stack で UI を重ねる
+### 投稿データを読む
+
+`lib/widgets/post_card.dart` の `build` メソッドを以下に置き換えます。
+
+```dart
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final post = ref.watch(currentPostProvider);
+
+  return AspectRatio(
+    aspectRatio: 9 / 16,
+    child: Image.network(
+      post.imageUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return const ColoredBox(
+          color: Color(0xFF1D1D21),
+          child: Center(
+            child: Icon(Icons.broken_image_outlined, size: 48),
+          ),
+        );
+      },
+    ),
+  );
+}
+```
+
+`currentPostProvider` から投稿 1 件分の `Post` を読み、`Image.network` で `post.imageUrl` を表示します。画像読み込み中と失敗時の表示もここで用意します。
+
+### 画像表示を確認する
+
+ファイルを保存し、必要に応じて `R` を押して Hot restart します。
+
+**期待される表示:**
+
+* 投稿カードの黒いプレースホルダーが画像に変わる
+* 画像 URL が壊れている投稿では、壊れた画像アイコンが表示される
+* 本文、ユーザー名、いいねボタンはまだ表示されない
+
+## 投稿本文を重ねる
+Duration: 0:10:00
+
+このステップでは、画像の上に本文を重ねます。`Stack` と `Positioned` を使うと、背景画像の上に UI を配置できます。
+
+### Stack の構造を確認する
 
 カードは `Stack` で作ります。背景画像を一番下に置き、その上にグラデーション、本文、いいねボタン、ユーザー情報を重ねます。
 
@@ -713,180 +812,198 @@ class PostCard extends ConsumerWidget {
 
 `AspectRatio(aspectRatio: 9 / 16)` で縦長の投稿カードにします。
 
-### いいね状態を読む
+### グラデーションと本文を追加する
 
-いいね済みかどうかは `likedPostIdsProvider` から読みます。
+`lib/widgets/post_card.dart` の `build` メソッドを以下に置き換えます。
 
 ```dart
-final post = ref.watch(currentPostProvider);
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final post = ref.watch(currentPostProvider);
+
+  return AspectRatio(
+    aspectRatio: 9 / 16,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.network(
+          post.imageUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            }
+
+            return const Center(child: CircularProgressIndicator());
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const ColoredBox(
+              color: Color(0xFF1D1D21),
+              child: Center(
+                child: Icon(Icons.broken_image_outlined, size: 48),
+              ),
+            );
+          },
+        ),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.transparent,
+                Color(0xB0000000),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 16,
+          right: 80,
+          bottom: 28,
+          child: Text(
+            post.text,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+```
+
+`DecoratedBox` のグラデーションで画像の下側を暗くし、その上に `Positioned` で本文を置きます。
+
+### 本文表示を確認する
+
+ファイルを保存し、必要に応じて `R` を押して Hot restart します。
+
+**期待される表示:**
+
+* 投稿画像の下側に本文が表示される
+* 長い本文は 3 行で省略される
+* ユーザー名といいねボタンはまだ表示されない
+
+## いいねと投稿者情報を追加する
+Duration: 0:10:00
+
+このステップでは、投稿カードを完成させます。画像と本文の上に、投稿者情報といいねボタンを追加します。
+
+### post_providers を import する
+
+`lib/widgets/post_card.dart` の import に `post_providers.dart` を追加します。
+
+```dart
+import '../providers/post_providers.dart';
+```
+
+`likedPostIdsProvider` と `postActionsProvider` を使うための import です。
+
+### いいね状態を読む
+
+`lib/widgets/post_card.dart` の `build` メソッドで、`final post = ref.watch(currentPostProvider);` の下に次の 2 行を追加します。
+
+```dart
 final likedPostIds = ref.watch(likedPostIdsProvider);
 final isLiked = likedPostIds.contains(post.id);
 ```
 
-ボタンを押したときは `postActionsProvider` を `read` して、Firestore の `likes` を更新します。
+いいね済みかどうかは、いいね済み投稿 ID の集合に `post.id` が含まれているかで判断します。
+
+### いいねボタンを追加する
+
+`Stack` の `children` に、本文の `Positioned` より前または後に次の Widget を追加します。
 
 ```dart
-await ref
-    .read(postActionsProvider)
-    .toggleLike(post, isLiked: isLiked);
-```
-
-ここでも表示は `watch`、操作は `read` です。
-
-### PostCard を実装する
-
-`lib/widgets/post_card.dart` を以下の内容で上書きします。
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../models/post.dart';
-import '../providers/post_providers.dart';
-
-final currentPostProvider = Provider<Post>((ref) {
-  throw UnimplementedError('PostCard requires currentPostProvider override.');
-});
-
-class PostCard extends ConsumerWidget {
-  const PostCard({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final post = ref.watch(currentPostProvider);
-    final likedPostIds = ref.watch(likedPostIdsProvider);
-    final isLiked = likedPostIds.contains(post.id);
-
-    return AspectRatio(
-      aspectRatio: 9 / 16,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            post.imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              }
-
-              return const Center(child: CircularProgressIndicator());
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return const ColoredBox(
-                color: Color(0xFF1D1D21),
-                child: Center(
-                  child: Icon(Icons.broken_image_outlined, size: 48),
-                ),
-              );
-            },
-          ),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.transparent,
-                  Color(0xB0000000),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 8,
-            bottom: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton.filledTonal(
-                  tooltip: isLiked ? 'いいねを取り消す' : 'いいね',
-                  onPressed: () async {
-                    await ref
-                        .read(postActionsProvider)
-                        .toggleLike(post, isLiked: isLiked);
-                  },
-                  icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.pinkAccent : Colors.white,
-                  ),
-                ),
-                Text(
-                  '${post.likes}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: 16,
-            right: 80,
-            bottom: 28,
-            child: Text(
-              post.text,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
-              ),
-            ),
-          ),
-          Positioned(
-            top: 12,
-            left: 12,
-            right: 12,
-            child: SafeArea(
-              bottom: false,
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 17,
-                    backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 15,
-                      backgroundColor: const Color(0xFF2A2A2E),
-                      backgroundImage: post.authorUrl.isEmpty
-                          ? null
-                          : NetworkImage(post.authorUrl),
-                      child: post.authorUrl.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 18,
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    post.authorId,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+Positioned(
+  right: 8,
+  bottom: 20,
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton.filledTonal(
+        tooltip: isLiked ? 'いいねを取り消す' : 'いいね',
+        onPressed: () async {
+          await ref
+              .read(postActionsProvider)
+              .toggleLike(post, isLiked: isLiked);
+        },
+        icon: Icon(
+          isLiked ? Icons.favorite : Icons.favorite_border,
+          color: isLiked ? Colors.pinkAccent : Colors.white,
+        ),
       ),
-    );
-  }
-}
+      Text(
+        '${post.likes}',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+        ),
+      ),
+    ],
+  ),
+),
 ```
 
-このコードは `Image.network` で投稿画像を表示し、画像読み込み中と失敗時の表示も用意しています。`IconButton.filledTonal` の `onPressed` では、いいね状態を反転し、Firestore の `likes` を増減します。
+ボタンを押したときは `postActionsProvider` を `read` して、Firestore の `likes` を更新します。表示に使う値は `watch`、操作を呼び出す Provider は `read` と使い分けます。
+
+### 投稿者情報を追加する
+
+`Stack` の `children` の最後に、投稿者情報の Widget を追加します。
+
+```dart
+Positioned(
+  top: 12,
+  left: 12,
+  right: 12,
+  child: SafeArea(
+    bottom: false,
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 17,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 15,
+            backgroundColor: const Color(0xFF2A2A2E),
+            backgroundImage: post.authorUrl.isEmpty
+                ? null
+                : NetworkImage(post.authorUrl),
+            child: post.authorUrl.isEmpty
+                ? const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 18,
+                  )
+                : null,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          post.authorId,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+```
+
+`SafeArea` を使うと、スマートフォンのノッチやステータスバーに近い位置でも UI が隠れにくくなります。
 
 ### いいねを確認する
 

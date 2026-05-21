@@ -690,8 +690,8 @@ return posts.when(
 
       </google-codelab-step>
     
-      <google-codelab-step label="投稿一覧を表示する" duration="20">
-        <p>このステップでは、<code>postsProvider</code> から投稿リストを受け取り、縦スクロールのリストとして表示します。</p>
+      <google-codelab-step label="投稿一覧の状態を分ける" duration="10">
+        <p>このステップでは、<code>postsProvider</code> から届く値を <code>AsyncValue.when()</code> で <code>data</code> / <code>error</code> / <code>loading</code> に分けます。まずは最小限の表示だけを作り、あとで各状態の UI を整えます。</p>
 <h2 is-upgraded>現在の FeedPage を確認する</h2>
 <p><code>lib/feed_page.dart</code> を開きます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -721,8 +721,8 @@ return posts.when(
 </code></pre>
 </div>
 <p><code>postsProvider</code> を <code>watch</code> していますが、まだ画面には使っていません。</p>
-<h2 is-upgraded>投稿リストを PostCard に渡す</h2>
-<p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。</p>
+<h2 is-upgraded>posts.when の形を作る</h2>
+<p><code>lib/feed_page.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -732,149 +732,48 @@ return posts.when(
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    return ProviderScope(
-      overrides: [
-        currentPostProvider.overrideWithValue(items[index]),
-      ],
-      child: const PostCard(),
-    );
-  },
-)
-</code></pre>
-</div>
-<p>この書き方にすると、<code>PostCard</code> は引数を増やさずに <code>currentPostProvider</code> から投稿データを読めます。</p>
-<h2 is-upgraded>FeedPage を実装する</h2>
-<p><code>lib/feed_page.dart</code> を以下の内容で上書きします。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
-import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+<pre><code language="language-dart" class="language-dart">@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final posts = ref.watch(postsProvider);
 
-import &#39;providers/post_providers.dart&#39;;
-import &#39;widgets/post_card.dart&#39;;
-
-class FeedPage extends ConsumerWidget {
-  const FeedPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final posts = ref.watch(postsProvider);
-
-    return Scaffold(
-      body: posts.when(
-        data: (items) {
-          if (items.isEmpty) {
-            return const _EmptyFeed();
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(postsProvider);
-            },
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return ProviderScope(
-                  overrides: [
-                    currentPostProvider.overrideWithValue(items[index]),
-                  ],
-                  child: const PostCard(),
-                );
-              },
-            ),
-          );
-        },
-        error: (error, stackTrace) {
-          return _ErrorView(message: error.toString());
-        },
-        loading: () {
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
-    );
-  }
-}
-
-class _EmptyFeed extends StatelessWidget {
-  const _EmptyFeed();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(
-          &#39;投稿がまだありません。Firestore に posts データを追加してください。&#39;,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_outlined,
-              size: 40,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              &#39;Firestore から投稿を読み込めませんでした。&#39;,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  return Scaffold(
+    body: posts.when(
+      data: (items) {
+        return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
+      },
+      error: (error, stackTrace) {
+        return Center(child: Text(&#39;エラー: $error&#39;));
+      },
+      loading: () {
+        return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
+      },
+    ),
+  );
 }
 </code></pre>
 </div>
-<p>このコードは <code>AsyncValue.when()</code> で 3 つの状態を分けています。<code>data</code> では投稿が空のときの表示、投稿があるときの <code>ListView</code>、Pull to Refresh の処理をまとめています。</p>
-<h2 is-upgraded>画面を確認する</h2>
+<p><code>ref.watch(postsProvider)</code> の戻り値は <code>AsyncValue<List<Post>></code> です。<code>when()</code> を使うと、データ取得の結果ごとに表示する Widget を分けられます。</p>
+<h2 is-upgraded>loading の表示を確認する</h2>
 <p>ファイルを保存し、必要に応じてターミナルで <code>R</code> を押します。</p>
 <p><strong>期待される表示:</strong></p>
-<ul>
-<li>Firestore にまだ接続していない場合は、読み込み中のぐるぐるが表示される</li>
-<li>もし空配列が届いた場合は、<code>投稿がまだありません。Firestore に posts データを追加してください。</code> と表示される</li>
-<li>エラーが起きた場合は、エラーメッセージが表示される</li>
-</ul>
-<p>次のステップで <code>postsProvider</code> を Firestore に接続します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">投稿を読み込んでいます...
+</code></pre>
+</div>
+<p>この時点では <code>postsProvider</code> がまだ Firestore に接続されていないため、読み込み中の表示だけが見えます。次のステップで Firestore の stream を返すようにします。</p>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="Firestore から投稿を取得する" duration="20">
+      <google-codelab-step label="Firestore から投稿を取得する" duration="15">
         <p>このステップでは、<code>postsProvider</code> を Firestore に接続します。Firestore の <code>posts</code> コレクションを購読し、変更があれば画面へリアルタイムに反映します。</p>
 <h2 is-upgraded>現在の postsProvider を確認する</h2>
 <p><code>lib/providers/post_providers.dart</code> を開きます。</p>
@@ -982,17 +881,204 @@ return firestore
 <h2 is-upgraded>投稿データを確認する</h2>
 <p>ファイルを保存し、ターミナルで <code>R</code> を押して Hot restart します。</p>
 <p><strong>期待される表示:</strong></p>
-<ul>
-<li>Firestore に <code>posts</code> データがある場合は、縦長のプレースホルダーが投稿数分表示される</li>
-<li><code>PostCard</code> はまだ未実装なので、各カードには <code>TODO: 投稿カードを作る</code> と表示される</li>
-</ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">投稿数: 3
+</code></pre>
+</div>
+<p>Firestore に <code>posts</code> データがある場合は、件数が表示されます。ここではまだリスト UI を作っていないため、投稿カードは表示されません。</p>
 <aside class="warning"><p><strong>Troubleshooting:</strong> Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。</p></aside>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="投稿カードを作る" duration="20">
-        <p>このステップでは、<code>PostCard</code> を完成させます。投稿画像を背景に表示し、その上にユーザー情報、本文、いいねボタンを重ねます。</p>
+      <google-codelab-step label="投稿一覧を表示する" duration="15">
+        <p>このステップでは、<code>posts.when(data: ...)</code> に渡す UI を作ります。投稿数のテキスト表示から、縦スクロールのリスト表示へ変えます。</p>
+<h2 is-upgraded>PostCard を import する</h2>
+<p><code>lib/feed_page.dart</code> の import に <code>PostCard</code> を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;widgets/post_card.dart&#39;;
+</code></pre>
+</div>
+<p>この import により、<code>FeedPage</code> から <code>PostCard</code> と <code>currentPostProvider</code> を使えるようになります。</p>
+<h2 is-upgraded>data の UI をリストにする</h2>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(data: ...)</code> の中身を以下に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">data: (items) {
+  if (items.isEmpty) {
+    return const _EmptyFeed();
+  }
+
+  return RefreshIndicator(
+    onRefresh: () async {
+      ref.invalidate(postsProvider);
+    },
+    child: ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return ProviderScope(
+          overrides: [
+            currentPostProvider.overrideWithValue(items[index]),
+          ],
+          child: const PostCard(),
+        );
+      },
+    ),
+  );
+},
+</code></pre>
+</div>
+<p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。</p>
+<h2 is-upgraded>空状態の UI を追加する</h2>
+<p><code>lib/feed_page.dart</code> の <code>FeedPage</code> クラスの下に、空状態用の Widget を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">class _EmptyFeed extends StatelessWidget {
+  const _EmptyFeed();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          &#39;投稿がまだありません。Firestore に posts データを追加してください。&#39;,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+</div>
+<p>Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。</p>
+<h2 is-upgraded>error の UI を整える</h2>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(error: ...)</code> の中身を以下に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">error: (error, stackTrace) {
+  return _ErrorView(message: error.toString());
+},
+</code></pre>
+</div>
+<aside class="special"><p><strong>Tip:</strong> ここでの <code>error</code> は発生した例外オブジェクト、<code>stackTrace</code> はその例外がどこから発生したかを示す呼び出し経路です。画面には <code>error.toString()</code> のような短い情報を表示し、<code>stackTrace</code> はログや Crashlytics などの調査用に使います。</p></aside>
+<p><code>lib/feed_page.dart</code> の <code>_EmptyFeed</code> クラスの下に、エラー表示用の Widget を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 40,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              &#39;Firestore から投稿を読み込めませんでした。&#39;,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+</div>
+<p>この Widget は、エラーの概要と実際のメッセージを分けて表示します。</p>
+<h2 is-upgraded>loading の UI を整える</h2>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(loading: ...)</code> の中身を以下に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">loading: () {
+  return const Center(child: CircularProgressIndicator());
+},
+</code></pre>
+</div>
+<p>読み込み中はテキストではなく、Flutter 標準のインジケータを表示します。</p>
+<h2 is-upgraded>投稿一覧を確認する</h2>
+<p>ファイルを保存し、必要に応じて <code>R</code> を押して Hot restart します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>Firestore に <code>posts</code> データがある場合は、縦長のプレースホルダーが投稿数分表示される</li>
+<li><code>PostCard</code> はまだ未実装なので、各カードには <code>TODO: 投稿カードを作る</code> と表示される</li>
+<li>Pull to Refresh してもエラーにならない</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="投稿画像を表示する" duration="10">
+        <p>このステップでは、<code>PostCard</code> で投稿データを読み、まずは投稿画像だけを表示します。投稿一覧の各プレースホルダーが画像に変わるところを確認します。</p>
 <h2 is-upgraded>現在の PostCard を確認する</h2>
 <p><code>lib/widgets/post_card.dart</code> を開きます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1026,12 +1112,8 @@ return firestore
 </code></pre>
 </div>
 <p><code>currentPostProvider</code> を <code>watch</code> していますが、まだ投稿データを表示していません。</p>
-<h2 is-upgraded>Stack で UI を重ねる</h2>
-<p>カードは <code>Stack</code> で作ります。背景画像を一番下に置き、その上にグラデーション、本文、いいねボタン、ユーザー情報を重ねます。</p>
-<p class="image-container"><img alt="投稿カードの重なり構造" src="img/fe4548d1bc10e3a4.svg"></p>
-<p><code>AspectRatio(aspectRatio: 9 / 16)</code> で縦長の投稿カードにします。</p>
-<h2 is-upgraded>いいね状態を読む</h2>
-<p>いいね済みかどうかは <code>likedPostIdsProvider</code> から読みます。</p>
+<h2 is-upgraded>投稿データを読む</h2>
+<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1041,187 +1123,271 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">final post = ref.watch(currentPostProvider);
-final likedPostIds = ref.watch(likedPostIdsProvider);
-final isLiked = likedPostIds.contains(post.id);
-</code></pre>
-</div>
-<p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-dart" class="language-dart">await ref
-    .read(postActionsProvider)
-    .toggleLike(post, isLiked: isLiked);
-</code></pre>
-</div>
-<p>ここでも表示は <code>watch</code>、操作は <code>read</code> です。</p>
-<h2 is-upgraded>PostCard を実装する</h2>
-<p><code>lib/widgets/post_card.dart</code> を以下の内容で上書きします。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
-import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+<pre><code language="language-dart" class="language-dart">@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final post = ref.watch(currentPostProvider);
 
-import &#39;../models/post.dart&#39;;
-import &#39;../providers/post_providers.dart&#39;;
+  return AspectRatio(
+    aspectRatio: 9 / 16,
+    child: Image.network(
+      post.imageUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
 
-final currentPostProvider = Provider&lt;Post&gt;((ref) {
-  throw UnimplementedError(&#39;PostCard requires currentPostProvider override.&#39;);
-});
-
-class PostCard extends ConsumerWidget {
-  const PostCard({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final post = ref.watch(currentPostProvider);
-    final likedPostIds = ref.watch(likedPostIdsProvider);
-    final isLiked = likedPostIds.contains(post.id);
-
-    return AspectRatio(
-      aspectRatio: 9 / 16,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            post.imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              }
-
-              return const Center(child: CircularProgressIndicator());
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return const ColoredBox(
-                color: Color(0xFF1D1D21),
-                child: Center(
-                  child: Icon(Icons.broken_image_outlined, size: 48),
-                ),
-              );
-            },
+        return const Center(child: CircularProgressIndicator());
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return const ColoredBox(
+          color: Color(0xFF1D1D21),
+          child: Center(
+            child: Icon(Icons.broken_image_outlined, size: 48),
           ),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.transparent,
-                  Color(0xB0000000),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 8,
-            bottom: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton.filledTonal(
-                  tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
-                  onPressed: () async {
-                    await ref
-                        .read(postActionsProvider)
-                        .toggleLike(post, isLiked: isLiked);
-                  },
-                  icon: Icon(
-                    isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: isLiked ? Colors.pinkAccent : Colors.white,
-                  ),
-                ),
-                Text(
-                  &#39;${post.likes}&#39;,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: 16,
-            right: 80,
-            bottom: 28,
-            child: Text(
-              post.text,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
-              ),
-            ),
-          ),
-          Positioned(
-            top: 12,
-            left: 12,
-            right: 12,
-            child: SafeArea(
-              bottom: false,
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 17,
-                    backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 15,
-                      backgroundColor: const Color(0xFF2A2A2E),
-                      backgroundImage: post.authorUrl.isEmpty
-                          ? null
-                          : NetworkImage(post.authorUrl),
-                      child: post.authorUrl.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 18,
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    post.authorId,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        );
+      },
+    ),
+  );
 }
 </code></pre>
 </div>
-<p>このコードは <code>Image.network</code> で投稿画像を表示し、画像読み込み中と失敗時の表示も用意しています。<code>IconButton.filledTonal</code> の <code>onPressed</code> では、いいね状態を反転し、Firestore の <code>likes</code> を増減します。</p>
+<p><code>currentPostProvider</code> から投稿 1 件分の <code>Post</code> を読み、<code>Image.network</code> で <code>post.imageUrl</code> を表示します。画像読み込み中と失敗時の表示もここで用意します。</p>
+<h2 is-upgraded>画像表示を確認する</h2>
+<p>ファイルを保存し、必要に応じて <code>R</code> を押して Hot restart します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>投稿カードの黒いプレースホルダーが画像に変わる</li>
+<li>画像 URL が壊れている投稿では、壊れた画像アイコンが表示される</li>
+<li>本文、ユーザー名、いいねボタンはまだ表示されない</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="投稿本文を重ねる" duration="10">
+        <p>このステップでは、画像の上に本文を重ねます。<code>Stack</code> と <code>Positioned</code> を使うと、背景画像の上に UI を配置できます。</p>
+<h2 is-upgraded>Stack の構造を確認する</h2>
+<p>カードは <code>Stack</code> で作ります。背景画像を一番下に置き、その上にグラデーション、本文、いいねボタン、ユーザー情報を重ねます。</p>
+<p class="image-container"><img alt="投稿カードの重なり構造" src="img/fe4548d1bc10e3a4.svg"></p>
+<p><code>AspectRatio(aspectRatio: 9 / 16)</code> で縦長の投稿カードにします。</p>
+<h2 is-upgraded>グラデーションと本文を追加する</h2>
+<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final post = ref.watch(currentPostProvider);
+
+  return AspectRatio(
+    aspectRatio: 9 / 16,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.network(
+          post.imageUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            }
+
+            return const Center(child: CircularProgressIndicator());
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const ColoredBox(
+              color: Color(0xFF1D1D21),
+              child: Center(
+                child: Icon(Icons.broken_image_outlined, size: 48),
+              ),
+            );
+          },
+        ),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.transparent,
+                Color(0xB0000000),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 16,
+          right: 80,
+          bottom: 28,
+          child: Text(
+            post.text,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+</code></pre>
+</div>
+<p><code>DecoratedBox</code> のグラデーションで画像の下側を暗くし、その上に <code>Positioned</code> で本文を置きます。</p>
+<h2 is-upgraded>本文表示を確認する</h2>
+<p>ファイルを保存し、必要に応じて <code>R</code> を押して Hot restart します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>投稿画像の下側に本文が表示される</li>
+<li>長い本文は 3 行で省略される</li>
+<li>ユーザー名といいねボタンはまだ表示されない</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="いいねと投稿者情報を追加する" duration="10">
+        <p>このステップでは、投稿カードを完成させます。画像と本文の上に、投稿者情報といいねボタンを追加します。</p>
+<h2 is-upgraded>post_providers を import する</h2>
+<p><code>lib/widgets/post_card.dart</code> の import に <code>post_providers.dart</code> を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;../providers/post_providers.dart&#39;;
+</code></pre>
+</div>
+<p><code>likedPostIdsProvider</code> と <code>postActionsProvider</code> を使うための import です。</p>
+<h2 is-upgraded>いいね状態を読む</h2>
+<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドで、<code>final post = ref.watch(currentPostProvider);</code> の下に次の 2 行を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">final likedPostIds = ref.watch(likedPostIdsProvider);
+final isLiked = likedPostIds.contains(post.id);
+</code></pre>
+</div>
+<p>いいね済みかどうかは、いいね済み投稿 ID の集合に <code>post.id</code> が含まれているかで判断します。</p>
+<h2 is-upgraded>いいねボタンを追加する</h2>
+<p><code>Stack</code> の <code>children</code> に、本文の <code>Positioned</code> より前または後に次の Widget を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">Positioned(
+  right: 8,
+  bottom: 20,
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton.filledTonal(
+        tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
+        onPressed: () async {
+          await ref
+              .read(postActionsProvider)
+              .toggleLike(post, isLiked: isLiked);
+        },
+        icon: Icon(
+          isLiked ? Icons.favorite : Icons.favorite_border,
+          color: isLiked ? Colors.pinkAccent : Colors.white,
+        ),
+      ),
+      Text(
+        &#39;${post.likes}&#39;,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+        ),
+      ),
+    ],
+  ),
+),
+</code></pre>
+</div>
+<p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。表示に使う値は <code>watch</code>、操作を呼び出す Provider は <code>read</code> と使い分けます。</p>
+<h2 is-upgraded>投稿者情報を追加する</h2>
+<p><code>Stack</code> の <code>children</code> の最後に、投稿者情報の Widget を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">Positioned(
+  top: 12,
+  left: 12,
+  right: 12,
+  child: SafeArea(
+    bottom: false,
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 17,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 15,
+            backgroundColor: const Color(0xFF2A2A2E),
+            backgroundImage: post.authorUrl.isEmpty
+                ? null
+                : NetworkImage(post.authorUrl),
+            child: post.authorUrl.isEmpty
+                ? const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 18,
+                  )
+                : null,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          post.authorId,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+</code></pre>
+</div>
+<p><code>SafeArea</code> を使うと、スマートフォンのノッチやステータスバーに近い位置でも UI が隠れにくくなります。</p>
 <h2 is-upgraded>いいねを確認する</h2>
 <p>ファイルを保存し、必要に応じて <code>R</code> を押して Hot restart します。</p>
 <p><strong>期待される表示:</strong></p>
