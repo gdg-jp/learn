@@ -188,7 +188,8 @@
     
       <google-codelab-step label="はじめに" duration="5">
         <p>このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。</p>
-<p>本編は Cloud Shell、Windows、macOS のセットアップを 1 つだけ進める想定で約 120 分です。Claat の表示時間には複数環境のセットアップと Extra ステップも含まれます。</p>
+<p>本編は Windows、macOS、Cloud Shell のセットアップを 1 つだけ進める想定で約 120 分です。Claat の表示時間には複数環境のセットアップと Extra ステップも含まれます。</p>
+<aside class="warning"><p><strong>Warning</strong>: 20分程度時間がある場合は Windows / macOS を推奨します。</p></aside>
 <h2 is-upgraded>Discord で質問する</h2>
 <p>詰まったところ、進捗、改善したところは Discord サーバーの <code>#260521-flutter-workshop</code> に共有してください。招待リンクは下のボタンから開けます。</p>
 <p><a href="https://discord.gg/pMTKHQRg" target="_blank"><paper-button class="colored" raised>Discord サーバーに参加する</paper-button></a></p>
@@ -1123,6 +1124,7 @@ return firestore
 </div>
 <p>Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。</p>
 <p class="image-container"><img alt="Chrome で投稿がまだありませんと表示される画面" src="img/fe78fce96301fc7.png"></p>
+<aside class="special"><p><strong>Tip:</strong> Firestore にはデータが既に入っているためこのメッセージは表示されませんが、<code>postsProvider</code> を <code>return Stream.value([])</code> するように変更すると見られます。</p></aside>
 <h2 is-upgraded>error の UI を整える</h2>
 <p><code>lib/feed_page.dart</code> の <code>posts.when(error: ...)</code> の中身を以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1189,6 +1191,7 @@ return firestore
 </div>
 <p>この Widget は、エラーの概要と実際のメッセージを分けて表示します。</p>
 <p class="image-container"><img alt="Chrome で投稿を読み込めませんでしたと表示される画面" src="img/ec6c5e53e768169c.png"></p>
+<aside class="special"><p><strong>Tip:</strong> 通常はこのメッセージは表示されませんが、Windows / macOS を選択した方はネットワークを切断して再読み込みするとメッセージが見られます。</p></aside>
 <h2 is-upgraded>loading の UI を整える</h2>
 <p><code>lib/feed_page.dart</code> の <code>posts.when(loading: ...)</code> の中身を以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
