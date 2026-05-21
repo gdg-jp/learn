@@ -156,6 +156,14 @@
     border-left-width: 4px;
   }
 
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {
+    border: 1px solid #d93025;
+    border-left-width: 4px;
+    border-color: #d93025;
+    background: #fce8e6;
+    color: #212124;
+  }
+
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
     border: 1px solid #137333;
@@ -337,7 +345,7 @@ Chrome (web) • chrome • web-javascript • Google Chrome
 </code></pre>
 </div>
 <p>このコードラボでは Chrome で動かすため、<code>Chrome - develop for the web</code> にチェックが付き、<code>flutter devices</code> に Chrome が表示されていれば進められます。Android toolchain、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。</p>
-<aside class="warning"><p><strong>Troubleshooting:</strong> PowerShell で <code>flutter</code> コマンドが見つからない場合は、VS Code と PowerShell をすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> PowerShell で <code>flutter</code> コマンドが見つからない場合は、VS Code と PowerShell をすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
 <h2 is-upgraded>テンプレートコードを起動する</h2>
 <p>任意の作業フォルダでテンプレートリポジトリをクローンします。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -487,7 +495,7 @@ Chrome (web) • chrome • web-javascript • Google Chrome
 </code></pre>
 </div>
 <p>このコードラボでは Chrome で動かすため、<code>Chrome - develop for the web</code> にチェックが付き、<code>flutter devices</code> に Chrome が表示されていれば進められます。Android toolchain、Xcode、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。</p>
-<aside class="warning"><p><strong>Troubleshooting:</strong> ターミナルで <code>flutter</code> コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> ターミナルで <code>flutter</code> コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
 <h2 is-upgraded>テンプレートコードを起動する</h2>
 <p>任意の作業フォルダでテンプレートリポジトリをクローンします。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -907,7 +915,7 @@ return firestore
 </code></pre>
 </div>
 <p>Firestore に <code>posts</code> データがある場合は、件数が表示されます。ここではまだリスト UI を作っていないため、投稿カードは表示されません。</p>
-<aside class="warning"><p><strong>Troubleshooting:</strong> Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。</p></aside>
 
 
       </google-codelab-step>
@@ -1409,7 +1417,7 @@ final isLiked = likedPostIds.contains(post.id);
 <li>いいねボタンを押すとハートの見た目が変わる</li>
 <li>Firestore の <code>likes</code> が更新され、しばらくすると画面にも反映される</li>
 </ul>
-<aside class="warning"><p><strong>Troubleshooting:</strong> 画像が表示されない場合は、Firestore の <code>imageUrl</code> が空でないか、ブラウザから直接開ける URL かを確認してください。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 画像が表示されない場合は、Firestore の <code>imageUrl</code> が空でないか、ブラウザから直接開ける URL かを確認してください。</p></aside>
 
 
       </google-codelab-step>

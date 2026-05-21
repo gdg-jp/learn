@@ -47,7 +47,7 @@ ASIDE_KEYWORDS = {
     "Warning": "warning",
     "Warn": "warning",
     "Caution": "warning",
-    "Troubleshooting": "warning",
+    "Troubleshooting": "troubleshooting",
 }
 
 SKIP_LINKIFY_TAGS = {"a", "code", "pre", "script", "style"}
@@ -203,6 +203,14 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
     border-left-width: 4px;
   }}
 
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {{
+    border: 1px solid #d93025;
+    border-left-width: 4px;
+    border-color: #d93025;
+    background: #fce8e6;
+    color: #212124;
+  }}
+
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {{
     border: 1px solid #137333;
@@ -321,6 +329,14 @@ def wrap_asides(html: str) -> tuple[str, int]:
         return f'<aside class="{klass}">{m.group(0)}</aside>'
 
     return pattern.sub(repl, html), total
+
+
+def retag_troubleshooting_asides(html: str) -> tuple[str, int]:
+    pattern = re.compile(
+        r'<aside class="warning">(\s*<p><strong>Troubleshooting:?</strong>)',
+        re.DOTALL,
+    )
+    return pattern.subn(r'<aside class="troubleshooting">\1', html)
 
 
 def wrap_code_blocks(html: str) -> tuple[str, int]:
@@ -446,7 +462,15 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
     n_style = 0
     n_script = 0
 
-    if f'id="{STYLE_ID}"' not in html:
+    if f'id="{STYLE_ID}"' in html:
+        html, n_style = re.subn(
+            r'<style id="' + re.escape(STYLE_ID) + r'">.*?</style>',
+            LOCAL_STYLE,
+            html,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
         html, n_style = re.subn(r"</head>", LOCAL_STYLE + "\n</head>", html, count=1)
         if n_style == 0:
             html = LOCAL_STYLE + "\n" + html
@@ -464,13 +488,14 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
 def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
+    html, n_retagged = retag_troubleshooting_asides(html)
     html, n_blocks = wrap_code_blocks(html)
     html, n_buttons = repair_button_links(html)
     html, n_links = linkify_bare_urls(html)
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside, n_blocks, n_buttons, n_links, n_favicon, n_style, n_script
+    return html, n_code, n_aside + n_retagged, n_blocks, n_buttons, n_links, n_favicon, n_style, n_script
 
 
 def main() -> int:

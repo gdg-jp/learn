@@ -18,6 +18,164 @@
       color: red;
     }
   </style>
+<link id="claat-local-favicon" rel="icon" type="image/png" href="../assets/favicon.png">
+<style id="claat-local-preprocessor-style">
+  google-codelab-step .instructions .claat-code-block {
+    position: relative;
+    margin: 16px 0;
+    background: #f1f3f4;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre {
+    margin: 0;
+    padding: 18px 88px 18px 18px;
+    color: #37474f;
+    background: #f1f3f4;
+    border-radius: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code {
+    color: inherit;
+    background: transparent;
+    padding: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-toolbar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  google-codelab-step .instructions .claat-code-button {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #202124;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  google-codelab-step .instructions .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-button:focus-visible {
+    background: rgba(60, 64, 67, 0.12);
+    outline: none;
+  }
+
+  google-codelab-step .instructions .claat-code-button .material-icons {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .pln,
+  google-codelab-step .instructions .claat-code-block pre .pun {
+    color: #37474f;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .kwd,
+  google-codelab-step .instructions .claat-code-block pre .typ,
+  google-codelab-step .instructions .claat-code-block pre .tag {
+    color: #9334e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .str,
+  google-codelab-step .instructions .claat-code-block pre .atv {
+    color: #188038;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .com {
+    color: #5f6368;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .atn,
+  google-codelab-step .instructions .claat-code-block pre .lit,
+  google-codelab-step .instructions .claat-code-block pre .dec {
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {
+    color: #f8f9fa;
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:focus-visible {
+    background: rgba(248, 249, 250, 0.16);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .str,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .atv {
+    color: #34a853;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .kwd {
+    color: #f538a0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .com {
+    color: #bdc1c6;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .typ,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .tag {
+    color: #24c1e0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .lit,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .dec {
+    color: #4285f4;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pln,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pun {
+    color: #f8f9fa;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
+    border: 1px solid #ea8600;
+    border-left-width: 4px;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {
+    border: 1px solid #d93025;
+    border-left-width: 4px;
+    border-color: #d93025;
+    background: #fce8e6;
+    color: #212124;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
+    border: 1px solid #137333;
+    border-left-width: 4px;
+  }
+
+  @media (max-width: 640px) {
+    google-codelab-step .instructions .claat-code-block pre {
+      padding: 56px 14px 16px;
+    }
+  }
+</style>
 </head>
 <body>
   <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
@@ -57,7 +215,7 @@
 <li>お使いの OS (Windows, Mac) に合ったインストーラーをダウンロードします。</li>
 <li>ダウンロードしたファイルを開き、画面の指示に従ってインストールを完了します。</li>
 </ol>
-<aside class="warning"><p><strong>Troubleshooting:</strong> インストールがうまくいかない場合は、遠慮なくメンターに声をかけてください！</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> インストールがうまくいかない場合は、遠慮なくメンターに声をかけてください！</p></aside>
 <h2 is-upgraded><strong>作業フォルダの作成</strong></h2>
 <p>Web サイトの作成を始める前に、成果物を保存するフォルダを作っておきましょう。</p>
 <ol type="1">
@@ -78,7 +236,7 @@
 <li>簡単なパズル認証やプラン選択（Free プランを選択）などを行います。</li>
 <li>登録したメールアドレスに GitHub から確認メールが届きます。メールを開き、「Verify email address」ボタンをクリックして認証を完了します。</li>
 </ol>
-<aside class="warning"><p><strong>Troubleshooting:</strong> 確認メールが届かない場合や、手順で迷った場合は、メンターにサポートを求めてください。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 確認メールが届かない場合や、手順で迷った場合は、メンターにサポートを求めてください。</p></aside>
 
 
       </google-codelab-step>
@@ -104,6 +262,15 @@
 <li><code>Ctrl+S</code> (Windows) または <code>Cmd+S</code> (Mac) でファイルを保存しましょう。</li>
 </ol>
 <p><code>index.html</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -115,6 +282,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 <aside class="special"><p><strong>補足:</strong> コード中のタグについて <code>&lt;!DOCTYPE html&gt;</code> はこのファイルが HTML5 であることを示しています。 <code>&lt;meta charset="..."&gt;</code> はこのファイルの文字コードを表していて、文字化けを防ぎます。 <code>&lt;title&gt;</code> はこのページのタイトルで、ブラウザのタブに表示されます。</p></aside>
 <h2 is-upgraded><strong>実際に表示してみよう！</strong></h2>
 <p>今作成した Web ページがどのように見えるか、ブラウザで確認してみましょう。VSCode の拡張機能を使うと、編集した HTML ファイルをリアルタイムで表示できます。</p>
@@ -128,7 +296,7 @@
 </ol>
 <p>真っ白な画面が表示されたら OK です。次の Step から内容を追加していきます！</p>
 <aside class="special"><p><strong>Tips:</strong> VSCode とブラウザを並べて表示しておくと、この後の作業がわかりやすいです。</p></aside>
-<aside class="warning"><p><strong>Troubleshooting:</strong> Step 2-1 はトラブルが発生することが多いので、わからないことがあったら気軽に声をかけてください！</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> Step 2-1 はトラブルが発生することが多いので、わからないことがあったら気軽に声をかけてください！</p></aside>
 
 
       </google-codelab-step>
@@ -138,8 +306,18 @@
 <ol type="1">
 <li><code>index.html</code> ファイルの <code>&lt;body&gt;</code> の中に、以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;h1&gt;ここをあなたの名前に変更&lt;/h1&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。</li>
 <li>先ほど起動したブラウザの画面に文字が表示されましたか？</li>
@@ -150,6 +328,15 @@
 <ul>
 <li><code>index.html</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -161,6 +348,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -170,8 +358,18 @@
 <ol type="1">
 <li><code>index.html</code> ファイルの <code>&lt;body&gt;</code> の中で、先程の <code>&lt;h1&gt;</code> タグの下に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;p&gt;ここをあなたの自己紹介文に変更。Web開発に興味があります！&lt;/p&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。ブラウザの画面に文章が表示されましたか？</li>
 <li><code>&lt;p&gt;</code> タグの中身をあなたの自己紹介文に書き換えてみましょう！</li>
@@ -181,6 +379,15 @@
 <ul>
 <li><code>index.html</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -193,6 +400,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -214,6 +422,15 @@
 <ol type="1">
 <li><code>index.html</code> ファイルの <code>&lt;body&gt;</code> の中で、先程の <code>&lt;p&gt;</code> タグの下に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;table&gt;
   &lt;thead&gt;
     &lt;tr&gt;
@@ -233,6 +450,7 @@
   &lt;/tbody&gt;
 &lt;/table&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>このコードを保存して、ブラウザで表示を確認してください。簡単な表が表示されるはずです。</li>
 <li>ファイルを保存しましょう。ブラウザの画面に表が表示されましたか？</li>
@@ -244,6 +462,15 @@
 <ul>
 <li><code>index.html</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -274,18 +501,38 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 
 
       </google-codelab-step>
     
       <google-codelab-step label="Step 2-5: [HTML] リンクを追加しよう" duration="10">
         <p>ここでは、Web ページにリンクを追加する方法を紹介します。リンクは、Web ページ同士をつなぐ大切な要素で、例えば皆さんのお使いの SNS へのリンクを貼ることができます。 HTML でリンクを作成するには <code>&lt;a&gt;</code> タグを使います。リンクの基本的な書き方は、以下の通りです。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;a href=&#34;リンク先のURL&#34;&gt;リンクのテキスト&lt;/a&gt;
 </code></pre>
+</div>
 <p>では、これを元にみなさんの SNS などへのリンクを貼ってみましょう！</p>
 <ol type="1">
 <li>Step 2-4 で作成した表の <code>&lt;tr&gt;</code> を、以下の例のように書き換えてください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;tr&gt;
   &lt;td&gt;すきなもの&lt;/td&gt;
   &lt;td&gt;
@@ -295,6 +542,7 @@
   &lt;/td&gt;
 &lt;/tr&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。ブラウザの画面にリンクが表示されましたか？</li>
 <li>リンク先の URL やリンクテキストを変えて、自分の SNS などへのリンクを貼ってみましょう！</li>
@@ -307,6 +555,15 @@
 <ul>
 <li><code>index.html</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -345,6 +602,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -353,10 +611,20 @@
         <p>CSS (Cascading Style Sheets) は、Web ページの見た目 (スタイル) を定義するための言語です。CSS を使うことで、文字の色や大きさ、背景色、要素の配置など、Web ページの様々な要素を装飾することができます。</p>
 <h2 is-upgraded><strong>CSS の 3 つの構成要素</strong></h2>
 <p>CSS は、<strong>セレクタ (selector)</strong>、<strong>プロパティ (property)</strong>、<strong>値 (value)</strong> の 3 つの要素で構成されています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">セレクタ {
   プロパティ: 値;
 }
 </code></pre>
+</div>
 <ul>
 <li><strong>セレクタ:</strong> スタイルをどこに適用するかを指定します。 (例: <code>body</code>, <code>h1</code>, <code>p</code>)</li>
 <li><strong>プロパティ:</strong> 変更したいスタイルの種類を指定します。 (例: <code>background-color</code>, <code>color</code>, <code>font-size</code>)</li>
@@ -370,13 +638,32 @@
 </ol>
 <h2 is-upgraded><strong>CSS ファイルを HTML に読込</strong></h2>
 <p>先ほど <code>style.css</code> を作成しましたが、ただファイルを作成するだけでは反映されません。HTML で CSS ファイルの存在を教えてあげる必要があるので、以下のようなコードを <code>index.html</code> の <code>&lt;head&gt;</code> の中に書き加えてください。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;link rel=&#34;stylesheet&#34; href=&#34;style.css&#34;&gt;
 </code></pre>
+</div>
 <p class="image-container"><img alt="style.css を読み込む link タグを追加した index.html" src="img/4a4c0246f5b8972a.png"></p>
 <h2 is-upgraded><strong>最終的なコード (例)</strong></h2>
 <ul>
 <li><code>index.html</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -416,6 +703,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+</div>
 <ul>
 <li><code>style.css</code>: 空のファイル</li>
 </ul>
@@ -428,10 +716,20 @@
 <ol type="1">
 <li><code>style.css</code> ファイルに、以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   background-color: #d0f0ff; /* 背景色を薄い水色に */
 }
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。ブラウザの画面上に反映されましたか？</li>
 <li><code>background-color</code> の値を好きな色に変更してみましょう！色の名前やコードはこちらのサイトなどが参考になります: <a href="https://htmlcolorcodes.com/" target="_blank">HTML Color Codes</a></li>
@@ -444,10 +742,20 @@
 <li><code>index.html</code>: 変更なし</li>
 <li><code>style.css</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   background-color: #d0f0ff; /* 背景色を薄い水色に */
 }
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -457,6 +765,15 @@
 <ol type="1">
 <li><code>style.css</code> ファイルに、以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">h1 {
   color: #229954; /* 見出しの文字色を緑色に */
 }
@@ -464,6 +781,7 @@ p {
   color: #2e86c1; /* 段落の文字色を青色に */
 }
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。文字の色が変わりましたか？</li>
 <li><code>color</code> の値を好きな色に変更してみましょう！</li>
@@ -474,6 +792,15 @@ p {
 <li><code>index.html</code>: 変更なし</li>
 <li><code>style.css</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   background-color: #d0f0ff; /* 背景色を薄い水色に */
 }
@@ -484,6 +811,7 @@ p {
   color: #2e86c1; /* 段落の文字色を青色に */
 }
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -493,10 +821,20 @@ p {
 <ol type="1">
 <li><code>style.css</code> ファイルに、以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   font-family: serif; /* セリフ体 (≒ 明朝体) */
 }
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存しましょう。文字の形が変わりましたか？</li>
 <li><code>font-family</code> の値を好きなフォントに変更してみましょう！フォントの値は <a href="https://developer.mozilla.org/ja/docs/Web/CSS/font-family" target="_blank">こちらのドキュメント</a> が参考になります。</li>
@@ -510,6 +848,15 @@ p {
 <li><code>index.html</code>: 変更なし</li>
 <li><code>style.css</code></li>
 </ul>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   background-color: #d0f0ff; /* 背景色を薄い水色に */
 }
@@ -523,6 +870,7 @@ body {
   font-family: serif; /* セリフ体 (≒ 明朝体) */
 }
 </code></pre>
+</div>
 
 
       </google-codelab-step>
@@ -577,7 +925,7 @@ body {
 <h2 is-upgraded><strong>公開の確認</strong></h2>
 <p>設定が完了すると、「Your site is live at ...」のようなメッセージが表示されます（表示されるまで少し時間がかかる場合があります）。</p>
 <p>表示された URL (<code>https://[your-GitHub-username].github.io</code>) をクリックして、作成した Web サイトがインターネット上で見られるか確認しましょう！</p>
-<aside class="warning"><p><strong>Troubleshooting:</strong> もし &#34;Page not found&#34; (404) が表示される場合は、以下の点を確認してください。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> もし &#34;Page not found&#34; (404) が表示される場合は、以下の点を確認してください。</p>
 <ul>
 <li>数分待ってみる</li>
 <li>リポジトリ名が <code>[your-GitHub-username].github.io</code> と正確に一致しているか</li>
@@ -648,6 +996,15 @@ body {
 <ol type="1">
 <li><code>index.html</code> の <code>&lt;body&gt;</code> の中、表 (<code>&lt;/table&gt;</code>) の下に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;h2&gt;自己紹介&lt;/h2&gt;
 &lt;p&gt;
   大阪大学に通う 1 年生です。
@@ -662,6 +1019,7 @@ body {
   &lt;li&gt;友達と作ったクイズアプリ&lt;/li&gt;
 &lt;/ul&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li><code>&lt;ul&gt;</code> と <code>&lt;li&gt;</code> は箇条書き (リスト) を表すタグです。<code>&lt;ul&gt;</code> で囲んだ中に複数の <code>&lt;li&gt;</code> を並べます。</li>
 </ol>
@@ -673,17 +1031,36 @@ body {
 <li><code>index.html</code> と同じ場所に <code>img</code> という名前のフォルダを作り、その中に画像を入れます (例: <code>img/profile.png</code>)。</li>
 <li><code>&lt;h1&gt;</code> タグの下に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;img src=&#34;img/profile.png&#34; alt=&#34;プロフィール画像&#34;&gt;
 </code></pre>
+</div>
 <ul>
 <li><code>src</code> は画像のファイルパス、<code>alt</code> は画像が表示できないときに代わりに表示される説明文です。</li>
 </ul>
-<aside class="warning"><p><strong>Troubleshooting:</strong> 画像が表示されないとき ファイルパスが間違っていると画像が表示されません。<code>img/profile.png</code> のように、<code>index.html</code> から見た相対パスが正しく書けているか確認しましょう。ファイル名の大文字・小文字の違いにも注意してください。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 画像が表示されないとき ファイルパスが間違っていると画像が表示されません。<code>img/profile.png</code> のように、<code>index.html</code> から見た相対パスが正しく書けているか確認しましょう。ファイル名の大文字・小文字の違いにも注意してください。</p></aside>
 <h2 is-upgraded><strong>CSS でレイアウトを整える</strong></h2>
 <p>レイアウトをもう少しきれいにするための CSS を追加してみましょう。</p>
 <ol type="1">
 <li><code>style.css</code> の末尾に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">body {
   max-width: 720px;          /* 横幅を制限して読みやすく */
   margin: 0 auto;            /* 左右中央揃え */
@@ -711,6 +1088,7 @@ th, td {
   padding: 6px 12px;
 }
 </code></pre>
+</div>
 <ul>
 <li><code>margin</code> は要素の <strong>外側</strong>、<code>padding</code> は要素の <strong>内側</strong> の余白を表します。</li>
 <li><code>border-radius: 50%;</code> は要素の角を丸めるプロパティで、画像を円形に切り抜けます。</li>
@@ -727,14 +1105,33 @@ th, td {
 <ol type="1">
 <li><code>index.html</code> の <code>&lt;head&gt;</code> 内に以下の 1 行を追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0&#34;&gt;
 </code></pre>
+</div>
 <aside class="special"><p><strong>補足:</strong> viewport って何？ ブラウザに対して「画面の幅にあわせて表示してね」と伝えるためのおまじないです。スマホ対応サイトには必ず入れるようにしましょう。</p></aside>
 <h2 is-upgraded><strong>メディアクエリで画面サイズに応じた CSS</strong></h2>
 <p>画面サイズによってスタイルを切り替えるには、CSS の <strong>メディアクエリ</strong> を使います。</p>
 <ol type="1">
 <li><code>style.css</code> の末尾に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">/* 画面の横幅が 600px 以下のときだけ適用される */
 @media (max-width: 600px) {
   body {
@@ -749,6 +1146,7 @@ th, td {
   }
 }
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ブラウザのウィンドウサイズを変えてみて、スタイルが切り替わるか確認してみましょう。</li>
 </ol>
@@ -757,6 +1155,15 @@ th, td {
 <ol type="1">
 <li><code>index.html</code> の <code>&lt;body&gt;</code> の末尾 (閉じタグ <code>&lt;/body&gt;</code> の直前) に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-html" class="language-html">&lt;button onclick=&#34;sayHello()&#34;&gt;クリックしてね&lt;/button&gt;
 
 &lt;script&gt;
@@ -765,6 +1172,7 @@ th, td {
   }
 &lt;/script&gt;
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>ファイルを保存し、ブラウザでボタンをクリックしてみましょう。メッセージが表示されたら成功です！</li>
 </ol>
@@ -774,6 +1182,15 @@ th, td {
 <ol type="1">
 <li><code>style.css</code> に以下のコードを追加してください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-css" class="language-css">button {
   background-color: #229954;
   color: white;
@@ -789,6 +1206,7 @@ button:hover {
   transform: scale(1.05); /* ホバーで少し大きくする */
 }
 </code></pre>
+</div>
 <ol type="1" start="2">
 <li>保存して、ブラウザでボタンにマウスカーソルを乗せてみましょう。ふわっとした動きがついたら成功です！</li>
 </ol>
@@ -808,8 +1226,18 @@ button:hover {
 </ol>
 <h3 is-upgraded><strong>Mac の場合</strong></h3>
 <p>Mac には多くの場合 Git が最初から入っています。確認するには、ターミナル (アプリケーション → ユーティリティ → ターミナル) を開いて以下を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">git --version
 </code></pre>
+</div>
 <p><code>git version 2.xx.x</code> のように表示されれば OK です。表示されない場合は、画面の指示に従って Xcode Command Line Tools をインストールしてください。</p>
 <h2 is-upgraded><strong>Git の初期設定</strong></h2>
 <p>インストール後、自分の名前とメールアドレスを Git に教えます。これは、誰がコミット (変更を記録) したかの情報として残ります。</p>
@@ -817,9 +1245,19 @@ button:hover {
 <li>Windows なら「Git Bash」、Mac なら「ターミナル」を開きます。</li>
 <li>以下のコマンドを 1 行ずつ実行します (<code>"..."</code> の中身は GitHub に登録したものに合わせるのがおすすめです)。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">git config --global user.name &#34;あなたの名前&#34;
 git config --global user.email &#34;あなたのメールアドレス&#34;
 </code></pre>
+</div>
 <h2 is-upgraded><strong>リポジトリをクローンする</strong></h2>
 <p>GitHub 上にあるリポジトリを、自分のパソコンにダウンロードしてくることを「クローン (clone)」と言います。</p>
 <ol type="1">
@@ -828,8 +1266,18 @@ git config --global user.email &#34;あなたのメールアドレス&#34;
 <li>ターミナル (または Git Bash) で、リポジトリを置きたいフォルダに移動します (例: <code>cd Desktop</code>)。</li>
 <li>以下のコマンドを実行します。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">git clone https://github.com/[your-username]/[your-username].github.io.git
 </code></pre>
+</div>
 <ol type="1" start="5">
 <li>指定したフォルダの中に、リポジトリと同じ名前のフォルダができていれば成功です。</li>
 <li>VSCode で、そのフォルダを開いてください。</li>
@@ -841,6 +1289,15 @@ git config --global user.email &#34;あなたのメールアドレス&#34;
 <li>VSCode の「ターミナル」メニュー →「新しいターミナル」でターミナルを開きます。</li>
 <li>以下のコマンドを順に実行します。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash"># どのファイルが変更されたか確認する
 git status
 
@@ -853,6 +1310,7 @@ git commit -m &#34;自己紹介を更新&#34;
 # ローカルの履歴を GitHub に送信する
 git push
 </code></pre>
+</div>
 <ol type="1" start="4">
 <li>数十秒〜数分待つと、<code>https://[your-username].github.io</code> に変更が反映されます。</li>
 </ol>
@@ -862,7 +1320,7 @@ git push
 <li><code>git commit</code>: ステージングされた変更を 1 つの履歴として保存する操作</li>
 <li><code>git push</code>: ローカル (パソコン上) の履歴を GitHub に送信する操作</li>
 </ul></aside>
-<aside class="warning"><p><strong>Troubleshooting:</strong> push 時にユーザー名やパスワードを聞かれたら GitHub では通常のパスワードでの push はできません。代わりに「<strong>Personal Access Token (PAT)</strong>」を発行して、パスワードの代わりに入力する必要があります。詳細は <a href="https://docs.github.com/ja/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">GitHub 公式ドキュメント</a> を参照するか、メンターに質問してみてください。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> push 時にユーザー名やパスワードを聞かれたら GitHub では通常のパスワードでの push はできません。代わりに「<strong>Personal Access Token (PAT)</strong>」を発行して、パスワードの代わりに入力する必要があります。詳細は <a href="https://docs.github.com/ja/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">GitHub 公式ドキュメント</a> を参照するか、メンターに質問してみてください。</p></aside>
 
 
       </google-codelab-step>
@@ -883,28 +1341,68 @@ git push
 <li>「LTS」と書かれている方をダウンロードしてインストールしてください (LTS = 長期サポート版)。</li>
 <li>インストール後、ターミナルで以下を実行してバージョンが表示されれば OK です。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">node --version
 npm --version
 </code></pre>
+</div>
 <h2 is-upgraded><strong>Vite で React プロジェクトを作る</strong></h2>
 <p>React プロジェクトを手早く立ち上げるツール「<strong>Vite (ヴィート)</strong>」を使ってみます。</p>
 <ol type="1">
 <li>React プロジェクトを置きたいフォルダにターミナルで移動します。</li>
 <li>以下のコマンドを実行し、画面の指示 (フレームワークの選択など) に従って <code>React</code> → <code>JavaScript</code> を選びます。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">npm create vite@latest my-react-portfolio
 </code></pre>
+</div>
 <ol type="1" start="3">
 <li>作成されたフォルダに移動して、必要なライブラリをインストールします。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">cd my-react-portfolio
 npm install
 </code></pre>
+</div>
 <ol type="1" start="4">
 <li>開発用サーバーを起動します。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">npm run dev
 </code></pre>
+</div>
 <ol type="1" start="5">
 <li>ターミナルに表示された <code>http://localhost:5173/</code> のような URL をブラウザで開いてみましょう。React のロゴが回るサンプルページが表示されたら成功です！</li>
 </ol>
@@ -913,6 +1411,15 @@ npm install
 <li>VSCode で <code>my-react-portfolio</code> フォルダを開きます。</li>
 <li><code>src/App.jsx</code> を開いて、中身をまるごと以下のように書き換えてください。</li>
 </ol>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-jsx" class="language-jsx">function App() {
   return (
     &lt;div&gt;
@@ -924,12 +1431,22 @@ npm install
 
 export default App;
 </code></pre>
+</div>
 <ol type="1" start="3">
 <li>保存すると、ブラウザの画面が自動的に更新されます (Hot Reload)。</li>
 </ol>
 <aside class="special"><p><strong>補足:</strong> JSX という書き方 <code>return ( ... )</code> の中に書かれた HTML のような記法は <strong>JSX</strong> と呼ばれ、JavaScript の中に HTML を書けるようにしたものです。<code>class</code> ではなく <code>className</code> を使うなど、いくつか HTML との違いがあります。</p></aside>
 <h2 is-upgraded><strong>状態 (state) を使ってみよう</strong></h2>
 <p>React の真価は「<strong>状態 (state)</strong>」と組み合わせたときに発揮されます。ボタンを押すたびにカウントが増えるサンプルを書いてみましょう。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
 <pre><code language="language-jsx" class="language-jsx">import { useState } from &#39;react&#39;;
 
 function App() {
@@ -948,6 +1465,7 @@ function App() {
 
 export default App;
 </code></pre>
+</div>
 <ul>
 <li><code>useState(0)</code> で「初期値 0 の状態」を作っています。</li>
 <li><code>setCount(...)</code> を呼び出すと、React が自動的に画面を再描画してくれます。</li>
@@ -970,5 +1488,67 @@ export default App;
   <script src="libs/codelab-elements.js"></script>
   <script src="//support.google.com/inapp/api.js"></script>
 
+<script id="claat-local-preprocessor-script">
+(function () {
+  function setTheme(block, theme) {
+    var isDark = theme === 'dark';
+    var toggle = block.querySelector('.claat-toggle-code-theme');
+    block.dataset.codeTheme = isDark ? 'dark' : 'light';
+    if (!toggle) return;
+    toggle.setAttribute('aria-label', isDark ? 'Use light code theme' : 'Use dark code theme');
+    toggle.setAttribute('title', isDark ? 'Use light code theme' : 'Use dark code theme');
+    var icon = toggle.querySelector('.material-icons');
+    if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
+  document.addEventListener('click', function (event) {
+    var copyButton = event.target.closest('.claat-copy-code');
+    var themeButton = event.target.closest('.claat-toggle-code-theme');
+    if (!copyButton && !themeButton) return;
+
+    var block = event.target.closest('.claat-code-block');
+    if (!block) return;
+
+    if (copyButton) {
+      var code = block.querySelector('pre');
+      if (!code) return;
+      copyText(code.innerText).then(function () {
+        var icon = copyButton.querySelector('.material-icons');
+        if (!icon) return;
+        icon.textContent = 'done';
+        window.setTimeout(function () {
+          icon.textContent = 'content_copy';
+        }, 1200);
+      });
+    }
+
+    if (themeButton) {
+      setTheme(block, block.dataset.codeTheme === 'dark' ? 'light' : 'dark');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.claat-code-block').forEach(function (block) {
+      setTheme(block, block.dataset.codeTheme || 'light');
+    });
+  });
+}());
+</script>
 </body>
 </html>
