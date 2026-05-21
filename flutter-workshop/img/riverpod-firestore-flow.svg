@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Riverpod と Firestore のデータフロー</title>
+  <desc id="desc">FeedPage、postsProvider、Firestore、PostCard、likedPostIdsProvider、postActionsProvider の関係を示す図</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3C4043"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .label { font: 700 22px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .small { font: 400 16px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #3C4043; }
+      .mono { font: 500 16px "Roboto Mono", Menlo, Consolas, monospace; fill: #3C4043; }
+      .box { stroke: #3C4043; stroke-width: 2; rx: 10; ry: 10; }
+      .group { fill: #F8FAFD; stroke: #9AA0A6; stroke-width: 2; stroke-dasharray: 8 8; rx: 16; ry: 16; }
+      .arrow { stroke: #3C4043; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <text x="64" y="68" class="title">Riverpod と Firestore のデータフロー</text>
+  <text x="64" y="100" class="small">表示は ref.watch()、操作は ref.read() で Provider を使い分けます。</text>
+
+  <rect x="66" y="146" width="760" height="440" class="group"/>
+  <text x="92" y="183" class="label">Flutter アプリ</text>
+
+  <rect x="115" y="255" width="210" height="88" class="box" fill="#E3F2FD"/>
+  <text x="220" y="289" text-anchor="middle" class="label">FeedPage</text>
+  <text x="220" y="316" text-anchor="middle" class="mono">ref.watch()</text>
+
+  <rect x="390" y="235" width="245" height="88" class="box" fill="#E8F5E9"/>
+  <text x="512" y="269" text-anchor="middle" class="label">postsProvider</text>
+  <text x="512" y="296" text-anchor="middle" class="small">投稿一覧の stream</text>
+
+  <rect x="390" y="420" width="245" height="88" class="box" fill="#FFF8E1"/>
+  <text x="512" y="454" text-anchor="middle" class="label">postActionsProvider</text>
+  <text x="512" y="481" text-anchor="middle" class="small">いいね数を更新</text>
+
+  <rect x="115" y="430" width="210" height="88" class="box" fill="#FCE8E6"/>
+  <text x="220" y="464" text-anchor="middle" class="label">PostCard</text>
+  <text x="220" y="491" text-anchor="middle" class="mono">ref.read()</text>
+
+  <rect x="680" y="430" width="210" height="88" class="box" fill="#E8F5E9"/>
+  <text x="785" y="464" text-anchor="middle" class="label">likedPostIds</text>
+  <text x="785" y="491" text-anchor="middle" class="small">ローカルいいね状態</text>
+
+  <rect x="930" y="275" width="245" height="128" class="box" fill="#E3F2FD"/>
+  <text x="1052" y="314" text-anchor="middle" class="label">Cloud Firestore</text>
+  <text x="1052" y="343" text-anchor="middle" class="mono">posts</text>
+  <text x="1052" y="371" text-anchor="middle" class="small">createdAt の新着順</text>
+
+  <path d="M325 299 H390" class="arrow"/>
+  <circle cx="355" cy="299" r="17" fill="#34A853"/>
+  <text x="355" y="306" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">1</text>
+
+  <path d="M635 279 H885 V321 H930" class="arrow"/>
+  <circle cx="760" cy="279" r="17" fill="#34A853"/>
+  <text x="760" y="286" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">2</text>
+  <text x="665" y="259" class="small">snapshots()</text>
+
+  <path d="M930 356 H862 V350 H635" class="arrow"/>
+  <circle cx="760" cy="350" r="17" fill="#34A853"/>
+  <text x="760" y="357" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">3</text>
+  <text x="650" y="382" class="small">List&lt;Post&gt;</text>
+
+  <path d="M390 323 H355 V430 H325" class="arrow"/>
+  <circle cx="355" cy="382" r="17" fill="#34A853"/>
+  <text x="355" y="389" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">4</text>
+
+  <path d="M325 474 H390" class="arrow"/>
+  <circle cx="356" cy="474" r="17" fill="#34A853"/>
+  <text x="356" y="481" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">5</text>
+
+  <path d="M635 464 H680" class="arrow"/>
+  <circle cx="657" cy="464" r="17" fill="#34A853"/>
+  <text x="657" y="471" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">6</text>
+
+  <path d="M635 444 H865 V390 H930" class="arrow"/>
+  <circle cx="760" cy="444" r="17" fill="#34A853"/>
+  <text x="760" y="451" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">7</text>
+  <text x="835" y="425" class="small">likes を更新</text>
+</svg>

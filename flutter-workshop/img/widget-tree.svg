@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">今回作る画面の Widget ツリー</title>
+  <desc id="desc">MiniInstagramApp から PostCard までの Flutter Widget ツリーを示す図</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3C4043"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .label { font: 700 22px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .sub { font: 400 16px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #3C4043; }
+      .mono { font: 500 16px "Roboto Mono", Menlo, Consolas, monospace; fill: #3C4043; }
+      .box { stroke: #3C4043; stroke-width: 2; rx: 10; ry: 10; }
+      .group { fill: #F8FAFD; stroke: #9AA0A6; stroke-width: 2; stroke-dasharray: 8 8; rx: 16; ry: 16; }
+      .arrow { stroke: #3C4043; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <text x="64" y="68" class="title">今回作る画面の Widget ツリー</text>
+  <text x="64" y="100" class="sub">Widget は親子関係で画面を構成し、投稿 1 件ごとに PostCard を作ります。</text>
+
+  <rect x="70" y="135" width="500" height="495" class="group"/>
+  <text x="94" y="172" class="label">アプリ全体</text>
+
+  <rect x="150" y="205" width="340" height="70" class="box" fill="#E3F2FD"/>
+  <text x="320" y="236" text-anchor="middle" class="label">MiniInstagramApp</text>
+  <text x="320" y="260" text-anchor="middle" class="mono">lib/app.dart</text>
+
+  <path d="M320 276 V315" class="arrow"/>
+
+  <rect x="150" y="320" width="340" height="70" class="box" fill="#E8F5E9"/>
+  <text x="320" y="351" text-anchor="middle" class="label">FeedPage</text>
+  <text x="320" y="375" text-anchor="middle" class="mono">lib/feed_page.dart</text>
+
+  <path d="M320 391 V430" class="arrow"/>
+
+  <rect x="150" y="435" width="340" height="70" class="box" fill="#FFF8E1"/>
+  <text x="320" y="466" text-anchor="middle" class="label">Scaffold</text>
+  <text x="320" y="490" text-anchor="middle" class="sub">画面の土台</text>
+
+  <path d="M320 506 V545" class="arrow"/>
+
+  <rect x="150" y="550" width="340" height="70" class="box" fill="#FCE8E6"/>
+  <text x="320" y="581" text-anchor="middle" class="label">AsyncValue.when()</text>
+  <text x="320" y="605" text-anchor="middle" class="sub">loading / error / data</text>
+
+  <rect x="705" y="135" width="500" height="495" class="group"/>
+  <text x="729" y="172" class="label">投稿リストとカード</text>
+
+  <path d="M490 585 H640 V240 H705" class="arrow"/>
+
+  <rect x="790" y="205" width="330" height="70" class="box" fill="#E8F5E9"/>
+  <text x="955" y="236" text-anchor="middle" class="label">RefreshIndicator</text>
+  <text x="955" y="260" text-anchor="middle" class="sub">Pull to Refresh</text>
+
+  <path d="M955 276 V315" class="arrow"/>
+
+  <rect x="790" y="320" width="330" height="70" class="box" fill="#E3F2FD"/>
+  <text x="955" y="351" text-anchor="middle" class="label">ListView.builder</text>
+  <text x="955" y="375" text-anchor="middle" class="sub">投稿の数だけカードを作る</text>
+
+  <path d="M955 391 V430" class="arrow"/>
+
+  <rect x="790" y="435" width="330" height="70" class="box" fill="#FFF8E1"/>
+  <text x="955" y="466" text-anchor="middle" class="label">ProviderScope</text>
+  <text x="955" y="490" text-anchor="middle" class="sub">1 件分の Post を渡す</text>
+
+  <path d="M955 506 V545" class="arrow"/>
+
+  <rect x="790" y="550" width="330" height="70" class="box" fill="#FCE8E6"/>
+  <text x="955" y="581" text-anchor="middle" class="label">PostCard</text>
+  <text x="955" y="605" text-anchor="middle" class="mono">lib/widgets/post_card.dart</text>
+</svg>

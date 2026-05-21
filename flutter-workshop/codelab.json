@@ -3,11 +3,11 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2026-05-21T10:42:35+09:00",
+  "updated": "2026-05-21T11:11:40+09:00",
   "id": "flutter-workshop",
-  "duration": 120,
+  "duration": 125,
   "title": "Flutter でミニ SNS アプリを作ろう",
-  "summary": "Flutter でミニ SNS アプリを作ろう！120 分ハンズオン",
+  "summary": "Flutter と Riverpod でミニ SNS フィードを作る 120 分ハンズオン",
   "source": "flutter-workshop/claat.md",
   "theme": "",
   "status": [
@@ -16,10 +16,12 @@
   "category": [
     "flutter",
     "dart",
+    "firebase",
     "web"
   ],
   "tags": [
     "web"
   ],
+  "feedback": "https://github.com/gdsc-osaka/flutter-workshop/issues",
   "url": "flutter-workshop"
 }

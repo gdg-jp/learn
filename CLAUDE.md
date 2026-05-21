@@ -48,10 +48,12 @@ For PDFs, invoke Marp CLI directly: `npx -p @marp-team/marp-cli@latest marp --th
 3. Replace `libs/` with a fresh copy of `portfolio-2025/libs` (overridable via `LIBS_SRC`) and rewrite `https://storage.googleapis.com/claat-public/` references to relative `libs/`. This switches from Google-hosted codelab-elements assets to the local copy.
 4. Run `.claat/fix-claat-codespans.py` against the generated `index.html`.
 
-The postfix script (`.claat/fix-claat-codespans.py`) fixes two claat-output issues:
+The postfix script (`.claat/fix-claat-codespans.py`) fixes claat-output issues:
 
 - Escapes raw HTML tags inside inline `<code>` spans (`<code><html></code>` → `<code>&lt;html&gt;</code>`). Without escaping, the browser parses them as real `<html>`/`<body>` tags and breaks the document.
 - Re-wraps `<p><strong>Note:</strong>...</p>`-style paragraphs in `<aside class="warning">` / `<aside class="special">` to restore styled callout boxes. Recognized keywords: `Note`, `Notice`, `Tip`, `Tips`, `Hint`, `補足`, `Warning`, `Warn`, `Caution`, `Troubleshooting`. Add new keywords by editing the `ASIDE_KEYWORDS` dict.
+- Wraps generated `<pre>` code blocks with copy and light/dark theme icon controls. Code blocks default to light mode.
+- Injects local CSS/JS for the code-block controls and adds full outlines to warning and special callouts.
 
 A new codelab directory needs its own `libs/` or must override `LIBS_SRC` (the default reuses `portfolio-2025/libs`).
 

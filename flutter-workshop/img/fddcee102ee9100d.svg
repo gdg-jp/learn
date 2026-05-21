@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Widget 内だけで状態を持つ場合と Riverpod を使う場合の違い</title>
+  <desc id="desc">親から子へ値を渡す方法と、Riverpod Provider を複数 Widget が読む方法を比較する図</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3C4043"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .label { font: 700 22px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .small { font: 400 17px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #3C4043; }
+      .mono { font: 500 16px "Roboto Mono", Menlo, Consolas, monospace; fill: #3C4043; }
+      .box { stroke: #3C4043; stroke-width: 2; rx: 10; ry: 10; }
+      .panel { fill: #F8FAFD; stroke: #DADCE0; stroke-width: 2; rx: 18; ry: 18; }
+      .arrow { stroke: #3C4043; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #3C4043; stroke-width: 2.5; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <text x="64" y="68" class="title">状態をどこに置くか</text>
+  <text x="64" y="100" class="small">状態を Widget の内側に閉じると値の受け渡しが増えます。Riverpod は状態を Widget の外へ置きます。</text>
+
+  <rect x="70" y="145" width="540" height="485" class="panel"/>
+  <text x="110" y="190" class="label">Widget 内だけで状態を持つ</text>
+  <text x="110" y="218" class="small">離れた Widget へ値を渡すほど、親子の経路が長くなります。</text>
+
+  <rect x="210" y="265" width="260" height="62" class="box" fill="#E3F2FD"/>
+  <text x="340" y="293" text-anchor="middle" class="label">親 Widget</text>
+  <text x="340" y="316" text-anchor="middle" class="mono">state</text>
+
+  <path d="M340 328 V370" class="arrow"/>
+  <rect x="210" y="375" width="260" height="58" class="box" fill="#FFFFFF"/>
+  <text x="340" y="410" text-anchor="middle" class="label">中間 Widget</text>
+
+  <path d="M340 434 V476" class="arrow"/>
+  <rect x="210" y="480" width="260" height="58" class="box" fill="#FFFFFF"/>
+  <text x="340" y="515" text-anchor="middle" class="label">子 Widget</text>
+
+  <path d="M470 509 H525 V296 H470" class="dash"/>
+  <text x="498" y="392" class="small" transform="rotate(90 498 392)">props を渡し続ける</text>
+
+  <rect x="670" y="145" width="540" height="485" class="panel"/>
+  <text x="710" y="190" class="label">Riverpod を使う</text>
+  <text x="710" y="218" class="small">状態とデータ取得を Provider に置き、必要な Widget が直接読みます。</text>
+
+  <rect x="820" y="285" width="240" height="85" class="box" fill="#E8F5E9"/>
+  <text x="940" y="318" text-anchor="middle" class="label">Provider</text>
+  <text x="940" y="345" text-anchor="middle" class="mono">postsProvider</text>
+
+  <rect x="735" y="455" width="205" height="64" class="box" fill="#E3F2FD"/>
+  <text x="837" y="494" text-anchor="middle" class="label">FeedPage</text>
+
+  <rect x="975" y="455" width="205" height="64" class="box" fill="#FFF8E1"/>
+  <text x="1077" y="494" text-anchor="middle" class="label">PostCard</text>
+
+  <path d="M881 455 V370" class="arrow"/>
+  <path d="M1034 455 V370" class="arrow"/>
+
+  <circle cx="785" cy="330" r="18" fill="#34A853"/>
+  <text x="785" y="337" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">1</text>
+  <text x="810" y="337" class="small">ref.watch()</text>
+
+  <circle cx="1072" cy="330" r="18" fill="#34A853"/>
+  <text x="1072" y="337" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">2</text>
+  <text x="1097" y="337" class="small">変更で再描画</text>
+</svg>

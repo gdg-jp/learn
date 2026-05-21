@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">投稿カードの重なり構造</title>
+  <desc id="desc">PostCard の Stack 内で、画像、グラデーション、ユーザー情報、本文、いいねボタンが重なる構造を示す図</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3C4043"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .label { font: 700 22px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .small { font: 400 16px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #3C4043; }
+      .mono { font: 500 16px "Roboto Mono", Menlo, Consolas, monospace; fill: #3C4043; }
+      .box { stroke: #3C4043; stroke-width: 2; rx: 10; ry: 10; }
+      .arrow { stroke: #3C4043; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <text x="64" y="68" class="title">投稿カードの重なり構造</text>
+  <text x="64" y="100" class="small">Stack は下から上へ children を重ねます。背景画像の上に、読みやすくするための UI を置きます。</text>
+
+  <rect x="115" y="140" width="310" height="520" rx="24" ry="24" fill="#F1F3F4" stroke="#3C4043" stroke-width="2"/>
+  <rect x="152" y="178" width="236" height="420" rx="20" ry="20" fill="#202124" stroke="#3C4043" stroke-width="2"/>
+  <rect x="172" y="203" width="196" height="250" rx="10" ry="10" fill="#E3F2FD" stroke="#3C4043" stroke-width="2"/>
+  <text x="270" y="333" text-anchor="middle" class="label">Image.network</text>
+
+  <rect x="172" y="453" width="196" height="125" rx="10" ry="10" fill="#000000" opacity="0.58"/>
+  <text x="270" y="526" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF">本文</text>
+
+  <circle cx="203" cy="229" r="19" fill="#FFFFFF" stroke="#3C4043" stroke-width="2"/>
+  <circle cx="203" cy="229" r="13" fill="#E8F5E9" stroke="#3C4043" stroke-width="1.5"/>
+  <rect x="232" y="214" width="92" height="24" rx="8" ry="8" fill="#FFFFFF" stroke="#3C4043" stroke-width="1.5"/>
+  <text x="278" y="232" text-anchor="middle" class="mono" font-size="13">author</text>
+
+  <rect x="324" y="485" width="42" height="78" rx="18" ry="18" fill="#FCE8E6" stroke="#3C4043" stroke-width="2"/>
+  <text x="345" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#EA4335">♥</text>
+  <text x="345" y="546" text-anchor="middle" class="mono" font-size="13">likes</text>
+
+  <rect x="535" y="160" width="305" height="76" class="box" fill="#E3F2FD"/>
+  <text x="687" y="191" text-anchor="middle" class="label">1. 背景画像</text>
+  <text x="687" y="216" text-anchor="middle" class="mono">Image.network(post.imageUrl)</text>
+
+  <rect x="535" y="285" width="305" height="76" class="box" fill="#FFF8E1"/>
+  <text x="687" y="316" text-anchor="middle" class="label">2. 暗い重ね色</text>
+  <text x="687" y="341" text-anchor="middle" class="mono">DecoratedBox</text>
+
+  <rect x="535" y="410" width="305" height="76" class="box" fill="#E8F5E9"/>
+  <text x="687" y="441" text-anchor="middle" class="label">3. ユーザー情報</text>
+  <text x="687" y="466" text-anchor="middle" class="mono">Positioned(top)</text>
+
+  <rect x="535" y="535" width="305" height="76" class="box" fill="#FCE8E6"/>
+  <text x="687" y="566" text-anchor="middle" class="label">4. 本文といいね</text>
+  <text x="687" y="591" text-anchor="middle" class="mono">Positioned(bottom)</text>
+
+  <path d="M535 198 H388 V325" class="arrow"/>
+  <path d="M535 323 H425 V515 H368" class="arrow"/>
+  <path d="M535 448 H450 V229 H324" class="arrow"/>
+  <path d="M535 573 H425 V524 H366" class="arrow"/>
+
+  <rect x="925" y="230" width="250" height="260" class="box" fill="#F8FAFD"/>
+  <text x="1050" y="272" text-anchor="middle" class="label">Stack の順序</text>
+  <text x="962" y="318" class="small">1. 下に置くものを先に書く</text>
+  <text x="962" y="358" class="small">2. 上に重ねるものを後に書く</text>
+  <text x="962" y="398" class="small">3. 位置指定は Positioned</text>
+  <text x="962" y="438" class="small">4. 縦長比率は AspectRatio</text>
+</svg>

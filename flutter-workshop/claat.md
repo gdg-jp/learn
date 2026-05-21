@@ -1,8 +1,9 @@
-summary: Flutter でミニ SNS アプリを作ろう！120 分ハンズオン
+summary: Flutter と Riverpod でミニ SNS フィードを作る 120 分ハンズオン
 id: flutter-workshop
-categories: Flutter, Dart, Web
+categories: Flutter, Dart, Firebase, Web
 environments: Web
 status: Draft
+feedback link: https://github.com/gdsc-osaka/flutter-workshop/issues
 author: GDG on Campus University of Osaka
 
 # Flutter でミニ SNS アプリを作ろう
@@ -10,22 +11,22 @@ author: GDG on Campus University of Osaka
 ## はじめに
 Duration: 0:05:00
 
-このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。スターターコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。
+このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。
 
-![完成イメージ](img/mini-sns-final.png)
+![Flutter のマスコット Dash](img/header-image-dash.png)
 
 ### このコードラボで作るもの
 
 縦スクロールで投稿を眺める Web 対応の Flutter アプリを作ります。
 
+![完成イメージ](img/final-app-screenshot.png)
+
+完成すると、次の機能を持つフィード画面になります。
+
 * Firestore の `posts` コレクションから投稿を新着順に表示する
 * 投稿ごとに画像、ユーザー名、本文、いいね数を表示する
 * いいねボタンを押すと画面の状態と Firestore の値を更新する
 * Pull to Refresh で投稿リストを再取得する
-
-完成版のコードは `flutter-workshop/example/`、スターターコードは `flutter-workshop/template/` にあります。
-
-> **Tip:** まずは手順どおりに `template/` を編集し、詰まったときだけ `example/` と見比べてください。
 
 ### このコードラボで学ぶこと
 
@@ -55,62 +56,61 @@ Duration: 0:05:00
 ### このコードラボで扱わないこと
 
 * Firebase プロジェクトの作成と初期設定
+* Firebase Security Rules の設計
 * 認証、投稿作成、投稿削除
 * iOS / Android のネイティブビルド
 * Riverpod のコード生成、テスト、アーキテクチャ設計
 
 ### 参考にした公開資料
 
-構成は Google Codelabs の進め方に合わせています。たとえば、完成像を先に示す、スターターコードから始める、各ステップで目に見える成果を作る、という流れです。
+構成は Google Codelabs の進め方に合わせています。完成像を先に示し、セットアップを独立させ、各ステップで目に見える成果を作る流れにしています。
 
 * [Your first Flutter app](https://codelabs.developers.google.com/codelabs/flutter-codelab-first)
 * [Take your Flutter app from boring to beautiful](https://codelabs.developers.google.com/codelabs/flutter-boring-to-beautiful)
 * [Get to know Firebase for Flutter](https://firebase.google.com/codelabs/firebase-get-to-know-flutter)
 * [Flutter learning pathway](https://docs.flutter.dev/learn/pathway)
 * [Install Flutter](https://docs.flutter.dev/install)
+* [Set up web development](https://docs.flutter.dev/platform-integration/web/setup)
 * [Approaches to state management](https://docs.flutter.dev/data-and-backend/state-mgmt/options)
 * [Riverpod Providers](https://riverpod.dev/docs/concepts2/providers)
 
-> **Note:** Flutter 公式ドキュメントは、特記がない限り Flutter 3.44.0 を反映し、ページ最終更新日は 2026-05-05 です。このコードラボは 2026-05-21 時点で確認した情報に基づいています。
+> **Note:** 2026-05-21 時点で Flutter 公式ドキュメントを確認しています。公式の Install ページでは Flutter 3.44 が公開済みで、VS Code などの Code OSS ベースのエディタを使う Quick start が推奨されています。
 
-## セットアップ
-Duration: 0:20:00
+## セットアップ (Windows)
+Duration: 0:15:00
 
-このステップでは、Flutter Web を Chrome で起動できる状態を作ります。すでにインストール済みのツールは、確認コマンドだけ実行してください。
+このステップでは、Windows で Flutter Web を Chrome から起動できる状態を作ります。macOS を使っている場合は、次の「セットアップ (macOS)」へ進んでください。
 
-### Git をインストールする
+### コードの場所を確認する
 
-Windows の場合は [Git for Windows](https://git-scm.com/download/win) をインストールします。`winget` を使う場合は PowerShell で次を実行します。
+このコードラボでは、テンプレートコードを編集します。詰まったときは完成版のコードと見比べてください。
+
+* テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop
+* 完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example
+
+> **Tip:** まずは手順どおりにテンプレートコードを編集し、詰まったときだけ完成版のコードを参照してください。
+
+### 必要なツールをインストールする
+
+PowerShell を開き、Git、Google Chrome、Visual Studio Code をインストールします。
 
 ```powershell
 winget install --id Git.Git -e --source winget
-```
-
-macOS の場合は、ターミナルで Xcode Command Line Tools をインストールします。
-
-```bash
-xcode-select --install
-```
-
-インストールできたか確認します。
-
-```bash
-git --version
+winget install --id Google.Chrome -e --source winget
+winget install --id Microsoft.VisualStudioCode -e --source winget
 ```
 
 **期待される出力:**
 
 ```text
-git version 2.x.x
+Successfully installed
 ```
 
-バージョン番号が表示されれば成功です。
+`winget` が使えない場合は、次の公式サイトからインストーラをダウンロードします。
 
-### Chrome と VS Code をインストールする
-
-[Google Chrome](https://www.google.com/chrome/) と [Visual Studio Code](https://code.visualstudio.com/) をインストールします。
-
-macOS でターミナルから `code .` を使いたい場合は、VS Code を開いて `Cmd + Shift + P` を押し、`Shell Command: Install 'code' command in PATH` を実行します。
+* [Git for Windows](https://git-scm.com/download/win)
+* [Google Chrome](https://www.google.com/chrome/)
+* [Visual Studio Code](https://code.visualstudio.com/)
 
 ### Flutter SDK をインストールする
 
@@ -119,51 +119,146 @@ Flutter 公式のインストールページでは、VS Code などの Code OSS 
 1. VS Code を開きます。
 2. 左サイドバーの拡張機能を開きます。
 3. `Flutter` を検索し、**Flutter** 拡張機能をインストールします。
-4. `Ctrl + Shift + P` または `Cmd + Shift + P` で Command Palette を開きます。
+4. `Ctrl + Shift + P` で Command Palette を開きます。
 5. `Flutter: New Project` を選択します。
 6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
-7. SDK の保存先を選びます。
+7. SDK の保存先として `C:\src` などの短いパスを選びます。
 
-Windows の保存先例:
+> **Warning:** Flutter SDK は `C:\Program Files` のようにスペースを含むパスに置かないでください。`C:\src\flutter` のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。
 
-```text
-C:\src
-```
+インストール後、VS Code と PowerShell を開き直します。
 
-macOS の保存先例:
+### Flutter Web を確認する
 
-```text
-~/development
-```
+PowerShell で次を実行します。
 
-> **Warning:** Windows では `Program Files` のようにスペースを含むパスを避けてください。SDK や一部のツールでパス解決の問題が起きることがあります。
-
-インストール後、VS Code とターミナルを開き直します。
-
-### Flutter を確認する
-
-PowerShell、コマンドプロンプト、またはターミナルで次を実行します。
-
-```bash
+```powershell
+git --version
 flutter --version
 flutter doctor -v
+flutter devices
+```
+
+**期待される出力の例:**
+
+```text
+git version 2.x.x
+Flutter 3.44.x • channel stable
+[✓] Chrome - develop for the web
+Chrome (web) • chrome • web-javascript • Google Chrome
+```
+
+このコードラボでは Chrome で動かすため、`Chrome - develop for the web` にチェックが付き、`flutter devices` に Chrome が表示されていれば進められます。Android toolchain、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。
+
+> **Troubleshooting:** PowerShell で `flutter` コマンドが見つからない場合は、VS Code と PowerShell をすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の `bin` フォルダが PATH に追加されているか確認します。
+
+### テンプレートコードを起動する
+
+任意の作業フォルダでテンプレートリポジトリをクローンします。
+
+```powershell
+git clone https://github.com/gdsc-osaka/flutter-workshop.git
+cd flutter-workshop
+flutter pub get
+flutter run -d chrome
 ```
 
 **期待される出力:**
 
 ```text
-Flutter 3.x.x • channel stable • ...
-...
-[✓] Chrome - develop for the web
+Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
 ```
 
-このコードラボでは Chrome で動かすため、`Chrome - develop for the web` にチェックが付いていれば進められます。Android toolchain、Xcode、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。
+Chrome が開いて `TODO: 投稿一覧を表示する` と表示されたら準備完了です。
 
-> **Troubleshooting:** `flutter` コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の `bin` フォルダが PATH に追加されているか確認します。
+最後に VS Code でプロジェクトを開きます。
 
-### スターターコードを起動する
+```powershell
+code .
+```
 
-任意の作業フォルダでリポジトリをクローンします。
+出力がなければ成功です。
+
+## セットアップ (macOS)
+Duration: 0:15:00
+
+このステップでは、macOS で Flutter Web を Chrome から起動できる状態を作ります。Windows でセットアップ済みの場合は、次の「Flutter の画面構造をつかむ」へ進んでください。
+
+### コードの場所を確認する
+
+このコードラボでは、テンプレートコードを編集します。詰まったときは完成版のコードと見比べてください。
+
+* テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop
+* 完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example
+
+> **Tip:** まずは手順どおりにテンプレートコードを編集し、詰まったときだけ完成版のコードを参照してください。
+
+### 必要なツールをインストールする
+
+ターミナルを開き、Xcode Command Line Tools をインストールします。これで `git` などの基本ツールが使えるようになります。
+
+```bash
+xcode-select --install
+```
+
+**期待される表示:**
+
+```text
+xcode-select: note: install requested for command line developer tools
+```
+
+すでにインストール済みの場合は、そのまま次へ進んでください。
+
+Google Chrome と Visual Studio Code は公式サイトからインストールします。Homebrew を使っている場合は、次のコマンドでもインストールできます。
+
+```bash
+brew install --cask google-chrome visual-studio-code
+```
+
+VS Code をターミナルから `code .` で開きたい場合は、VS Code を起動して `Cmd + Shift + P` を押し、`Shell Command: Install 'code' command in PATH` を実行します。
+
+### Flutter SDK をインストールする
+
+Flutter 公式のインストールページでは、VS Code などの Code OSS ベースのエディタからセットアップする Quick start が推奨されています。このコードラボでも VS Code の Flutter 拡張機能から SDK を入れます。
+
+1. VS Code を開きます。
+2. 左サイドバーの拡張機能を開きます。
+3. `Flutter` を検索し、**Flutter** 拡張機能をインストールします。
+4. `Cmd + Shift + P` で Command Palette を開きます。
+5. `Flutter: New Project` を選択します。
+6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
+7. SDK の保存先として `~/development` などの作業用フォルダを選びます。
+
+インストール後、VS Code とターミナルを開き直します。
+
+### Flutter Web を確認する
+
+ターミナルで次を実行します。
+
+```bash
+git --version
+flutter --version
+flutter doctor -v
+flutter devices
+```
+
+**期待される出力の例:**
+
+```text
+git version 2.x.x
+Flutter 3.44.x • channel stable
+[✓] Chrome - develop for the web
+Chrome (web) • chrome • web-javascript • Google Chrome
+```
+
+このコードラボでは Chrome で動かすため、`Chrome - develop for the web` にチェックが付き、`flutter devices` に Chrome が表示されていれば進められます。Android toolchain、Xcode、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。
+
+> **Troubleshooting:** ターミナルで `flutter` コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の `bin` フォルダが PATH に追加されているか確認します。
+
+### テンプレートコードを起動する
+
+任意の作業フォルダでテンプレートリポジトリをクローンします。
 
 ```bash
 git clone https://github.com/gdsc-osaka/flutter-workshop.git
@@ -175,9 +270,8 @@ flutter run -d chrome
 **期待される出力:**
 
 ```text
-Launching lib/main.dart on Chrome in debug mode...
-...
-Flutter run key commands.
+Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
 ```
 
 Chrome が開いて `TODO: 投稿一覧を表示する` と表示されたら準備完了です。
@@ -188,8 +282,10 @@ Chrome が開いて `TODO: 投稿一覧を表示する` と表示されたら準
 code .
 ```
 
+出力がなければ成功です。
+
 ## Flutter の画面構造をつかむ
-Duration: 0:15:00
+Duration: 0:10:00
 
 このステップでは、実装で使う Flutter / Dart の考え方だけを確認します。詳しい文法を全部覚える必要はありません。
 
@@ -205,7 +301,7 @@ Flutter では、画面の部品を Widget と呼びます。
 * スクロールリストは `ListView`
 * 画面の土台は `Scaffold`
 
-![Widget ツリー](img/widget-tree.png)
+![今回作る画面の Widget ツリー](img/widget-tree.svg)
 
 Widget は入れ子になって 1 本のツリーを作ります。親 Widget が `child` または `children` で子 Widget を持ちます。
 
@@ -257,7 +353,7 @@ q  Quit
 
 > **Note:** Flutter Web では開発環境や変更内容によって Hot reload の効き方に差があります。画面が更新されない場合は `R` で Hot restart してください。
 
-## Riverpod のデータフローをつかむ
+## Riverpod と Firestore のデータフローをつかむ
 Duration: 0:15:00
 
 このステップでは、今回使う Riverpod の部品を確認します。覚えるのは `ProviderScope`、`Provider`、`StreamProvider`、`NotifierProvider`、`ref.watch`、`ref.read` だけです。
@@ -266,7 +362,7 @@ Duration: 0:15:00
 
 `StatefulWidget` だけで状態を持つと、その状態は基本的に Widget の内側に閉じます。離れた Widget で同じ状態を使いたい場合、親から子へ値を渡し続ける必要があります。
 
-![状態管理の課題](img/state-problem.png)
+![Widget 内だけで状態を持つ場合と Riverpod を使う場合の違い](img/state-flow.svg)
 
 Riverpod では、状態やデータ取得処理を Widget の外に置きます。Widget は必要な Provider を `ref.watch()` で読み、値が変わると自動で再描画されます。
 
@@ -274,20 +370,7 @@ Riverpod では、状態やデータ取得処理を Widget の外に置きます
 
 今回のデータフローは次の形です。
 
-```text
-FeedPage
-  ref.watch(postsProvider)
-    ↓
-postsProvider
-  Firestore の posts コレクションを購読
-    ↓
-PostCard
-  currentPostProvider で 1 件分の投稿を受け取る
-  likedPostIdsProvider でいいね状態を読む
-  postActionsProvider で Firestore を更新する
-```
-
-![Riverpod の流れ](img/riverpod-flow.png)
+![Riverpod と Firestore のデータフロー](img/riverpod-firestore-flow.svg)
 
 `lib/providers/post_providers.dart` には、すでに次の Provider が用意されています。
 
@@ -626,16 +709,7 @@ class PostCard extends ConsumerWidget {
 
 カードは `Stack` で作ります。背景画像を一番下に置き、その上にグラデーション、本文、いいねボタン、ユーザー情報を重ねます。
 
-```dart
-Stack(
-  fit: StackFit.expand,
-  children: [
-    Image.network(post.imageUrl, fit: BoxFit.cover),
-    const DecoratedBox(decoration: BoxDecoration(...)),
-    Positioned(...),
-  ],
-)
-```
+![投稿カードの重なり構造](img/post-card-layout.svg)
 
 `AspectRatio(aspectRatio: 9 / 16)` で縦長の投稿カードにします。
 
@@ -826,12 +900,12 @@ class PostCard extends ConsumerWidget {
 
 > **Troubleshooting:** 画像が表示されない場合は、Firestore の `imageUrl` が空でないか、ブラウザから直接開ける URL かを確認してください。
 
-## 仕上げと確認
+## おめでとうございます！
 Duration: 0:05:00
 
-最後に、アプリ全体の動作を確認します。
+このコードラボでは、Flutter Web でミニ SNS フィードを作りました。
 
-### 実行状態を確認する
+### 動作を確認する
 
 ターミナルで起動していない場合は、プロジェクトのルートで次を実行します。
 
@@ -839,11 +913,11 @@ Duration: 0:05:00
 flutter run -d chrome
 ```
 
-**期待される表示:**
+**期待される出力:**
 
 ```text
-Launching lib/main.dart on Chrome in debug mode...
-Flutter run key commands.
+Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
 ```
 
 Chrome で次の動作を確認します。
@@ -852,6 +926,15 @@ Chrome で次の動作を確認します。
 * Pull to Refresh してもエラーにならない
 * いいねボタンを押すとハート表示が切り替わる
 * 画像 URL が壊れている投稿では、壊れた画像アイコンが表示される
+
+### 学んだこと
+
+* Flutter の Widget ツリーで画面を構築する方法
+* `ConsumerWidget` と `WidgetRef` で Riverpod の値を読む方法
+* `StreamProvider` で Firestore のリアルタイム更新を扱う方法
+* `AsyncValue.when()` で loading / error / data を出し分ける方法
+* `ProviderScope` の override でリストの 1 件分のデータを子 Widget に渡す方法
+* `Stack` と `Positioned` で画像の上に UI を重ねる方法
 
 ### 余裕があれば改善する
 
@@ -862,16 +945,11 @@ Chrome で次の動作を確認します。
 * `createdAt` を使って投稿時間を表示する
 * 空状態の画面をより親切にする
 
-### まとめ
+### 次のステップ
 
-このコードラボでは、Flutter Web でミニ SNS フィードを作りました。
-
-* Flutter は Widget ツリーで画面を構築する
-* Riverpod は Widget の外に状態やデータ取得処理を置ける
-* `StreamProvider` は Firestore のリアルタイム更新と相性が良い
-* `AsyncValue.when()` を使うと loading / error / data の UI を整理できる
-* `Stack` と `Positioned` で画像の上に UI を重ねられる
+* 完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example
+* Flutter の学習パス: https://docs.flutter.dev/learn/pathway
+* Flutter の状態管理: https://docs.flutter.dev/data-and-backend/state-mgmt/options
+* Riverpod の Provider: https://riverpod.dev/docs/concepts2/providers
 
 詰まったところ、改善したところ、気づいたことを Discord `#260521-flutter-workshop` に共有してください。
-
-お疲れさまでした。

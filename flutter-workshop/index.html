@@ -18,6 +18,155 @@
       color: red;
     }
   </style>
+<style id="claat-local-preprocessor-style">
+  google-codelab-step .instructions .claat-code-block {
+    position: relative;
+    margin: 16px 0;
+    background: #f1f3f4;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre {
+    margin: 0;
+    padding: 18px 88px 18px 18px;
+    color: #37474f;
+    background: #f1f3f4;
+    border-radius: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code {
+    color: inherit;
+    background: transparent;
+    padding: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-toolbar {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  google-codelab-step .instructions .claat-code-button {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #202124;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  google-codelab-step .instructions .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-button:focus-visible {
+    background: rgba(60, 64, 67, 0.12);
+    outline: none;
+  }
+
+  google-codelab-step .instructions .claat-code-button .material-icons {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .pln,
+  google-codelab-step .instructions .claat-code-block pre .pun {
+    color: #37474f;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .kwd,
+  google-codelab-step .instructions .claat-code-block pre .typ,
+  google-codelab-step .instructions .claat-code-block pre .tag {
+    color: #9334e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .str,
+  google-codelab-step .instructions .claat-code-block pre .atv {
+    color: #188038;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .com {
+    color: #5f6368;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .atn,
+  google-codelab-step .instructions .claat-code-block pre .lit,
+  google-codelab-step .instructions .claat-code-block pre .dec {
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {
+    color: #f8f9fa;
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:focus-visible {
+    background: rgba(248, 249, 250, 0.16);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .str,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .atv {
+    color: #34a853;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .kwd {
+    color: #f538a0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .com {
+    color: #bdc1c6;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .typ,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .tag {
+    color: #24c1e0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .lit,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .dec {
+    color: #4285f4;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pln,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pun {
+    color: #f8f9fa;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
+    border: 1px solid #ea8600;
+    border-left-width: 4px;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
+    border: 1px solid #137333;
+    border-left-width: 4px;
+  }
+
+  @media (max-width: 640px) {
+    google-codelab-step .instructions .claat-code-block pre {
+      padding: 56px 14px 16px;
+    }
+  }
+</style>
 </head>
 <body>
   <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
@@ -26,21 +175,21 @@
                   id="flutter-workshop"
                   title="Flutter でミニ SNS アプリを作ろう"
                   environment="web"
-                  feedback-link="">
+                  feedback-link="https://github.com/gdsc-osaka/flutter-workshop/issues">
     
       <google-codelab-step label="はじめに" duration="5">
-        <p>このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。スターターコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。</p>
-<p class="image-container"><img alt="完成イメージ" src="img/fb1481a0448063f6.png"></p>
+        <p>このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。</p>
+<p class="image-container"><img alt="Flutter のマスコット Dash" src="img/668f79a43e73c2a1.png"></p>
 <h2 is-upgraded>このコードラボで作るもの</h2>
 <p>縦スクロールで投稿を眺める Web 対応の Flutter アプリを作ります。</p>
+<p class="image-container"><img alt="完成イメージ" src="img/d54b6d04c7f4c4fb.png"></p>
+<p>完成すると、次の機能を持つフィード画面になります。</p>
 <ul>
 <li>Firestore の <code>posts</code> コレクションから投稿を新着順に表示する</li>
 <li>投稿ごとに画像、ユーザー名、本文、いいね数を表示する</li>
 <li>いいねボタンを押すと画面の状態と Firestore の値を更新する</li>
 <li>Pull to Refresh で投稿リストを再取得する</li>
 </ul>
-<p>完成版のコードは <code>flutter-workshop/example/</code>、スターターコードは <code>flutter-workshop/template/</code> にあります。</p>
-<aside class="special"><p><strong>Tip:</strong> まずは手順どおりに <code>template/</code> を編集し、詰まったときだけ <code>example/</code> と見比べてください。</p></aside>
 <h2 is-upgraded>このコードラボで学ぶこと</h2>
 <ul>
 <li>Flutter の Widget ツリーで画面を構築する方法</li>
@@ -68,97 +217,319 @@
 <h2 is-upgraded>このコードラボで扱わないこと</h2>
 <ul>
 <li>Firebase プロジェクトの作成と初期設定</li>
+<li>Firebase Security Rules の設計</li>
 <li>認証、投稿作成、投稿削除</li>
 <li>iOS / Android のネイティブビルド</li>
 <li>Riverpod のコード生成、テスト、アーキテクチャ設計</li>
 </ul>
 <h2 is-upgraded>参考にした公開資料</h2>
-<p>構成は Google Codelabs の進め方に合わせています。たとえば、完成像を先に示す、スターターコードから始める、各ステップで目に見える成果を作る、という流れです。</p>
+<p>構成は Google Codelabs の進め方に合わせています。完成像を先に示し、セットアップを独立させ、各ステップで目に見える成果を作る流れにしています。</p>
 <ul>
 <li><a href="https://codelabs.developers.google.com/codelabs/flutter-codelab-first" target="_blank">Your first Flutter app</a></li>
 <li><a href="https://codelabs.developers.google.com/codelabs/flutter-boring-to-beautiful" target="_blank">Take your Flutter app from boring to beautiful</a></li>
 <li><a href="https://firebase.google.com/codelabs/firebase-get-to-know-flutter" target="_blank">Get to know Firebase for Flutter</a></li>
 <li><a href="https://docs.flutter.dev/learn/pathway" target="_blank">Flutter learning pathway</a></li>
 <li><a href="https://docs.flutter.dev/install" target="_blank">Install Flutter</a></li>
+<li><a href="https://docs.flutter.dev/platform-integration/web/setup" target="_blank">Set up web development</a></li>
 <li><a href="https://docs.flutter.dev/data-and-backend/state-mgmt/options" target="_blank">Approaches to state management</a></li>
 <li><a href="https://riverpod.dev/docs/concepts2/providers" target="_blank">Riverpod Providers</a></li>
 </ul>
-<aside class="warning"><p><strong>Note:</strong> Flutter 公式ドキュメントは、特記がない限り Flutter 3.44.0 を反映し、ページ最終更新日は 2026-05-05 です。このコードラボは 2026-05-21 時点で確認した情報に基づいています。</p></aside>
+<aside class="warning"><p><strong>Note:</strong> 2026-05-21 時点で Flutter 公式ドキュメントを確認しています。公式の Install ページでは Flutter 3.44 が公開済みで、VS Code などの Code OSS ベースのエディタを使う Quick start が推奨されています。</p></aside>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="セットアップ" duration="20">
-        <p>このステップでは、Flutter Web を Chrome で起動できる状態を作ります。すでにインストール済みのツールは、確認コマンドだけ実行してください。</p>
-<h2 is-upgraded>Git をインストールする</h2>
-<p>Windows の場合は <a href="https://git-scm.com/download/win" target="_blank">Git for Windows</a> をインストールします。<code>winget</code> を使う場合は PowerShell で次を実行します。</p>
+      <google-codelab-step label="セットアップ (Windows)" duration="15">
+        <p>このステップでは、Windows で Flutter Web を Chrome から起動できる状態を作ります。macOS を使っている場合は、次の「セットアップ (macOS)」へ進んでください。</p>
+<h2 is-upgraded>コードの場所を確認する</h2>
+<p>このコードラボでは、テンプレートコードを編集します。詰まったときは完成版のコードと見比べてください。</p>
+<ul>
+<li>テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop</li>
+<li>完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example</li>
+</ul>
+<aside class="special"><p><strong>Tip:</strong> まずは手順どおりにテンプレートコードを編集し、詰まったときだけ完成版のコードを参照してください。</p></aside>
+<h2 is-upgraded>必要なツールをインストールする</h2>
+<p>PowerShell を開き、Git、Google Chrome、Visual Studio Code をインストールします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-powershell" class="language-powershell">winget install --id Git.Git -e --source winget
+winget install --id Google.Chrome -e --source winget
+winget install --id Microsoft.VisualStudioCode -e --source winget
 </code></pre>
-<p>macOS の場合は、ターミナルで Xcode Command Line Tools をインストールします。</p>
-<pre><code language="language-bash" class="language-bash">xcode-select --install
-</code></pre>
-<p>インストールできたか確認します。</p>
-<pre><code language="language-bash" class="language-bash">git --version
-</code></pre>
+</div>
 <p><strong>期待される出力:</strong></p>
-<pre><code language="language-text" class="language-text">git version 2.x.x
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Successfully installed
 </code></pre>
-<p>バージョン番号が表示されれば成功です。</p>
-<h2 is-upgraded>Chrome と VS Code をインストールする</h2>
-<p><a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a> と <a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a> をインストールします。</p>
-<p>macOS でターミナルから <code>code .</code> を使いたい場合は、VS Code を開いて <code>Cmd + Shift + P</code> を押し、<code>Shell Command: Install 'code' command in PATH</code> を実行します。</p>
+</div>
+<p><code>winget</code> が使えない場合は、次の公式サイトからインストーラをダウンロードします。</p>
+<ul>
+<li><a href="https://git-scm.com/download/win" target="_blank">Git for Windows</a></li>
+<li><a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a></li>
+<li><a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a></li>
+</ul>
 <h2 is-upgraded>Flutter SDK をインストールする</h2>
 <p>Flutter 公式のインストールページでは、VS Code などの Code OSS ベースのエディタからセットアップする Quick start が推奨されています。このコードラボでも VS Code の Flutter 拡張機能から SDK を入れます。</p>
 <ol type="1">
 <li>VS Code を開きます。</li>
 <li>左サイドバーの拡張機能を開きます。</li>
 <li><code>Flutter</code> を検索し、<strong>Flutter</strong> 拡張機能をインストールします。</li>
-<li><code>Ctrl + Shift + P</code> または <code>Cmd + Shift + P</code> で Command Palette を開きます。</li>
+<li><code>Ctrl + Shift + P</code> で Command Palette を開きます。</li>
 <li><code>Flutter: New Project</code> を選択します。</li>
 <li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
-<li>SDK の保存先を選びます。</li>
+<li>SDK の保存先として <code>C:\src</code> などの短いパスを選びます。</li>
 </ol>
-<p>Windows の保存先例:</p>
-<pre><code language="language-text" class="language-text">C:\src
-</code></pre>
-<p>macOS の保存先例:</p>
-<pre><code language="language-text" class="language-text">~/development
-</code></pre>
-<aside class="warning"><p><strong>Warning:</strong> Windows では <code>Program Files</code> のようにスペースを含むパスを避けてください。SDK や一部のツールでパス解決の問題が起きることがあります。</p></aside>
-<p>インストール後、VS Code とターミナルを開き直します。</p>
-<h2 is-upgraded>Flutter を確認する</h2>
-<p>PowerShell、コマンドプロンプト、またはターミナルで次を実行します。</p>
-<pre><code language="language-bash" class="language-bash">flutter --version
+<aside class="warning"><p><strong>Warning:</strong> Flutter SDK は <code>C:\Program Files</code> のようにスペースを含むパスに置かないでください。<code>C:\src\flutter</code> のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。</p></aside>
+<p>インストール後、VS Code と PowerShell を開き直します。</p>
+<h2 is-upgraded>Flutter Web を確認する</h2>
+<p>PowerShell で次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">git --version
+flutter --version
 flutter doctor -v
+flutter devices
 </code></pre>
-<p><strong>期待される出力:</strong></p>
-<pre><code language="language-text" class="language-text">Flutter 3.x.x • channel stable • ...
-...
+</div>
+<p><strong>期待される出力の例:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">git version 2.x.x
+Flutter 3.44.x • channel stable
 [✓] Chrome - develop for the web
+Chrome (web) • chrome • web-javascript • Google Chrome
 </code></pre>
-<p>このコードラボでは Chrome で動かすため、<code>Chrome - develop for the web</code> にチェックが付いていれば進められます。Android toolchain、Xcode、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。</p>
-<p><strong>Troubleshooting: </strong><code>flutter</code> コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p>
-<h2 is-upgraded>スターターコードを起動する</h2>
-<p>任意の作業フォルダでリポジトリをクローンします。</p>
+</div>
+<p>このコードラボでは Chrome で動かすため、<code>Chrome - develop for the web</code> にチェックが付き、<code>flutter devices</code> に Chrome が表示されていれば進められます。Android toolchain、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。</p>
+<aside class="warning"><p><strong>Troubleshooting:</strong> PowerShell で <code>flutter</code> コマンドが見つからない場合は、VS Code と PowerShell をすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
+<h2 is-upgraded>テンプレートコードを起動する</h2>
+<p>任意の作業フォルダでテンプレートリポジトリをクローンします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">git clone https://github.com/gdsc-osaka/flutter-workshop.git
+cd flutter-workshop
+flutter pub get
+flutter run -d chrome
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
+</code></pre>
+</div>
+<p>Chrome が開いて <code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
+<p>最後に VS Code でプロジェクトを開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">code .
+</code></pre>
+</div>
+<p>出力がなければ成功です。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="セットアップ (macOS)" duration="15">
+        <p>このステップでは、macOS で Flutter Web を Chrome から起動できる状態を作ります。Windows でセットアップ済みの場合は、次の「Flutter の画面構造をつかむ」へ進んでください。</p>
+<h2 is-upgraded>コードの場所を確認する</h2>
+<p>このコードラボでは、テンプレートコードを編集します。詰まったときは完成版のコードと見比べてください。</p>
+<ul>
+<li>テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop</li>
+<li>完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example</li>
+</ul>
+<aside class="special"><p><strong>Tip:</strong> まずは手順どおりにテンプレートコードを編集し、詰まったときだけ完成版のコードを参照してください。</p></aside>
+<h2 is-upgraded>必要なツールをインストールする</h2>
+<p>ターミナルを開き、Xcode Command Line Tools をインストールします。これで <code>git</code> などの基本ツールが使えるようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">xcode-select --install
+</code></pre>
+</div>
+<p><strong>期待される表示:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">xcode-select: note: install requested for command line developer tools
+</code></pre>
+</div>
+<p>すでにインストール済みの場合は、そのまま次へ進んでください。</p>
+<p>Google Chrome と Visual Studio Code は公式サイトからインストールします。Homebrew を使っている場合は、次のコマンドでもインストールできます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">brew install --cask google-chrome visual-studio-code
+</code></pre>
+</div>
+<p>VS Code をターミナルから <code>code .</code> で開きたい場合は、VS Code を起動して <code>Cmd + Shift + P</code> を押し、<code>Shell Command: Install 'code' command in PATH</code> を実行します。</p>
+<h2 is-upgraded>Flutter SDK をインストールする</h2>
+<p>Flutter 公式のインストールページでは、VS Code などの Code OSS ベースのエディタからセットアップする Quick start が推奨されています。このコードラボでも VS Code の Flutter 拡張機能から SDK を入れます。</p>
+<ol type="1">
+<li>VS Code を開きます。</li>
+<li>左サイドバーの拡張機能を開きます。</li>
+<li><code>Flutter</code> を検索し、<strong>Flutter</strong> 拡張機能をインストールします。</li>
+<li><code>Cmd + Shift + P</code> で Command Palette を開きます。</li>
+<li><code>Flutter: New Project</code> を選択します。</li>
+<li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
+<li>SDK の保存先として <code>~/development</code> などの作業用フォルダを選びます。</li>
+</ol>
+<p>インストール後、VS Code とターミナルを開き直します。</p>
+<h2 is-upgraded>Flutter Web を確認する</h2>
+<p>ターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">git --version
+flutter --version
+flutter doctor -v
+flutter devices
+</code></pre>
+</div>
+<p><strong>期待される出力の例:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">git version 2.x.x
+Flutter 3.44.x • channel stable
+[✓] Chrome - develop for the web
+Chrome (web) • chrome • web-javascript • Google Chrome
+</code></pre>
+</div>
+<p>このコードラボでは Chrome で動かすため、<code>Chrome - develop for the web</code> にチェックが付き、<code>flutter devices</code> に Chrome が表示されていれば進められます。Android toolchain、Xcode、Android Studio にエラーが出ても、このハンズオンでは無視して構いません。</p>
+<aside class="warning"><p><strong>Troubleshooting:</strong> ターミナルで <code>flutter</code> コマンドが見つからない場合は、VS Code とターミナルをすべて閉じて開き直してください。それでも解決しない場合は、Flutter SDK の <code>bin</code> フォルダが PATH に追加されているか確認します。</p></aside>
+<h2 is-upgraded>テンプレートコードを起動する</h2>
+<p>任意の作業フォルダでテンプレートリポジトリをクローンします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">git clone https://github.com/gdsc-osaka/flutter-workshop.git
 cd flutter-workshop
 flutter pub get
 flutter run -d chrome
 </code></pre>
+</div>
 <p><strong>期待される出力:</strong></p>
-<pre><code language="language-text" class="language-text">Launching lib/main.dart on Chrome in debug mode...
-...
-Flutter run key commands.
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
 </code></pre>
+</div>
 <p>Chrome が開いて <code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
 <p>最後に VS Code でプロジェクトを開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">code .
 </code></pre>
+</div>
+<p>出力がなければ成功です。</p>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="Flutter の画面構造をつかむ" duration="15">
+      <google-codelab-step label="Flutter の画面構造をつかむ" duration="10">
         <p>このステップでは、実装で使う Flutter / Dart の考え方だけを確認します。詳しい文法を全部覚える必要はありません。</p>
 <h2 is-upgraded>Flutter は Widget で画面を作る</h2>
 <p>Flutter は Google が開発しているマルチプラットフォーム UI フレームワークです。Flutter 公式の learning pathway でも、Dart と Flutter の基礎、Widget、状態管理、レイアウトを順に学ぶ構成になっています。</p>
@@ -170,7 +541,7 @@ Flutter run key commands.
 <li>スクロールリストは <code>ListView</code></li>
 <li>画面の土台は <code>Scaffold</code></li>
 </ul>
-<p class="image-container"><img alt="Widget ツリー" src="img/33fa552e2c296157.png"></p>
+<p class="image-container"><img alt="今回作る画面の Widget ツリー" src="img/68d003d487e88829.svg"></p>
 <p>Widget は入れ子になって 1 本のツリーを作ります。親 Widget が <code>child</code> または <code>children</code> で子 Widget を持ちます。</p>
 <h2 is-upgraded>Web 開発の知識と対応させる</h2>
 <p>すでに Web 開発を知っている場合は、次の対応で考えると理解しやすくなります。</p>
@@ -201,6 +572,15 @@ Flutter run key commands.
 <h2 is-upgraded>アプリの入口を確認する</h2>
 <p><code>lib/main.dart</code> と <code>lib/app.dart</code> はすでに用意されています。今回は編集しません。</p>
 <p><code>lib/main.dart</code> は次の流れでアプリを起動しています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">Future&lt;void&gt; main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -210,40 +590,49 @@ Flutter run key commands.
   runApp(const ProviderScope(child: MiniInstagramApp()));
 }
 </code></pre>
+</div>
 <p><code>Firebase.initializeApp()</code> で Firebase を初期化し、<code>ProviderScope</code> で Riverpod をアプリ全体から使えるようにしています。</p>
 <h2 is-upgraded>Hot reload で確認する</h2>
 <p><code>flutter run -d chrome</code> で起動している間は、ファイル保存後にターミナルで <code>r</code> を押すと Hot reload、<code>R</code> を押すと Hot restart できます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-text" class="language-text">r  Hot reload
 R  Hot restart
 q  Quit
 </code></pre>
+</div>
 <p>表示だけを変えたときは Hot reload、Firebase 初期化や Provider の作りを変えたときは Hot restart を使います。</p>
 <aside class="warning"><p><strong>Note:</strong> Flutter Web では開発環境や変更内容によって Hot reload の効き方に差があります。画面が更新されない場合は <code>R</code> で Hot restart してください。</p></aside>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="Riverpod のデータフローをつかむ" duration="15">
+      <google-codelab-step label="Riverpod と Firestore のデータフローをつかむ" duration="15">
         <p>このステップでは、今回使う Riverpod の部品を確認します。覚えるのは <code>ProviderScope</code>、<code>Provider</code>、<code>StreamProvider</code>、<code>NotifierProvider</code>、<code>ref.watch</code>、<code>ref.read</code> だけです。</p>
 <h2 is-upgraded>Riverpod を使う理由</h2>
 <p><code>StatefulWidget</code> だけで状態を持つと、その状態は基本的に Widget の内側に閉じます。離れた Widget で同じ状態を使いたい場合、親から子へ値を渡し続ける必要があります。</p>
-<p class="image-container"><img alt="状態管理の課題" src="img/cbbf3efc86c48288.png"></p>
+<p class="image-container"><img alt="Widget 内だけで状態を持つ場合と Riverpod を使う場合の違い" src="img/fddcee102ee9100d.svg"></p>
 <p>Riverpod では、状態やデータ取得処理を Widget の外に置きます。Widget は必要な Provider を <code>ref.watch()</code> で読み、値が変わると自動で再描画されます。</p>
 <h2 is-upgraded>今回の Provider を確認する</h2>
 <p>今回のデータフローは次の形です。</p>
-<pre><code language="language-text" class="language-text">FeedPage
-  ref.watch(postsProvider)
-    ↓
-postsProvider
-  Firestore の posts コレクションを購読
-    ↓
-PostCard
-  currentPostProvider で 1 件分の投稿を受け取る
-  likedPostIdsProvider でいいね状態を読む
-  postActionsProvider で Firestore を更新する
-</code></pre>
-<p class="image-container"><img alt="Riverpod の流れ" src="img/7e4f767c5adf5919.png"></p>
+<p class="image-container"><img alt="Riverpod と Firestore のデータフロー" src="img/2d3a6a9e57c76998.svg"></p>
 <p><code>lib/providers/post_providers.dart</code> には、すでに次の Provider が用意されています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final firestoreProvider = Provider&lt;FirebaseFirestore&gt;((ref) {
   return FirebaseFirestore.instance;
 });
@@ -257,6 +646,7 @@ final likedPostIdsProvider = NotifierProvider&lt;LikedPostIds, Set&lt;String&gt;
   LikedPostIds.new,
 );
 </code></pre>
+</div>
 <p><code>postsProvider</code> はこのあと Firestore の stream に置き換えます。<code>likedPostIdsProvider</code> は、いいね済み投稿 ID の集合を管理します。</p>
 <h2 is-upgraded>ref.watch と ref.read を使い分ける</h2>
 <p>Widget から Provider を使うときは、表示用と操作用で読み方を分けます。</p>
@@ -277,6 +667,15 @@ final likedPostIdsProvider = NotifierProvider&lt;LikedPostIds, Set&lt;String&gt;
 <p>表示は <code>watch</code>、操作は <code>read</code> と覚えてください。</p>
 <h2 is-upgraded>AsyncValue を扱う</h2>
 <p><code>StreamProvider<List<Post>></code> を <code>watch</code> すると、Widget 側には <code>AsyncValue<List<Post>></code> が届きます。<code>AsyncValue.when()</code> を使うと、読み込み中、エラー、データありの UI を分けられます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final posts = ref.watch(postsProvider);
 
 return posts.when(
@@ -285,6 +684,7 @@ return posts.when(
   data: (items) =&gt; Text(&#39;投稿数: ${items.length}&#39;),
 );
 </code></pre>
+</div>
 <p>この形を次のステップで <code>FeedPage</code> に組み込みます。</p>
 
 
@@ -294,6 +694,15 @@ return posts.when(
         <p>このステップでは、<code>postsProvider</code> から投稿リストを受け取り、縦スクロールのリストとして表示します。</p>
 <h2 is-upgraded>現在の FeedPage を確認する</h2>
 <p><code>lib/feed_page.dart</code> を開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">class FeedPage extends ConsumerWidget {
   const FeedPage({super.key});
 
@@ -310,9 +719,19 @@ return posts.when(
   }
 }
 </code></pre>
+</div>
 <p><code>postsProvider</code> を <code>watch</code> していますが、まだ画面には使っていません。</p>
 <h2 is-upgraded>投稿リストを PostCard に渡す</h2>
 <p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">ListView.builder(
   itemCount: items.length,
   itemBuilder: (context, index) {
@@ -325,9 +744,19 @@ return posts.when(
   },
 )
 </code></pre>
+</div>
 <p>この書き方にすると、<code>PostCard</code> は引数を増やさずに <code>currentPostProvider</code> から投稿データを読めます。</p>
 <h2 is-upgraded>FeedPage を実装する</h2>
 <p><code>lib/feed_page.dart</code> を以下の内容で上書きします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
 import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
 
@@ -430,6 +859,7 @@ class _ErrorView extends StatelessWidget {
   }
 }
 </code></pre>
+</div>
 <p>このコードは <code>AsyncValue.when()</code> で 3 つの状態を分けています。<code>data</code> では投稿が空のときの表示、投稿があるときの <code>ListView</code>、Pull to Refresh の処理をまとめています。</p>
 <h2 is-upgraded>画面を確認する</h2>
 <p>ファイルを保存し、必要に応じてターミナルで <code>R</code> を押します。</p>
@@ -448,11 +878,21 @@ class _ErrorView extends StatelessWidget {
         <p>このステップでは、<code>postsProvider</code> を Firestore に接続します。Firestore の <code>posts</code> コレクションを購読し、変更があれば画面へリアルタイムに反映します。</p>
 <h2 is-upgraded>現在の postsProvider を確認する</h2>
 <p><code>lib/providers/post_providers.dart</code> を開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
   // TODO
   return const Stream&lt;List&lt;Post&gt;&gt;.empty();
 });
 </code></pre>
+</div>
 <p>今は空の stream を返しているため、投稿データは届きません。</p>
 <h2 is-upgraded>Post モデルを確認する</h2>
 <p><code>lib/models/post.dart</code> には、Firestore のドキュメントをアプリ用の <code>Post</code> に変換する処理が用意されています。</p>
@@ -493,6 +933,15 @@ class _ErrorView extends StatelessWidget {
 <p><code>Post.fromDocument()</code> を使うと、Firestore の <code>DocumentSnapshot</code> を <code>Post</code> に変換できます。</p>
 <h2 is-upgraded>Firestore の stream を作る</h2>
 <p>Firestore から投稿を取得する処理は次の形です。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final firestore = ref.watch(firestoreProvider);
 
 return firestore
@@ -503,9 +952,19 @@ return firestore
       return snapshot.docs.map(Post.fromDocument).toList();
     });
 </code></pre>
+</div>
 <p><code>collection('posts')</code> でコレクションを選び、<code>orderBy('createdAt', descending: true)</code> で新着順に並べます。<code>snapshots()</code> は Firestore の変更を stream として返します。</p>
 <h2 is-upgraded>postsProvider を実装する</h2>
 <p><code>lib/providers/post_providers.dart</code> の <code>postsProvider</code> だけを以下に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
   final firestore = ref.watch(firestoreProvider);
 
@@ -518,6 +977,7 @@ return firestore
       });
 });
 </code></pre>
+</div>
 <p>この Provider は <code>List&lt;Post&gt;</code> の stream を返します。Firestore のデータが増えたり、いいね数が変わったりすると、<code>FeedPage</code> が再描画されます。</p>
 <h2 is-upgraded>投稿データを確認する</h2>
 <p>ファイルを保存し、ターミナルで <code>R</code> を押して Hot restart します。</p>
@@ -535,6 +995,15 @@ return firestore
         <p>このステップでは、<code>PostCard</code> を完成させます。投稿画像を背景に表示し、その上にユーザー情報、本文、いいねボタンを重ねます。</p>
 <h2 is-upgraded>現在の PostCard を確認する</h2>
 <p><code>lib/widgets/post_card.dart</code> を開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">class PostCard extends ConsumerWidget {
   const PostCard({super.key});
 
@@ -555,33 +1024,55 @@ return firestore
   }
 }
 </code></pre>
+</div>
 <p><code>currentPostProvider</code> を <code>watch</code> していますが、まだ投稿データを表示していません。</p>
 <h2 is-upgraded>Stack で UI を重ねる</h2>
 <p>カードは <code>Stack</code> で作ります。背景画像を一番下に置き、その上にグラデーション、本文、いいねボタン、ユーザー情報を重ねます。</p>
-<pre><code language="language-dart" class="language-dart">Stack(
-  fit: StackFit.expand,
-  children: [
-    Image.network(post.imageUrl, fit: BoxFit.cover),
-    const DecoratedBox(decoration: BoxDecoration(...)),
-    Positioned(...),
-  ],
-)
-</code></pre>
+<p class="image-container"><img alt="投稿カードの重なり構造" src="img/fe4548d1bc10e3a4.svg"></p>
 <p><code>AspectRatio(aspectRatio: 9 / 16)</code> で縦長の投稿カードにします。</p>
 <h2 is-upgraded>いいね状態を読む</h2>
 <p>いいね済みかどうかは <code>likedPostIdsProvider</code> から読みます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">final post = ref.watch(currentPostProvider);
 final likedPostIds = ref.watch(likedPostIdsProvider);
 final isLiked = likedPostIds.contains(post.id);
 </code></pre>
+</div>
 <p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">await ref
     .read(postActionsProvider)
     .toggleLike(post, isLiked: isLiked);
 </code></pre>
+</div>
 <p>ここでも表示は <code>watch</code>、操作は <code>read</code> です。</p>
 <h2 is-upgraded>PostCard を実装する</h2>
 <p><code>lib/widgets/post_card.dart</code> を以下の内容で上書きします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
 import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
 
@@ -729,6 +1220,7 @@ class PostCard extends ConsumerWidget {
   }
 }
 </code></pre>
+</div>
 <p>このコードは <code>Image.network</code> で投稿画像を表示し、画像読み込み中と失敗時の表示も用意しています。<code>IconButton.filledTonal</code> の <code>onPressed</code> では、いいね状態を反転し、Firestore の <code>likes</code> を増減します。</p>
 <h2 is-upgraded>いいねを確認する</h2>
 <p>ファイルを保存し、必要に応じて <code>R</code> を押して Hot restart します。</p>
@@ -743,22 +1235,51 @@ class PostCard extends ConsumerWidget {
 
       </google-codelab-step>
     
-      <google-codelab-step label="仕上げと確認" duration="5">
-        <p>最後に、アプリ全体の動作を確認します。</p>
-<h2 is-upgraded>実行状態を確認する</h2>
+      <google-codelab-step label="おめでとうございます！" duration="5">
+        <p>このコードラボでは、Flutter Web でミニ SNS フィードを作りました。</p>
+<h2 is-upgraded>動作を確認する</h2>
 <p>ターミナルで起動していない場合は、プロジェクトのルートで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
 <pre><code language="language-bash" class="language-bash">flutter run -d chrome
 </code></pre>
-<p><strong>期待される表示:</strong></p>
-<pre><code language="language-text" class="language-text">Launching lib/main.dart on Chrome in debug mode...
-Flutter run key commands.
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Launching lib/main.dart on Chrome in debug mode
+Flutter run key commands
 </code></pre>
+</div>
 <p>Chrome で次の動作を確認します。</p>
 <ul>
 <li>投稿が新着順に縦スクロールで表示される</li>
 <li>Pull to Refresh してもエラーにならない</li>
 <li>いいねボタンを押すとハート表示が切り替わる</li>
 <li>画像 URL が壊れている投稿では、壊れた画像アイコンが表示される</li>
+</ul>
+<h2 is-upgraded>学んだこと</h2>
+<ul>
+<li>Flutter の Widget ツリーで画面を構築する方法</li>
+<li><code>ConsumerWidget</code> と <code>WidgetRef</code> で Riverpod の値を読む方法</li>
+<li><code>StreamProvider</code> で Firestore のリアルタイム更新を扱う方法</li>
+<li><code>AsyncValue.when()</code> で loading / error / data を出し分ける方法</li>
+<li><code>ProviderScope</code> の override でリストの 1 件分のデータを子 Widget に渡す方法</li>
+<li><code>Stack</code> と <code>Positioned</code> で画像の上に UI を重ねる方法</li>
 </ul>
 <h2 is-upgraded>余裕があれば改善する</h2>
 <p>時間が残ったら、次のどれかに挑戦してください。</p>
@@ -768,17 +1289,14 @@ Flutter run key commands.
 <li><code>createdAt</code> を使って投稿時間を表示する</li>
 <li>空状態の画面をより親切にする</li>
 </ul>
-<h2 is-upgraded>まとめ</h2>
-<p>このコードラボでは、Flutter Web でミニ SNS フィードを作りました。</p>
+<h2 is-upgraded>次のステップ</h2>
 <ul>
-<li>Flutter は Widget ツリーで画面を構築する</li>
-<li>Riverpod は Widget の外に状態やデータ取得処理を置ける</li>
-<li><code>StreamProvider</code> は Firestore のリアルタイム更新と相性が良い</li>
-<li><code>AsyncValue.when()</code> を使うと loading / error / data の UI を整理できる</li>
-<li><code>Stack</code> と <code>Positioned</code> で画像の上に UI を重ねられる</li>
+<li>完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example</li>
+<li>Flutter の学習パス: https://docs.flutter.dev/learn/pathway</li>
+<li>Flutter の状態管理: https://docs.flutter.dev/data-and-backend/state-mgmt/options</li>
+<li>Riverpod の Provider: https://riverpod.dev/docs/concepts2/providers</li>
 </ul>
 <p>詰まったところ、改善したところ、気づいたことを Discord <code>#260521-flutter-workshop</code> に共有してください。</p>
-<p>お疲れさまでした。</p>
 
 
       </google-codelab-step>
@@ -791,5 +1309,67 @@ Flutter run key commands.
   <script src="libs/codelab-elements.js"></script>
   <script src="//support.google.com/inapp/api.js"></script>
 
+<script id="claat-local-preprocessor-script">
+(function () {
+  function setTheme(block, theme) {
+    var isDark = theme === 'dark';
+    var toggle = block.querySelector('.claat-toggle-code-theme');
+    block.dataset.codeTheme = isDark ? 'dark' : 'light';
+    if (!toggle) return;
+    toggle.setAttribute('aria-label', isDark ? 'Use light code theme' : 'Use dark code theme');
+    toggle.setAttribute('title', isDark ? 'Use light code theme' : 'Use dark code theme');
+    var icon = toggle.querySelector('.material-icons');
+    if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
+  document.addEventListener('click', function (event) {
+    var copyButton = event.target.closest('.claat-copy-code');
+    var themeButton = event.target.closest('.claat-toggle-code-theme');
+    if (!copyButton && !themeButton) return;
+
+    var block = event.target.closest('.claat-code-block');
+    if (!block) return;
+
+    if (copyButton) {
+      var code = block.querySelector('pre');
+      if (!code) return;
+      copyText(code.innerText).then(function () {
+        var icon = copyButton.querySelector('.material-icons');
+        if (!icon) return;
+        icon.textContent = 'done';
+        window.setTimeout(function () {
+          icon.textContent = 'content_copy';
+        }, 1200);
+      });
+    }
+
+    if (themeButton) {
+      setTheme(block, block.dataset.codeTheme === 'dark' ? 'light' : 'dark');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.claat-code-block').forEach(function (block) {
+      setTheme(block, block.dataset.codeTheme || 'light');
+    });
+  });
+}());
+</script>
 </body>
 </html>
