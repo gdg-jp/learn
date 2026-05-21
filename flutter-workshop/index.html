@@ -303,11 +303,24 @@ winget install --id Microsoft.VisualStudioCode -e --source winget
 <li>VS Code を開きます。</li>
 <li>左サイドバーの拡張機能を開きます。</li>
 <li><code>Flutter</code> を検索し、<strong>Flutter</strong> 拡張機能をインストールします。</li>
+</ol>
+<p class="image-container"><img alt="VS Code で Flutter 拡張機能をインストールする" src="img/1d13678e7596a0eb.png"></p>
+<ol type="1" start="4">
+<li>Dart Code の発行元を信頼する確認が出た場合は、<strong>Trust Publisher &amp; Install</strong> を選択します。</li>
+</ol>
+<p class="image-container"><img alt="Dart Code の発行元を信頼する確認" src="img/4fa4d93691ec5591.png"></p>
+<ol type="1" start="5">
 <li><code>Ctrl + Shift + P</code> で Command Palette を開きます。</li>
 <li><code>Flutter: New Project</code> を選択します。</li>
 <li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
+</ol>
+<p class="image-container"><img alt="Flutter SDK が見つからない場合に Download SDK を選択する" src="img/32aac06ed12eaf3d.png"></p>
+<ol type="1" start="8">
 <li>SDK の保存先として <code>C:\src</code> などの短いパスを選びます。</li>
 <li><strong>Clone Flutter</strong> を選択し、SDK のダウンロードが完了するまで待ちます。</li>
+</ol>
+<p class="image-container"><img alt="VS Code から Flutter SDK を clone する" src="img/febb3ad3d1c89e1f.png"></p>
+<ol type="1" start="10">
 <li><strong>Add SDK to PATH</strong> が表示されたら選択します。</li>
 </ol>
 <aside class="warning"><p><strong>Warning:</strong> Flutter SDK は <code>C:\Program Files</code> のようにスペースを含むパスに置かないでください。<code>C:\src\flutter</code> のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。</p></aside>
@@ -378,7 +391,9 @@ flutter run -d chrome
 Flutter run key commands
 </code></pre>
 </div>
+<p class="image-container"><img alt="ターミナルで flutter run を実行した状態" src="img/41424fd74e2c9f2f.png"></p>
 <p>Chrome が開いて <code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
+<p class="image-container"><img alt="Chrome で TODO 投稿一覧を表示する画面" src="img/a99bc0da68a398d1.png"></p>
 <p>最後に VS Code でプロジェクトを開きます。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -454,11 +469,24 @@ Flutter run key commands
 <li>VS Code を開きます。</li>
 <li>左サイドバーの拡張機能を開きます。</li>
 <li><code>Flutter</code> を検索し、<strong>Flutter</strong> 拡張機能をインストールします。</li>
+</ol>
+<p class="image-container"><img alt="VS Code で Flutter 拡張機能をインストールする" src="img/1d13678e7596a0eb.png"></p>
+<ol type="1" start="4">
+<li>Dart Code の発行元を信頼する確認が出た場合は、<strong>Trust Publisher &amp; Install</strong> を選択します。</li>
+</ol>
+<p class="image-container"><img alt="Dart Code の発行元を信頼する確認" src="img/4fa4d93691ec5591.png"></p>
+<ol type="1" start="5">
 <li><code>Cmd + Shift + P</code> で Command Palette を開きます。</li>
 <li><code>Flutter: New Project</code> を選択します。</li>
 <li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
+</ol>
+<p class="image-container"><img alt="Flutter SDK が見つからない場合に Download SDK を選択する" src="img/32aac06ed12eaf3d.png"></p>
+<ol type="1" start="8">
 <li>SDK の保存先として <code>~/development</code> などの作業用フォルダを選びます。</li>
 <li><strong>Clone Flutter</strong> を選択し、SDK のダウンロードが完了するまで待ちます。</li>
+</ol>
+<p class="image-container"><img alt="VS Code から Flutter SDK を clone する" src="img/febb3ad3d1c89e1f.png"></p>
+<ol type="1" start="10">
 <li><strong>Add SDK to PATH</strong> が表示されたら選択します。</li>
 </ol>
 <p>インストール後、VS Code とターミナルを開き直します。</p>
@@ -528,7 +556,9 @@ flutter run -d chrome
 Flutter run key commands
 </code></pre>
 </div>
+<p class="image-container"><img alt="ターミナルで flutter run を実行した状態" src="img/41424fd74e2c9f2f.png"></p>
 <p>Chrome が開いて <code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
+<p class="image-container"><img alt="Chrome で TODO 投稿一覧を表示する画面" src="img/a99bc0da68a398d1.png"></p>
 <p>最後に VS Code でプロジェクトを開きます。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -561,6 +591,8 @@ Flutter run key commands
 <p>下のボタンから Cloud Shell を開きます。リポジトリの clone、Cloud Shell Editor、チュートリアル表示が自動で始まります。</p>
 <p><a href="https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/gdsc-osaka/flutter-workshop-cloudshell.git&amp;cloudshell_workspace=.&amp;cloudshell_tutorial=cloudshell_tutorial.md&amp;cloudshell_open_in_editor=lib/feed_page.dart&amp;show=ide%2Cterminal&amp;ephemeral=true" target="_blank"><paper-button class="colored" raised>Cloud Shell でテンプレートを開く</paper-button></a></p>
 <p>Cloud Shell が初回起動の場合は、利用規約の確認や環境作成に数分かかることがあります。</p>
+<p>リポジトリを信頼する確認が表示された場合は、内容を確認して進めます。</p>
+<p class="image-container"><img alt="Cloud Shell Editor でリポジトリを信頼する確認" src="img/38c6bd46bc0b590c.png"></p>
 <h2 is-upgraded>Flutter をセットアップする</h2>
 <p>Cloud Shell のターミナルで次を実行します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -593,6 +625,7 @@ flutter pub get
 Got dependencies!
 </code></pre>
 </div>
+<p class="image-container"><img alt="Cloud Shell で Flutter をセットアップする" src="img/5debede26c35833.png"></p>
 <p>Cloud Shell には <code>/google/flutter</code> に Flutter SDK がプリインストールされており、<code>flutter</code> コマンドはそのまま使えます。Flutter SDK はダウンロードしません。<code>git config</code> は初回の <code>flutter</code> 実行で <code>fatal: detected dubious ownership</code> が出るのを防ぐために追加します。</p>
 <h2 is-upgraded>テンプレートコードを起動する</h2>
 <p>Cloud Shell では Chrome を直接起動せず、Web Preview 用の <code>web-server</code> デバイスで起動します。</p>
@@ -623,6 +656,7 @@ lib/main.dart is being served at http://0.0.0.0:8080
 </code></pre>
 </div>
 <p>Cloud Shell 右上の <strong>Web Preview</strong> から <strong>Preview on port 8080</strong> を開きます。<code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
+<p class="image-container"><img alt="Cloud Shell の Web Preview でポート 8080 を開く" src="img/54ba27b3c256f654.png"></p>
 <p>ファイルを保存したあと、起動中のターミナルで <code>r</code> を押すと Hot reload、<code>R</code> を押すと Hot restart できます。</p>
 
 
@@ -871,6 +905,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 <pre><code language="language-text" class="language-text">投稿を読み込んでいます...
 </code></pre>
 </div>
+<p class="image-container"><img alt="Chrome で投稿を読み込んでいますと表示される画面" src="img/842a5baca8c51b19.png"></p>
 <p>この時点では <code>postsProvider</code> がまだ Firestore に接続されていないため、読み込み中の表示だけが見えます。次のステップで Firestore の stream を返すようにします。</p>
 
 
@@ -996,6 +1031,7 @@ return firestore
 <pre><code language="language-text" class="language-text">投稿数: 3
 </code></pre>
 </div>
+<p class="image-container"><img alt="Chrome で投稿数 3 と表示される画面" src="img/6ebe040609bab913.png"></p>
 <p>Firestore に <code>posts</code> データがある場合は、件数が表示されます。ここではまだリスト UI を作っていないため、投稿カードは表示されません。</p>
 <aside class="troubleshooting"><p><strong>Troubleshooting:</strong> Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。</p></aside>
 
@@ -1086,6 +1122,7 @@ return firestore
 </code></pre>
 </div>
 <p>Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。</p>
+<p class="image-container"><img alt="Chrome で投稿がまだありませんと表示される画面" src="img/fe78fce96301fc7.png"></p>
 <h2 is-upgraded>error の UI を整える</h2>
 <p><code>lib/feed_page.dart</code> の <code>posts.when(error: ...)</code> の中身を以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1151,6 +1188,7 @@ return firestore
 </code></pre>
 </div>
 <p>この Widget は、エラーの概要と実際のメッセージを分けて表示します。</p>
+<p class="image-container"><img alt="Chrome で投稿を読み込めませんでしたと表示される画面" src="img/ec6c5e53e768169c.png"></p>
 <h2 is-upgraded>loading の UI を整える</h2>
 <p><code>lib/feed_page.dart</code> の <code>posts.when(loading: ...)</code> の中身を以下に置き換えます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1264,6 +1302,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 <li>画像 URL が壊れている投稿では、壊れた画像アイコンが表示される</li>
 <li>本文、ユーザー名、いいねボタンはまだ表示されない</li>
 </ul>
+<p class="image-container"><img alt="Chrome で投稿画像の表示を確認する画面" src="img/623e52cb73e4fcf3.png"></p>
 
 
       </google-codelab-step>
@@ -1356,6 +1395,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 <li>長い本文は 3 行で省略される</li>
 <li>ユーザー名といいねボタンはまだ表示されない</li>
 </ul>
+<p class="image-container"><img alt="Chrome で投稿本文を画像に重ねた画面" src="img/8408dbe847082eb9.png"></p>
 
 
       </google-codelab-step>
@@ -1436,6 +1476,7 @@ final isLiked = likedPostIds.contains(post.id);
 </code></pre>
 </div>
 <p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。表示に使う値は <code>watch</code>、操作を呼び出す Provider は <code>read</code> と使い分けます。</p>
+<p class="image-container"><img alt="Chrome でいいねボタンを追加した画面" src="img/45a642993227ebcc.png"></p>
 <h2 is-upgraded>投稿者情報を追加する</h2>
 <p><code>Stack</code> の <code>children</code> の最後に、投稿者情報の Widget を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1499,6 +1540,7 @@ final isLiked = likedPostIds.contains(post.id);
 <li>いいねボタンを押すとハートの見た目が変わる</li>
 <li>Firestore の <code>likes</code> が更新され、しばらくすると画面にも反映される</li>
 </ul>
+<p class="image-container"><img alt="Chrome でいいね操作を確認する画面" src="img/a2abd863400a671f.png"></p>
 <aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 画像が表示されない場合は、Firestore の <code>imageUrl</code> が空でないか、ブラウザから直接開ける URL かを確認してください。</p></aside>
 
 

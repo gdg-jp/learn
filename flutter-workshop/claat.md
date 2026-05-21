@@ -133,12 +133,25 @@ Flutter 公式のインストールページでは、VS Code などの Code OSS 
 1. VS Code を開きます。
 2. 左サイドバーの拡張機能を開きます。
 3. `Flutter` を検索し、**Flutter** 拡張機能をインストールします。
-4. `Ctrl + Shift + P` で Command Palette を開きます。
-5. `Flutter: New Project` を選択します。
-6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
-7. SDK の保存先として `C:\src` などの短いパスを選びます。
-8. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
-9. **Add SDK to PATH** が表示されたら選択します。
+
+![VS Code で Flutter 拡張機能をインストールする](img/screenshot_01_vscode_install_flutter_extension.png)
+
+4. Dart Code の発行元を信頼する確認が出た場合は、**Trust Publisher & Install** を選択します。
+
+![Dart Code の発行元を信頼する確認](img/screenshot_02_vscode_do_you_trust_the_publisher_dart_code.png)
+
+5. `Ctrl + Shift + P` で Command Palette を開きます。
+6. `Flutter: New Project` を選択します。
+7. Flutter SDK が見つからない場合は **Download SDK** を選択します。
+
+![Flutter SDK が見つからない場合に Download SDK を選択する](img/screenshot_03_vscode_flutter_new_project_download_sdk.png)
+
+8. SDK の保存先として `C:\src` などの短いパスを選びます。
+9. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
+
+![VS Code から Flutter SDK を clone する](img/screenshot_04_vscode_clone_flutter.png)
+
+10. **Add SDK to PATH** が表示されたら選択します。
 
 > **Warning:** Flutter SDK は `C:\Program Files` のようにスペースを含むパスに置かないでください。`C:\src\flutter` のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。
 
@@ -186,7 +199,11 @@ Launching lib/main.dart on Chrome in debug mode
 Flutter run key commands
 ```
 
+![ターミナルで flutter run を実行した状態](img/screenshot_05_terminal_git_clone_and_flutter_run.png)
+
 Chrome が開いて `TODO: 投稿一覧を表示する` と表示されたら準備完了です。
+
+![Chrome で TODO 投稿一覧を表示する画面](img/screenshot_06_chrome_todo_feed.png)
 
 最後に VS Code でプロジェクトを開きます。
 
@@ -242,12 +259,25 @@ Flutter 公式のインストールページでは、VS Code などの Code OSS 
 1. VS Code を開きます。
 2. 左サイドバーの拡張機能を開きます。
 3. `Flutter` を検索し、**Flutter** 拡張機能をインストールします。
-4. `Cmd + Shift + P` で Command Palette を開きます。
-5. `Flutter: New Project` を選択します。
-6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
-7. SDK の保存先として `~/development` などの作業用フォルダを選びます。
-8. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
-9. **Add SDK to PATH** が表示されたら選択します。
+
+![VS Code で Flutter 拡張機能をインストールする](img/screenshot_01_vscode_install_flutter_extension.png)
+
+4. Dart Code の発行元を信頼する確認が出た場合は、**Trust Publisher & Install** を選択します。
+
+![Dart Code の発行元を信頼する確認](img/screenshot_02_vscode_do_you_trust_the_publisher_dart_code.png)
+
+5. `Cmd + Shift + P` で Command Palette を開きます。
+6. `Flutter: New Project` を選択します。
+7. Flutter SDK が見つからない場合は **Download SDK** を選択します。
+
+![Flutter SDK が見つからない場合に Download SDK を選択する](img/screenshot_03_vscode_flutter_new_project_download_sdk.png)
+
+8. SDK の保存先として `~/development` などの作業用フォルダを選びます。
+9. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
+
+![VS Code から Flutter SDK を clone する](img/screenshot_04_vscode_clone_flutter.png)
+
+10. **Add SDK to PATH** が表示されたら選択します。
 
 インストール後、VS Code とターミナルを開き直します。
 
@@ -293,7 +323,11 @@ Launching lib/main.dart on Chrome in debug mode
 Flutter run key commands
 ```
 
+![ターミナルで flutter run を実行した状態](img/screenshot_05_terminal_git_clone_and_flutter_run.png)
+
 Chrome が開いて `TODO: 投稿一覧を表示する` と表示されたら準備完了です。
+
+![Chrome で TODO 投稿一覧を表示する画面](img/screenshot_06_chrome_todo_feed.png)
 
 最後に VS Code でプロジェクトを開きます。
 
@@ -329,6 +363,10 @@ Cloud Shell 用テンプレートは、通常版テンプレートを Cloud Shel
 
 Cloud Shell が初回起動の場合は、利用規約の確認や環境作成に数分かかることがあります。
 
+リポジトリを信頼する確認が表示された場合は、内容を確認して進めます。
+
+![Cloud Shell Editor でリポジトリを信頼する確認](img/screenshot_91_cloudshell_trust_repository.png)
+
 ### Flutter をセットアップする
 
 Cloud Shell のターミナルで次を実行します。
@@ -349,6 +387,8 @@ Flutter 3.x.x • channel stable
 Got dependencies!
 ```
 
+![Cloud Shell で Flutter をセットアップする](img/screenshot_92_cloudshell_setup.png)
+
 Cloud Shell には `/google/flutter` に Flutter SDK がプリインストールされており、`flutter` コマンドはそのまま使えます。Flutter SDK はダウンロードしません。`git config` は初回の `flutter` 実行で `fatal: detected dubious ownership` が出るのを防ぐために追加します。
 
 ### テンプレートコードを起動する
@@ -367,6 +407,8 @@ lib/main.dart is being served at http://0.0.0.0:8080
 ```
 
 Cloud Shell 右上の **Web Preview** から **Preview on port 8080** を開きます。`TODO: 投稿一覧を表示する` と表示されたら準備完了です。
+
+![Cloud Shell の Web Preview でポート 8080 を開く](img/screenshot_93_cloudshell_flutter_run_to_port_8080_preview.png)
 
 ファイルを保存したあと、起動中のターミナルで `r` を押すと Hot reload、`R` を押すと Hot restart できます。
 
@@ -581,6 +623,8 @@ Widget build(BuildContext context, WidgetRef ref) {
 投稿を読み込んでいます...
 ```
 
+![Chrome で投稿を読み込んでいますと表示される画面](img/screenshot_07_chrome_loading_posts.png)
+
 この時点では `postsProvider` がまだ Firestore に接続されていないため、読み込み中の表示だけが見えます。次のステップで Firestore の stream を返すようにします。
 
 ## Firestore から投稿を取得する
@@ -666,6 +710,8 @@ final postsProvider = StreamProvider<List<Post>>((ref) {
 投稿数: 3
 ```
 
+![Chrome で投稿数 3 と表示される画面](img/screenshot_08_chrome_post_count_3.png)
+
 Firestore に `posts` データがある場合は、件数が表示されます。ここではまだリスト UI を作っていないため、投稿カードは表示されません。
 
 > **Troubleshooting:** Firestore の権限エラーが表示される場合は、配布された Firebase 設定と Firestore ルールがハンズオン用のものになっているか確認してください。このコードラボでは Firebase プロジェクトの作成やルール変更は扱いません。
@@ -743,6 +789,8 @@ class _EmptyFeed extends StatelessWidget {
 
 Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。
 
+![Chrome で投稿がまだありませんと表示される画面](img/screenshot_09_chrome_empty_posts.png)
+
 ### error の UI を整える
 
 `lib/feed_page.dart` の `posts.when(error: ...)` の中身を以下に置き換えます。
@@ -796,6 +844,8 @@ class _ErrorView extends StatelessWidget {
 ```
 
 この Widget は、エラーの概要と実際のメッセージを分けて表示します。
+
+![Chrome で投稿を読み込めませんでしたと表示される画面](img/screenshot_10_chrome_posts_error.png)
 
 ### loading の UI を整える
 
@@ -899,6 +949,8 @@ Widget build(BuildContext context, WidgetRef ref) {
 - 画像 URL が壊れている投稿では、壊れた画像アイコンが表示される
 - 本文、ユーザー名、いいねボタンはまだ表示されない
 
+![Chrome で投稿画像の表示を確認する画面](img/screenshot_11_chrome_image_preview.png)
+
 ## 投稿本文を重ねる
 
 Duration: 0:10:00
@@ -992,6 +1044,8 @@ Widget build(BuildContext context, WidgetRef ref) {
 - 長い本文は 3 行で省略される
 - ユーザー名といいねボタンはまだ表示されない
 
+![Chrome で投稿本文を画像に重ねた画面](img/screenshot_12_chrome_text_overlay.png)
+
 ## いいねと投稿者情報を追加する
 
 Duration: 0:10:00
@@ -1057,6 +1111,8 @@ Positioned(
 
 ボタンを押したときは `postActionsProvider` を `read` して、Firestore の `likes` を更新します。表示に使う値は `watch`、操作を呼び出す Provider は `read` と使い分けます。
 
+![Chrome でいいねボタンを追加した画面](img/screenshot_13_chrome_like_button.png)
+
 ### 投稿者情報を追加する
 
 `Stack` の `children` の最後に、投稿者情報の Widget を追加します。
@@ -1116,6 +1172,8 @@ Positioned(
 - 投稿画像、ユーザー名、本文、いいね数が表示される
 - いいねボタンを押すとハートの見た目が変わる
 - Firestore の `likes` が更新され、しばらくすると画面にも反映される
+
+![Chrome でいいね操作を確認する画面](img/screenshot_14_chrome_like_checked.png)
 
 > **Troubleshooting:** 画像が表示されない場合は、Firestore の `imageUrl` が空でないか、ブラウザから直接開ける URL かを確認してください。
 
