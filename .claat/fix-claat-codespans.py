@@ -367,11 +367,11 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {{
       if (code.dataset.claatDiffEnhanced === 'true') return;
       var language = code.dataset.claatDiffLanguage || '';
-      var source = code.textContent.replace(/\\n$/, '');
+      var source = code.textContent.replace(/\\\\n$/, '');
       code.classList.add('claat-diff-code');
-      code.innerHTML = source.split('\\n').map(function (line) {{
+      code.innerHTML = source.split('\\\\n').map(function (line) {{
         return diffLineHtml(line, language);
-      }}).join('\\n');
+      }}).join('');
       code.dataset.claatDiffEnhanced = 'true';
     }});
   }}
