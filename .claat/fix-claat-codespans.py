@@ -64,6 +64,7 @@ STYLE_ID = "claat-local-preprocessor-style"
 SCRIPT_ID = "claat-local-preprocessor-script"
 FAVICON_ID = "claat-local-favicon"
 OGP_META_ID_PREFIX = "claat-local-ogp-"
+SITE_BASE_URL = "https://edu.gdgoc-osaka.jp"
 
 CODE_TOOLBAR = """<div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -401,16 +402,20 @@ def exported_image_src_for_alt(html: str, alt: str) -> str | None:
     return None
 
 
-def site_path_for_output_asset(source: str, html_path: str | None) -> str:
-    if not source or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", source) or source.startswith(("/", "#")):
-        return source
-    if not html_path:
+def site_url_for_output_asset(source: str, html_path: str | None) -> str:
+    if not source or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", source) or source.startswith("#"):
         return source
 
+    if source.startswith("/"):
+        return SITE_BASE_URL + source
+
+    if not html_path:
+        return f"{SITE_BASE_URL}/{source}"
+
     html_dir_name = Path(html_path).resolve().parent.name
-    if not html_dir_name or source == html_dir_name or source.startswith(html_dir_name + "/"):
-        return source
-    return f"{html_dir_name}/{source}"
+    if html_dir_name and source != html_dir_name and not source.startswith(html_dir_name + "/"):
+        source = f"{html_dir_name}/{source}"
+    return f"{SITE_BASE_URL}/{source}"
 
 
 def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[str, str]:
@@ -442,7 +447,7 @@ def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[
             source_md,
             html_path,
         )
-        values["og:image"] = site_path_for_output_asset(image, html_path)
+        values["og:image"] = site_url_for_output_asset(image, html_path)
 
     return values
 
