@@ -43,11 +43,11 @@ STYLE_ID = "claat-local-preprocessor-style"
 SCRIPT_ID = "claat-local-preprocessor-script"
 
 CODE_TOOLBAR = """<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
     <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>"""
 
@@ -76,17 +76,17 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
 
   google-codelab-step .instructions .claat-code-toolbar {{
     position: absolute;
-    top: 14px;
-    right: 14px;
+    top: 16px;
+    right: 16px;
     z-index: 1;
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
   }}
 
   google-codelab-step .instructions .claat-code-button {{
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -107,7 +107,7 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
 
   google-codelab-step .instructions .claat-code-button .material-icons {{
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1;
   }}
 
