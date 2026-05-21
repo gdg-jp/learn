@@ -5,19 +5,16 @@ description: Use this skill whenever the user asks to create a codelab, a hands-
 
 # codelab-creater
 
-Every codelab in this repo is a `claat.md` file inside `<content-name>/` that gets exported to `index.html` via `make claat`. The pipeline lives in `CLAUDE.md`; this skill covers everything else.
+Every codelab in this repo is a `claat.md` file inside `<content-name>/` that gets exported to `index.html` via `make claat`. Look at `portfolio-2026/claat.md` for a full worked example.
 
 This skill has two halves:
 
 - **[Part 1: Writing](#part-1-writing-a-high-quality-codelab)** — pedagogy patterns distilled from 20+ official Google codelabs across Flutter, Android, Firebase, Cloud, AI/Gemini, AR, IoT, Web, Data. Use these to decide *what* to write.
 - **[Part 2: Claat mechanics](#part-2-claat-markdown-mechanics)** — the markdown syntax that the `make claat` pipeline expects. Use these to decide *how* to write it.
 
-Plus reference material loaded on demand:
+Plus one reference doc you should load on demand:
 
-- **`references/figures.md`** — visual language for architecture diagrams, hierarchy trees, and concept illustrations; gen-image prompt template that keeps output on-brand. Load before planning a figure or calling `/gen-image`.
-- **`examples/`** — 20 raw HTML files of official Google codelabs (Flutter, Android, Firebase, Cloud, AI, AR, IoT, Web, Data). Grep / read these when you're unsure how a real Google codelab handles a specific situation. Filenames are kebab-case slugs (e.g. `flutter-codelab-first.html`, `adk-java-getting-started.html`).
-
-**A note on the in-repo worked example.** `portfolio-2026/claat.md` is the longest existing codelab in this repo and useful as a syntactic reference, but it predates several conventions in Part 1 below (e.g. it uses `## Step 1: …` step-number prefixes and bold-paragraph labels instead of `###` sub-sections in Step 1). Treat Part 1 of this skill — and the official codelabs in `examples/` — as the source of truth for *new* codelabs. Don't retrofit older codelabs in this repo; their URLs are published and renaming/restructuring them breaks links.
+- **Planning a figure, or about to call `/gen-image`?** Read `references/figures.md`. It captures the visual language shared by official Google codelab figures (architecture diagrams, hierarchy trees, concept illustrations) and provides the gen-image prompt template that keeps output on-brand.
 
 ## Workflow
 
@@ -32,8 +29,6 @@ Plus reference material loaded on demand:
 # Part 1: Writing a high-quality codelab
 
 These conventions are taken from official Google codelabs. Follow them by default; deviate only with a clear reason.
-
-**When in doubt, consult `examples/`.** Twenty raw HTML files of official codelabs live there — read them directly (`grep` for the keyword you're stuck on, then `Read` the surrounding context) rather than guessing. They're the ground truth that this section was distilled from.
 
 ## Codelab skeleton
 
