@@ -12,6 +12,10 @@ This skill has two halves:
 - **[Part 1: Writing](#part-1-writing-a-high-quality-codelab)** — pedagogy patterns distilled from 20+ official Google codelabs across Flutter, Android, Firebase, Cloud, AI/Gemini, AR, IoT, Web, Data. Use these to decide *what* to write.
 - **[Part 2: Claat mechanics](#part-2-claat-markdown-mechanics)** — the markdown syntax that the `make claat` pipeline expects. Use these to decide *how* to write it.
 
+Plus one reference doc you should load on demand:
+
+- **Planning a figure, or about to call `/gen-image`?** Read `references/figures.md`. It captures the visual language shared by official Google codelab figures (architecture diagrams, hierarchy trees, concept illustrations) and provides the gen-image prompt template that keeps output on-brand.
+
 ## Workflow
 
 1. Create `<content-name>/claat.md` and `<content-name>/img/` for images.
@@ -374,12 +378,11 @@ The codelab will build fine with a missing image (it shows a broken-image icon);
 
 ### Generated diagrams — use the gen-image skill
 
-For architecture diagrams, flow charts, or concept illustrations (not screenshots of real software), invoke `/gen-image` to produce a figure. Prompt design principles for this repo:
+For architecture diagrams, flow charts, hierarchy trees, concept illustrations, or Before/After figures (anything that isn't a screenshot of real software), invoke `/gen-image`.
 
-- **Font:** Google Sans for Latin text; Noto Sans JP for Japanese text
-- **Icons:** Use Google Material icons for generic UI concepts; use official Google Product icons (Chrome, Firebase, GitHub, etc.) when referring to specific products
-- **Style:** Clean, flat, white or light-grey background, GDG brand colors (`#4285F4` blue, `#34A853` green, `#EA4335` red, `#FBBC04` yellow)
-- Place the generated image in `img/` and reference it with the standard `![...](img/...)` syntax
+**Before calling `gen-image`, read `references/figures.md`.** It documents the visual language used across official Google codelab figures (rounded rectangles, pastel-tint fills with full-saturation accents, dashed borders for logical groupings, official product icons, numbered flow markers, orthogonal layout, no shadows/gradients/3D) and provides a prompt template that holds codex to that style. Skipping it produces decorative or photorealistic output that clashes with the rest of the codelab.
+
+Move generated files into `<content-name>/img/` and reference them with the standard `![...](img/...)` syntax.
 
 ## Buttons
 
