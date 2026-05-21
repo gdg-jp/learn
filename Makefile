@@ -40,17 +40,23 @@ claat:
 	rm -rf "$$OUT/libs"; \
 	cp -R "$(LIBS_SRC)" "$$OUT/libs"; \
 	sed -i '' 's|https://storage.googleapis.com/claat-public/|libs/|g' "$$OUT/index.html"; \
-	$(PYTHON) $(POSTFIX) "$$OUT/index.html"
+	$(PYTHON) $(POSTFIX) --source-md "$$MD" "$$OUT/index.html"
 
 # Render a Marp deck. Usage:
 #   make slide path/to/deck.md [path/to/deck.html]
+#
+# Also renders the first slide as an OGP image (<output-dir>/ogp.png) so the
+# postfix script can advertise it via og:image.
 slide:
 	@if [ -z "$(ARGS)" ]; then \
 	  echo "Usage: make slide path/to/deck.md [path/to/deck.html]"; \
 	  exit 2; \
 	fi
-	@OUT="$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.html,$(word 1,$(ARGS))))"; \
-	$(MARP) --theme-set $(MARP_THEME) --html "$(word 1,$(ARGS))" -o "$$OUT"; \
+	@SRC="$(word 1,$(ARGS))"; \
+	OUT="$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.html,$(word 1,$(ARGS))))"; \
+	OGP="$$(dirname "$$OUT")/ogp.png"; \
+	$(MARP) --theme-set $(MARP_THEME) --html "$$SRC" -o "$$OUT"; \
+	$(MARP) --theme-set $(MARP_THEME) --html --allow-local-files --image png "$$SRC" -o "$$OGP"; \
 	$(PYTHON) $(SLIDE_POSTFIX) "$$OUT"
 
 # Export a Marp deck to PDF. Usage:

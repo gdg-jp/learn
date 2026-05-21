@@ -46,7 +46,7 @@ For PDFs, invoke Marp CLI directly: `npx -p @marp-team/marp-cli@latest marp --th
 1. `claat export` into a temp directory (claat forces the output directory name to match the `id` field in `codelab.json`, so a temp dir is needed to get a stable output name).
 2. Copy the exported contents into the requested path, overwriting existing claat outputs but leaving unrelated sibling files (e.g. `slide.md`, `slide/`, `img/`) in place.
 3. Replace `libs/` with a fresh copy of `portfolio-2025/libs` (overridable via `LIBS_SRC`) and rewrite `https://storage.googleapis.com/claat-public/` references to relative `libs/`. This switches from Google-hosted codelab-elements assets to the local copy.
-4. Run `.claat/fix-claat-codespans.py` against the generated `index.html`.
+4. Run `.claat/fix-claat-codespans.py` against the generated `index.html`, passing the source `claat.md` so OGP metadata can be derived from the markdown.
 
 The postfix script (`.claat/fix-claat-codespans.py`) fixes claat-output issues:
 
@@ -54,6 +54,7 @@ The postfix script (`.claat/fix-claat-codespans.py`) fixes claat-output issues:
 - Re-wraps `<p><strong>Note:</strong>...</p>`-style paragraphs in `<aside class="warning">` / `<aside class="special">` to restore styled callout boxes. Recognized keywords: `Note`, `Notice`, `Tip`, `Tips`, `Hint`, `補足`, `Warning`, `Warn`, `Caution`, `Troubleshooting`. Add new keywords by editing the `ASIDE_KEYWORDS` dict.
 - Wraps generated `<pre>` code blocks with copy and light/dark theme icon controls. Code blocks default to light mode.
 - Converts bare `http://` / `https://` URLs in prose into `<a href="..." target="_blank">` links, while leaving existing links and code blocks untouched.
+- Injects OGP meta tags: `og:title` from the first H1, `og:description` from the `summary:` frontmatter, and `og:image` from the first markdown image.
 - Injects local CSS/JS for the code-block controls and adds full outlines to warning and special callouts.
 - Adds a favicon link to the shared `assets/favicon.png`, using a relative path from the generated HTML file.
 
