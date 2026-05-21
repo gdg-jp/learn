@@ -11,27 +11,39 @@ size: 16:9
    <div class="fit">…</div> wrapper for finer-grained scaling. */
 (() => {
   const MIN_FONT_PX = 12;
+  const CODE_MIN_FONT_PX = 9;
   const STEP = 0.96;
   const MAX_ITERS = 40;
   const TOLERANCE = 1;
+  let scheduled = false;
 
   const overflows = (el) =>
     el.scrollHeight > el.clientHeight + TOLERANCE ||
     el.scrollWidth  > el.clientWidth  + TOLERANCE;
 
-  const shrinkSection = (section) => {
-    if (section.dataset.autofit === "skip") return;
-    if (!overflows(section)) return;
-    const base = parseFloat(getComputedStyle(section).fontSize) || 28;
+  const shrinkElement = (el, minFontPx, shouldShrink = () => overflows(el)) => {
+    if (!shouldShrink()) return;
+    const base = parseFloat(getComputedStyle(el).fontSize) || 18;
     let size = base;
-    for (let i = 0; i < MAX_ITERS && overflows(section) && size > MIN_FONT_PX; i++) {
+    for (let i = 0; i < MAX_ITERS && shouldShrink() && size > minFontPx; i++) {
       size *= STEP;
-      section.style.fontSize = `${size}px`;
+      el.style.fontSize = `${size}px`;
     }
   };
 
-  const scaleFitBlocks = () => {
-    for (const fit of document.querySelectorAll(".fit")) {
+  const shrinkCodeBlocks = (section) => {
+    for (const pre of section.querySelectorAll("pre")) {
+      shrinkElement(pre, CODE_MIN_FONT_PX, () => overflows(pre) || overflows(section));
+    }
+  };
+
+  const shrinkSection = (section) => {
+    if (section.dataset.autofit === "skip") return;
+    shrinkElement(section, MIN_FONT_PX, () => overflows(section));
+  };
+
+  const scaleFitBlocks = (root) => {
+    for (const fit of root.querySelectorAll(".fit")) {
       if (!fit.scrollHeight) continue;
       const ratio = Math.min(1, fit.clientHeight / fit.scrollHeight);
       fit.style.transformOrigin = "top left";
@@ -39,10 +51,32 @@ size: 16:9
     }
   };
 
-  window.addEventListener("load", () => {
-    scaleFitBlocks();
-    for (const section of document.querySelectorAll("section")) shrinkSection(section);
+  const processSection = (section) => {
+    if (!section.clientWidth || !section.clientHeight) return;
+    scaleFitBlocks(section);
+    shrinkCodeBlocks(section);
+    shrinkSection(section);
+  };
+
+  const processVisibleSections = () => {
+    scheduled = false;
+    for (const section of document.querySelectorAll("section")) processSection(section);
+  };
+
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => requestAnimationFrame(processVisibleSections));
+  };
+
+  window.addEventListener("load", schedule);
+  window.addEventListener("resize", schedule);
+  new MutationObserver(schedule).observe(document.documentElement, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class"],
   });
+  schedule();
 })();
 </script>
 
@@ -54,10 +88,10 @@ size: 16:9
 <!-- _class: title -->
 <!-- _paginate: false -->
 
-# Flutter でミニ SNS アプリを作ろう
+# Flutter で<br>ミニ SNS アプリを作ろう
 
 GDG on Campus University of Osaka
-2026.05.21 / 2 時間ハンズオン
+2026.05.21 / 120 分ハンズオン
 
 ---
 
@@ -65,23 +99,48 @@ GDG on Campus University of Osaka
 
 # 今日のゴール
 
-投稿フィードを表示する**ミニ SNS アプリ**を
-テンプレートから完成させましょう!
+テンプレートから始めて
+**投稿フィードが動く Flutter Web アプリ**を完成させましょう!
 
 ---
 
-## 今日の流れ (120 分)
+## Discord に参加してください
 
-| #   | 内容                          | 時間  |
-| --- | ----------------------------- | ----- |
-| 1   | 完成デモ                      | 5 分  |
-| 2   | 事前準備チェック              | 10 分 |
-| 3   | Flutter 基礎                  | 20 分 |
-| 4   | Riverpod 基礎                 | 15 分 |
-| 5   | ハンズオン① FeedPage          | 20 分 |
-| 6   | ハンズオン② postsProvider     | 20 分 |
-| 7   | ハンズオン③ PostCard          | 20 分 |
-| 8   | 共有                          | 10 分 |
+![bg right:50% fit](../img/discord-invitation.png)
+
+質問、詰まったところ、進捗共有は Discord で受け付けます
+
+- 招待リンク: `https://discord.gg/pMTKHQRg`
+- チャンネル: `#260521-flutter-workshop`
+- 途中で止まったら、画面やエラー文をそのまま貼ってください!
+
+---
+
+## 今日作るもの
+
+![bg right:60% fit](../img/final-app-screenshot.png)
+
+縦スクロールで投稿を眺めるミニ SNS フィードです
+
+- Firestore の `posts` を新着順に表示します
+- 投稿ごとに画像、ユーザー名、本文、いいね数を出します
+- いいねボタンで Firestore と画面の状態を更新します
+- Pull to Refresh で投稿リストを再取得します
+
+---
+
+## 今日の流れ
+
+| Step | 内容                                  | 目安  |
+| ---- | ------------------------------------- | ----- |
+| 1    | セットアップと起動確認                | 15 分 |
+| 2    | Flutter の画面構造をつかむ            | 10 分 |
+| 3    | Riverpod と Firestore の流れをつかむ  | 15 分 |
+| 4    | `FeedPage` で状態を出し分ける         | 10 分 |
+| 5    | `postsProvider` を Firestore につなぐ | 15 分 |
+| 6    | 投稿一覧を `ListView` で表示する      | 15 分 |
+| 7    | `PostCard` を段階的に作る             | 30 分 |
+| 8    | 動作確認と共有                        | 10 分 |
 
 ---
 
@@ -93,10 +152,10 @@ GDG on Campus University of Osaka
 
 ### やること
 
-- Flutter の **最小限の文法**を知る
-- **Riverpod** で状態を管理する
-- **Firestore** から投稿をリアルタイム取得する
-- ミニ SNS の投稿フィードを完成させる
+- Flutter Web を Chrome で動かします
+- Riverpod で Provider を読みます
+- Firestore の stream を表示します
+- 画像の上に本文とボタンを重ねます
 
 </div>
 
@@ -104,9 +163,10 @@ GDG on Campus University of Osaka
 
 ### やらないこと
 
-- iOS / Android エミュレータの利用
-- 認証・投稿の作成・削除
-- Firebase 設定の変更
+- Firebase プロジェクトの新規作成
+- 認証、投稿作成、投稿削除
+- iOS / Android のネイティブビルド
+- アーキテクチャ設計やテスト設計
 
 </div>
 
@@ -114,360 +174,261 @@ GDG on Campus University of Osaka
 
 ---
 
-<!-- _class: section -->
+## 触るファイルは 3 つ
 
-# 01. 完成デモ
+![bg right:60% fit](../img/app-architecture.svg)
 
-## 5 分
+本編ではテンプレートの TODO を順に埋めます
 
----
-
-## 完成イメージ
-
-縦スクロールで投稿を眺めるフィードアプリです!
-
-<div style="display: flex; gap: 48px; margin-top: 16px; align-items: flex-start;">
-<div style="flex: 1;">
-
-- 投稿が **縦にずらっと並ぶ** (TikTok / Reels 風)
-- 各投稿に**画像・ユーザー名・テキスト**が表示される
-- ❤️ ボタンでその場でいいね!できる
-- 引っ張って更新 (Pull to Refresh) もできる
-
-> 完成版のコード: `gdsc-osaka/flutter-workshop-example`
-
-</div>
-<div style="border: 2px solid #444; border-radius: 16px; padding: 16px 16px 20px; background: #111; color: #fff; width: 180px; min-width: 180px; font-size: 13px;">
-  <div style="font-size: 11px; margin-bottom: 8px; color: #aaa; display: flex; align-items: center; gap: 6px;"><span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:#333;"></span>@gdsc_user</div>
-  <div style="background: #2a2a2a; height: 100px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 20px; margin-bottom: 8px;">🖼️</div>
-  <div style="font-size: 12px; margin-bottom: 10px; color: #e0e0e0;">Flutter で作ったよ!</div>
-  <div style="font-size: 12px; color: #f48fb1; text-align: right;">❤ 42</div>
-</div>
-</div>
-
----
-
-## アーキテクチャ概観
-
-今日はこの 3 ファイルに手を入れます!
-
-<div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 28px;">
-  <div style="padding: 18px 24px; border: 2px solid var(--gdg-blue); border-radius: 12px; font-weight: 600; text-align: center;">
-    FeedPage<br><span style="font-weight: normal; font-size: 0.75em;">ConsumerWidget</span>
-  </div>
-  <div style="font-size: 32px; color: var(--gdg-blue);">→</div>
-  <div style="padding: 18px 24px; border: 2px solid var(--gdg-green); border-radius: 12px; font-weight: 600; text-align: center;">
-    postsProvider<br><span style="font-weight: normal; font-size: 0.75em;">StreamProvider</span>
-  </div>
-  <div style="font-size: 32px; color: var(--gdg-green);">→</div>
-  <div style="padding: 18px 24px; border: 2px solid var(--gdg-red); border-radius: 12px; font-weight: 600; text-align: center;">
-    PostCard<br><span style="font-weight: normal; font-size: 0.75em;">ConsumerWidget</span>
-  </div>
-</div>
-
-<div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px; font-size: 0.8em; color: #888;">
-  <code>lib/feed_page.dart</code>
-  <span>→</span>
-  <code>lib/providers/post_providers.dart</code>
-  <span>→</span>
-  <code>lib/widgets/post_card.dart</code>
-</div>
+| ファイル                            | 役割                      |
+| ----------------------------------- | ------------------------- |
+| `lib/feed_page.dart`                | 投稿一覧の状態とリスト UI |
+| `lib/providers/post_providers.dart` | Firestore といいね操作    |
+| `lib/widgets/post_card.dart`        | 投稿 1 件分のカード UI    |
 
 ---
 
 <!-- _class: section yellow -->
 
-# 02. 事前準備チェック
+# 01. セットアップ
 
-## 10 分
-
----
-
-## 必要なツール
-
-| ツール       | 確認方法            | 用途                 |
-| ------------ | ------------------- | -------------------- |
-| Flutter SDK  | `flutter --version` | アプリのビルド・実行 |
-| VS Code      | アプリを起動できる  | コードを書くエディタ |
-| Chrome       | アプリを起動できる  | アプリの実行先       |
-| Git          | `git --version`     | リポジトリのクローン |
+## Flutter Web を Chrome で起動します
 
 ---
 
-## Flutter SDK の確認
+## 必要なもの
 
-ターミナルで以下を実行してください!
+| ツール             | 確認方法            | 今日の用途                 |
+| ------------------ | ------------------- | -------------------------- |
+| Git                | `git --version`     | テンプレートを取得します   |
+| Google Chrome      | `flutter devices`   | Flutter Web の実行先です   |
+| Visual Studio Code | Flutter 拡張機能    | SDK とコード編集に使います |
+| Flutter SDK        | `flutter --version` | アプリをビルドします       |
 
-```bash
-flutter --version
-flutter doctor
+Android Studio、Android SDK、Xcode、エミュレータは今日は使いません
+
+---
+
+## OS ごとのセットアップ
+
+<div class="container">
+
+<div class="col">
+
+### Windows
+
+```powershell
+winget install --id Git.Git -e
+winget install --id Google.Chrome -e
+winget install --id Microsoft.VisualStudioCode -e
 ```
 
-- `flutter --version` でバージョンが出れば OK
-- `flutter doctor` は **Chrome の項目に ✓** が付いていれば今日は十分
-- Android / iOS の項目に ✗ が付いていても今日は無視して OK!
+VS Code の Flutter 拡張機能から SDK を入れます
+
+</div>
+
+<div class="col">
+
+### macOS
+
+```bash
+xcode-select --install
+brew install --cask google-chrome visual-studio-code
+```
+
+VS Code の Flutter 拡張機能から SDK を入れます
+
+</div>
+
+</div>
 
 ---
 
-## リポジトリをクローンしよう
+<!-- _class: invert -->
 
-ターミナルで以下を順に実行してください!
+## 起動確認
 
 ```bash
+git --version
+flutter --version
+flutter doctor -v
+flutter devices
+
 git clone https://github.com/gdsc-osaka/flutter-workshop.git
 cd flutter-workshop
 flutter pub get
 flutter run -d chrome
 ```
 
-- Chrome が起動して「**TODO: 投稿一覧を表示する**」が出たら成功!
-- VS Code で `flutter-workshop/` フォルダを開いておきましょう
+`Chrome - develop for the web` にチェックが付き、Chrome で
+`TODO: 投稿一覧を表示する` が見えれば準備 OK!
 
 ---
 
 <!-- _class: section -->
 
-# 03. Flutter 基礎
+# 02. Flutter の画面構造
 
-## 20 分
-
----
-
-## Flutter とは
-
-![bg right:35% fit](../img/flutter-logo.png)
-
-Google が作っている **マルチプラットフォーム UI フレームワーク**です
-
-- 1 つのコードで **iOS / Android / Web / デスクトップ**に対応
-- 言語は **Dart**
-- 描画は Skia / Impeller で自前 (ネイティブ部品ではない)
-- 今日は **Web ターゲット**だけ使います!
+## Widget ツリーだけ押さえます
 
 ---
 
-## Web 開発との対比
+## Flutter は Widget で画面を作ります
 
-すでに知っている概念と紐付けると速いです!
+![bg right:60% fit](../img/widget-tree.svg)
 
-| Web (HTML/CSS/JS)               | Flutter                                   |
-| ------------------------------- | ----------------------------------------- |
-| DOM ツリー                      | Widget ツリー                             |
-| `<div>` / `<button>` などの要素 | `Container` / `ElevatedButton` 等の Widget |
-| CSS のスタイル                  | Widget のプロパティ (色・余白・角丸など)   |
-| useState などのフック           | StatefulWidget / Riverpod                 |
-| Vite の HMR                     | ホットリロード                            |
+Flutter では画面の部品を Widget と呼びます
 
----
+- 文字は `Text`
+- 画像は `Image`
+- 縦並びは `Column`
+- スクロールリストは `ListView`
+- 画面の土台は `Scaffold`
 
-## すべては Widget
-
-![bg right:45% fit](../img/widget-tree.png)
-
-Flutter では **画面のすべてが Widget** です
-
-- ボタンも文字も余白も Widget
-- Widget が**入れ子になって 1 本のツリー**を作る
-- ツリーのルートが `MaterialApp`
-- 親 Widget が子 Widget を `child` / `children` で持つ
+親 Widget が `child` や `children` で子 Widget を持ちます
 
 ---
 
-## Stateless と Stateful
+## Web 開発の知識と対応させる
 
-<div class="container">
+| Web                    | Flutter                        |
+| ---------------------- | ------------------------------ |
+| DOM ツリー             | Widget ツリー                  |
+| `<div>` / `<button>`   | `Container` / `ElevatedButton` |
+| CSS の色、余白、角丸   | Widget のプロパティ            |
+| React の component     | Widget                         |
+| React の state / hooks | `StatefulWidget` / Riverpod    |
+| Vite の HMR            | Hot reload                     |
 
-<div class="col">
-
-### StatelessWidget
-
-- 状態を持たない
-- 渡された値を表示するだけ
-- ボタンやラベルなど
-- React の純粋なコンポーネント相当
-
-</div>
-
-<div class="col">
-
-### StatefulWidget
-
-- 内部で状態を持つ
-- 値が変わると **再描画**する
-- カウンター / チェックボックスなど
-- 今回は **Riverpod に任せる**
-
-</div>
-
-</div>
+カンマを付けておくと Dart formatter が読みやすく整えてくれます
 
 ---
 
 <!-- _class: invert -->
 
-## main.dart の最小構造
+## アプリの入口
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(...);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const ProviderScope(child: MiniInstagramApp()));
 }
-
-class MiniInstagramApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(home: FeedPage());
-  }
-}
 ```
 
-> 入り口は `main()` → `runApp()` → ルートの Widget の順です
+- `Firebase.initializeApp()` で Firebase を初期化します
+- `ProviderScope` で Riverpod をアプリ全体から使えるようにします
+- `MaterialApp` の `home` は `FeedPage` です
 
 ---
 
-## Dart 文法 (JS との差分だけ)
+## Hot reload / Hot restart
 
-| やりたいこと      | JavaScript             | Dart                         |
-| ----------------- | ---------------------- | ---------------------------- |
-| 変数 (再代入あり) | `let x = 1;`           | `var x = 1;` / `int x = 1;` |
-| 変数 (再代入なし) | `const x = 1;`         | `final x = 1;`               |
-| 関数              | `function add(a,b){…}` | `int add(int a, int b) {…}`  |
-| 文末              | `;` 省略 OK            | `;` **必須**                 |
-| null チェック     | `x?.y`                 | `x?.y` (同じ!)               |
+`flutter run -d chrome` で起動している間は、ターミナルから操作できます
 
----
+| キー | 使う場面                                    |
+| ---- | ------------------------------------------- |
+| `r`  | 表示だけを変えたとき                        |
+| `R`  | Firebase 初期化や Provider の形を変えたとき |
+| `q`  | アプリを終了するとき                        |
 
-## ホットリロードを使い倒しましょう!
-
-- ファイルを保存するだけで **約 1 秒**で画面が更新される
-- 状態を保ったまま更新される (`r` キー)
-- 状態をリセットしたいときは **ホットリスタート** (`R` キー)
-- `flutter run -d chrome` で起動するとターミナルから操作できます
-
----
-
-<!-- _class: section red -->
-
-# 04. Riverpod 基礎
-
-## 15 分
-
----
-
-## なぜ状態管理が必要?
-
-![bg right:50% fit](../img/state-problem.png)
-
-- StatefulWidget だけだと、状態が **その Widget の中**に閉じる
-- 離れた Widget で同じ状態を見たいとき、**親から子へバケツリレー**になる
-- Widget が増えると爆発的に書きづらくなる
-- → **Riverpod** で「どこからでも触れる場所」に置きます
-
----
-
-## Riverpod の三要素
-
-![bg right:45% fit](../img/riverpod-flow.png)
-
-今日覚えるのはこの 3 つだけです!
-
-- **Notifier**: 状態とロジックの入れ物
-- **NotifierProvider**: 状態を公開する窓口
-- **ref**: Widget から状態を読む手段 (`watch` / `read`)
-
----
-
-<!-- _class: invert -->
-
-## ① Notifier — 状態とロジック
-
-```dart
-class LikedPostIds extends Notifier<Set<String>> {
-  @override
-  Set<String> build() => <String>{};   // 初期値: 空のセット
-
-  void setLiked(String postId, {required bool liked}) {
-    if (liked) {
-      state = <String>{...state, postId};
-    } else {
-      state = state.where((id) => id != postId).toSet();
-    }
-  }
-}
-```
-
-- `Notifier<T>` の `T` が状態の型
-- `build()` で初期値を返す
-- `state = ...` と書き換えると **自動で再描画**される
-
----
-
-<!-- _class: invert -->
-
-## ② Provider — 公開する窓口
-
-今日は **NotifierProvider** と **StreamProvider** を使います
-
-```dart
-// いいね済み ID を管理する
-final likedPostIdsProvider =
-    NotifierProvider<LikedPostIds, Set<String>>(LikedPostIds.new);
-
-// Firestore の変更をリアルタイムで受け取る
-final postsProvider = StreamProvider<List<Post>>((ref) {
-  // Firestore のストリームを返す (ハンズオン② で実装!)
-  return const Stream<List<Post>>.empty();
-});
-```
-
-- `StreamProvider` は**非同期のストリーム**を扱うプロバイダ
-- `AsyncValue<T>` として Widget 側に届く
-
----
-
-## ③ ref.watch と ref.read
-
-| やりたいこと               | 使うもの               | 例                                                       |
-| -------------------------- | ---------------------- | -------------------------------------------------------- |
-| **画面に表示**する値を取る | `ref.watch(p)`         | `final posts = ref.watch(postsProvider);`                |
-| **ボタンを押して**操作する | `ref.read(p.notifier)` | `ref.read(likedPostIdsProvider.notifier).setLiked(…);`   |
-| 再描画される?              | watch → ○ / read → ×   | —                                                        |
-
-> 「**表示は watch、操作は read**」と覚えましょう!
-
----
-
-<!-- _class: invert -->
-
-## ConsumerWidget での使い方
-
-```dart
-class MyWidget extends ConsumerWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final likedIds = ref.watch(likedPostIdsProvider); // 表示用
-    return Text('いいね数: ${likedIds.length}');
-  }
-}
-```
-
-- `StatelessWidget` → `ConsumerWidget` に変えるだけ
-- `build` に `WidgetRef ref` が加わる
-- `ref.watch()` で値が変わると自動で再描画される
+画面が更新されないときは `R` で Hot restart してください!
 
 ---
 
 <!-- _class: section green -->
 
-# 05. ハンズオン① FeedPage
+# 03. Riverpod と Firestore
 
-## 20 分
+## データの流れを先に見ます
+
+---
+
+## アプリ全体の構成
+
+![bg right:60% fit](../img/app-architecture.svg)
+
+Flutter の UI、Riverpod の Provider、Firebase のサービスをつなぎます
+
+- `FeedPage` は投稿リストの状態を読みます
+- `PostCard` は投稿 1 件分といいね状態を読みます
+- `postsProvider` は Firestore の stream を返します
+- `postActionsProvider` は Firestore の更新処理を持ちます
+
+---
+
+## なぜ Riverpod を使う?
+
+![bg right:60% fit](../img/state-flow.svg)
+
+`StatefulWidget` だけだと、状態は Widget の中に閉じます
+
+- 離れた Widget で同じ状態を使いづらいです
+- 親から子へ値を渡し続ける必要が出ます
+- Riverpod なら状態や取得処理を Widget の外に置けます
+- Widget は `ref.watch()` で必要な Provider だけ読みます
+
+---
+
+<!-- _class: invert -->
+
+## 今回使う Provider
+
+```dart
+final firestoreProvider = Provider<FirebaseFirestore>((ref) {
+  return FirebaseFirestore.instance;
+});
+
+final postsProvider = StreamProvider<List<Post>>((ref) {
+  // TODO: Firestore の stream に置き換えます
+  return const Stream<List<Post>>.empty();
+});
+
+final likedPostIdsProvider = NotifierProvider<LikedPostIds, Set<String>>(
+  LikedPostIds.new,
+);
+```
+
+`postsProvider` を Firestore に接続するのが今日の中心です
+
+---
+
+## `ref.watch` と `ref.read`
+
+| やりたいこと           | 使う API              | 例                                               |
+| ---------------------- | --------------------- | ------------------------------------------------ |
+| 画面に表示する値を読む | `ref.watch(provider)` | `final posts = ref.watch(postsProvider);`        |
+| ボタン押下で処理を呼ぶ | `ref.read(provider)`  | `ref.read(postActionsProvider).toggleLike(...);` |
+
+表示は `watch`、操作は `read` と覚えてください!
+
+---
+
+## `AsyncValue` は 3 状態
+
+```dart
+final posts = ref.watch(postsProvider);
+
+return posts.when(
+  loading: () => const CircularProgressIndicator(),
+  error: (error, stackTrace) => Text('エラー: $error'),
+  data: (items) => Text('投稿数: ${items.length}'),
+);
+```
+
+`StreamProvider<List<Post>>` を `watch` すると、Widget 側には
+`AsyncValue<List<Post>>` が届きます
+
+---
+
+<!-- _class: section red -->
+
+# 04. FeedPage
+
+## 投稿一覧の状態を分けます
 
 ---
 
@@ -475,85 +436,83 @@ class MyWidget extends ConsumerWidget {
 
 # Step 1 のゴール
 
-`postsProvider` から投稿リストを受け取り、
-**縦スクロールのリストとして表示**しましょう!
+`postsProvider` の結果を
+`data` / `error` / `loading` に分けましょう!
 
 ---
 
 <!-- _class: invert -->
 
-## 現在の FeedPage (template)
-
-`lib/feed_page.dart` を開いてみましょう
+## 現在の `FeedPage`
 
 ```dart
 class FeedPage extends ConsumerWidget {
+  const FeedPage({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TODO
     ref.watch(postsProvider);
 
     return const Scaffold(
-      body: Center(child: Text('TODO: 投稿一覧を表示する')),
+      body: Center(
+        child: Text('TODO: 投稿一覧を表示する'),
+      ),
     );
   }
 }
 ```
 
-`postsProvider` を watch しているが、まだ UI に活かせていない状態です
+Provider を読んでいますが、まだ画面では使っていません
 
 ---
 
-## `AsyncValue.when()` の使い方
+<!-- _class: invert -->
 
-`StreamProvider` が返す `AsyncValue<T>` は 3 状態を持ちます
+## `posts.when` の形を作る
 
 ```dart
-final posts = ref.watch(postsProvider);
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final posts = ref.watch(postsProvider);
 
-return Scaffold(
-  body: posts.when(
-    data:    (items) => /* データがある場合の Widget */,
-    error:   (e, st) => /* エラーが起きた場合の Widget */,
-    loading: ()      => const CircularProgressIndicator(),
-  ),
-);
+  return Scaffold(
+    body: posts.when(
+      data: (items) {
+        return Center(child: Text('投稿数: ${items.length}'));
+      },
+      error: (error, stackTrace) {
+        return Center(child: Text('エラー: $error'));
+      },
+      loading: () {
+        return const Center(child: Text('投稿を読み込んでいます...'));
+      },
+    ),
+  );
+}
 ```
-
-- **data**: Firestore からデータが届いた
-- **error**: 読み込みに失敗した
-- **loading**: まだデータが届いていない (ぐるぐる表示)
 
 ---
 
-## ListView + ProviderScope のパターン
+## まず確認する表示
 
-`data` コールバックの中で `ListView.builder` を返しましょう
+この時点では `postsProvider` がまだ Firestore に接続されていません
 
-```dart
-data: (items) => ListView.builder(
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    return ProviderScope(
-      overrides: [
-        currentPostProvider.overrideWithValue(items[index]),
-      ],
-      child: const PostCard(),
-    );
-  },
-),
+```text
+投稿を読み込んでいます...
 ```
 
-- `ProviderScope` で投稿データを **1 件ずつ PostCard に注入**する
-- `currentPostProvider` は `post_card.dart` に定義済み
+この表示が見えれば、`AsyncValue.when()` の骨組みは OK です
+
+次のステップで `postsProvider` が投稿データを返すようにします
 
 ---
 
 <!-- _class: section -->
 
-# 06. ハンズオン② postsProvider
+# 05. Firestore から取得
 
-## 20 分
+## `postsProvider` を stream にします
 
 ---
 
@@ -561,33 +520,27 @@ data: (items) => ListView.builder(
 
 # Step 2 のゴール
 
-`postsProvider` を Firestore に接続して、
-**リアルタイムで投稿を取得**しましょう!
+Firestore の `posts` を購読して
+**新着順の投稿リスト**を受け取りましょう!
+
+---
+
+## Riverpod と Firestore の流れ
+
+![bg right:60% fit](../img/riverpod-firestore-flow.svg)
+
+`postsProvider` は Firestore の変更を stream として返します
+
+1. Firestore の `posts` コレクションを選びます
+2. `createdAt` の降順で並べます
+3. `snapshots()` でリアルタイム更新を受け取ります
+4. `Post.fromDocument` で `List<Post>` に変換します
 
 ---
 
 <!-- _class: invert -->
 
-## 現在の postsProvider (template)
-
-`lib/providers/post_providers.dart` を開いてみましょう
-
-```dart
-final postsProvider = StreamProvider<List<Post>>((ref) {
-  // TODO
-  return const Stream<List<Post>>.empty();
-});
-```
-
-空のストリームを返しているため、Step 1 の `data` コールバックが空リストのまま
-
----
-
-<!-- _class: invert -->
-
-## Firestore からストリームを取得する
-
-`firestoreProvider` は既に定義済みです
+## `postsProvider` を実装する
 
 ```dart
 final postsProvider = StreamProvider<List<Post>>((ref) {
@@ -597,41 +550,52 @@ final postsProvider = StreamProvider<List<Post>>((ref) {
       .collection('posts')
       .orderBy('createdAt', descending: true)
       .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map(Post.fromDocument).toList());
+      .map((snapshot) {
+        return snapshot.docs.map(Post.fromDocument).toList();
+      });
 });
 ```
 
-- `.collection('posts')` で posts コレクションを指定
-- `.orderBy('createdAt', descending: true)` で新着順にソート
-- `.snapshots()` でリアルタイムストリームに変換
-- `.map()` で `List<Post>` に変換
+Firestore のデータが変わると、`FeedPage` が自動で再描画されます
 
 ---
 
-## Post モデルのフィールド
-
-`lib/models/post.dart` で定義されています
+## `Post` モデルのフィールド
 
 | フィールド  | 型         | 内容                      |
 | ----------- | ---------- | ------------------------- |
 | `id`        | `String`   | Firestore ドキュメント ID |
 | `imageUrl`  | `String`   | 投稿画像の URL            |
-| `authorId`  | `String`   | 投稿者のユーザー名        |
-| `authorUrl` | `String`   | 投稿者のアイコン URL      |
-| `text`      | `String`   | 投稿テキスト              |
+| `authorUrl` | `String`   | 投稿者アイコンの URL      |
+| `authorId`  | `String`   | 投稿者 ID                 |
+| `text`      | `String`   | 投稿本文                  |
 | `likes`     | `int`      | いいね数                  |
 | `createdAt` | `DateTime` | 投稿日時                  |
 
-`Post.fromDocument()` で Firestore ドキュメントから自動変換されます
+`Post.fromDocument()` が Firestore のドキュメントを変換します
+
+---
+
+## 投稿数が見えれば接続成功
+
+Hot restart して画面を確認します
+
+```text
+投稿数: 3
+```
+
+Firestore に `posts` データがある場合は件数が表示されます
+
+まだリスト UI は作っていないので、次は `FeedPage` の `data` を
+`ListView.builder` に変えます
 
 ---
 
 <!-- _class: section yellow -->
 
-# 07. ハンズオン③ PostCard
+# 06. 投稿一覧を表示
 
-## 20 分
+## `FeedPage` をリスト UI にします
 
 ---
 
@@ -639,88 +603,200 @@ final postsProvider = StreamProvider<List<Post>>((ref) {
 
 # Step 3 のゴール
 
-`currentPostProvider` から投稿データを受け取り、
-**フルスクリーンのカード UI** を作りましょう!
+投稿データを 1 件ずつ `PostCard` に渡して
+縦スクロールで表示しましょう!
 
 ---
 
 <!-- _class: invert -->
 
-## 現在の PostCard (template)
-
-`lib/widgets/post_card.dart` を開いてみましょう
+## `data` の UI をリストにする
 
 ```dart
-class PostCard extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // TODO
-    ref.watch(currentPostProvider);
-
-    return const AspectRatio(
-      aspectRatio: 9 / 16,
-      child: ColoredBox(
-        color: Color(0xFF1D1D21),
-        child: Center(child: Text('TODO: 投稿カードを作る')),
-      ),
-    );
+data: (items) {
+  if (items.isEmpty) {
+    return const _EmptyFeed();
   }
+
+  return RefreshIndicator(
+    onRefresh: () {
+      return ref.refresh(postsProvider.future);
+    },
+    child: ListView.builder(
+      padding: EdgeInsets.zero,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return ProviderScope(
+          overrides: [
+            currentPostProvider.overrideWithValue(items[index]),
+          ],
+          child: const PostCard(),
+        );
+      },
+    ),
+  );
+},
+```
+
+---
+
+## ここで追加する UI 状態
+
+| 状態       | 作るもの                                | 目的                                 |
+| ---------- | --------------------------------------- | ------------------------------------ |
+| 空         | `_EmptyFeed`                            | 投稿がない理由を画面で伝えます       |
+| エラー     | `_ErrorView`                            | Firestore の読み込み失敗を表示します |
+| 読み込み中 | `CircularProgressIndicator`             | 待っている状態を明確にします         |
+| データあり | `RefreshIndicator` + `ListView.builder` | 投稿を縦に並べます                   |
+
+真っ白な画面を避け、次に確認すべきことが分かる UI にします
+
+---
+
+## 期待される表示
+
+`PostCard` はまだ未実装なので、各カードには TODO が出ます
+
+```text
+TODO: 投稿カードを作る
+TODO: 投稿カードを作る
+TODO: 投稿カードを作る
+```
+
+投稿の件数分だけ縦長のプレースホルダーが出れば成功です
+
+---
+
+<!-- _class: section green -->
+
+# 07. PostCard を作る
+
+## 画像、本文、いいねを段階的に重ねます
+
+---
+
+<!-- _class: lead -->
+
+# Step 4 のゴール
+
+`currentPostProvider` から投稿 1 件を読み
+**縦長の投稿カード**を完成させましょう!
+
+---
+
+## 投稿カードの重なり
+
+![bg right:50% fit](../img/post-card-layout.svg)
+
+`Stack` で背景画像の上に UI を重ねます
+
+- 一番下に `Image.network`
+- 下側にグラデーション
+- 左下に投稿本文
+- 右下にいいねボタン
+- 上に投稿者情報
+
+---
+
+<!-- _class: invert -->
+
+## まずは画像だけ表示する
+
+```dart
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  final post = ref.watch(currentPostProvider);
+
+  return AspectRatio(
+    aspectRatio: 9 / 16,
+    child: Image.network(
+      post.imageUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+
+        return const Center(child: CircularProgressIndicator());
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return const ColoredBox(
+          color: Color(0xFF1D1D21),
+          child: Center(child: Icon(Icons.broken_image_outlined, size: 48)),
+        );
+      },
+    ),
+  );
 }
 ```
 
 ---
 
-## Stack + Positioned で UI を重ねる
+<!-- _class: invert -->
 
-PostCard は複数の要素を**重ねて表示**します
-
-<div class="container">
-
-<div class="col">
+## `Stack` で本文を重ねる
 
 ```dart
-Stack(
-  fit: StackFit.expand,
-  children: [
-    // ① 背景画像
-    Image.network(post.imageUrl, ...),
-    // ② グラデーションオーバーレイ
-    const DecoratedBox(decoration: ...),
-    // ③ ユーザー情報 (上)
-    Positioned(top: 12, left: 12, ...),
-    // ④ テキスト (下左)
-    Positioned(bottom: 28, left: 16, ...),
-    // ⑤ いいねボタン (下右)
-    Positioned(right: 8, bottom: 20, ...),
-  ],
-)
+return AspectRatio(
+  aspectRatio: 9 / 16,
+  child: Stack(
+    fit: StackFit.expand,
+    children: [
+      Image.network(post.imageUrl, fit: BoxFit.cover),
+      const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.transparent,
+              Color(0xB0000000),
+            ],
+          ),
+        ),
+      ),
+      Positioned(
+        left: 16,
+        right: 80,
+        bottom: 28,
+        child: Text(post.text, maxLines: 3),
+      ),
+    ],
+  ),
+);
 ```
-
-</div>
-
-<div class="col">
-
-- `Stack` で子を重ねる
-- `Positioned` で位置を指定
-- `AspectRatio(9/16)` で縦長に固定
-- `StackFit.expand` で全体に広げる
-
-</div>
-
-</div>
 
 ---
 
-## いいねボタンの実装
+## `Stack` と `Positioned` の役割
 
-`likedPostIdsProvider` でいいね状態を管理します
+| Widget                        | 役割                                       |
+| ----------------------------- | ------------------------------------------ |
+| `AspectRatio(9 / 16)`         | 投稿カードを縦長に固定します               |
+| `Stack(fit: StackFit.expand)` | 子 Widget を同じ領域に重ねます             |
+| `DecoratedBox`                | 画像の下側を暗くして本文を読みやすくします |
+| `Positioned`                  | 本文、ボタン、投稿者情報の位置を決めます   |
+
+画像の上に文字を置くときは、読みやすさのために背景を少し暗くします
+
+---
+
+<!-- _class: invert -->
+
+## いいね状態を読む
 
 ```dart
 final post = ref.watch(currentPostProvider);
 final likedPostIds = ref.watch(likedPostIdsProvider);
 final isLiked = likedPostIds.contains(post.id);
+```
 
+いいね済みかどうかは、投稿 ID が集合に含まれるかで判断します
+
+```dart
 IconButton.filledTonal(
+  tooltip: isLiked ? 'いいねを取り消す' : 'いいね',
   onPressed: () async {
     await ref
         .read(postActionsProvider)
@@ -730,49 +806,126 @@ IconButton.filledTonal(
     isLiked ? Icons.favorite : Icons.favorite_border,
     color: isLiked ? Colors.pinkAccent : Colors.white,
   ),
-),
+)
 ```
 
-> 表示は `watch`、操作は `read` のパターンです!
+操作を呼ぶ Provider は `ref.read()` です
+
+---
+
+## 投稿者情報を上に置く
+
+```dart
+Positioned(
+  top: 12,
+  left: 12,
+  right: 12,
+  child: SafeArea(
+    bottom: false,
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 17,
+          backgroundImage:
+              post.authorUrl.isEmpty ? null : NetworkImage(post.authorUrl),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          post.authorId,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    ),
+  ),
+)
+```
+
+`SafeArea` でステータスバーやノッチに近い位置でも隠れにくくします
+
+---
+
+## 完成チェック
+
+Chrome で次の動作を確認します
+
+- 投稿画像、ユーザー名、本文、いいね数が表示されます
+- 長い本文は 3 行で省略されます
+- いいねボタンを押すとハートの見た目が変わります
+- Firestore の `likes` が更新され、画面にも反映されます
+- 画像 URL が壊れている投稿では壊れた画像アイコンが出ます
+
+ここまでできれば本編は完了です!
 
 ---
 
 <!-- _class: section red -->
 
-# 08. 共有
+# 08. まとめ
 
-## 10 分
+## できたところを共有します
 
 ---
 
-## 発表してみましょう!
+## 今日学んだこと
 
-時間が残ったら、隣の人や全体に共有してください!
-
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px;">
-  <div style="padding: 24px; border-top: 4px solid var(--gdg-blue); background: #F8F9FA; border-radius: 8px;">
-    <h3 style="margin-top: 0;">どこまで実装できた?</h3>
-    <p>完成したステップと現在の画面</p>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 24px;">
+  <div style="padding: 20px; border-top: 4px solid var(--gdg-blue); background: var(--gdg-surface); border-radius: 8px;">
+    <h3 style="margin: 0 0 8px;">Widget ツリー</h3>
+    <p>画面を Widget の入れ子として組み立てました</p>
   </div>
-  <div style="padding: 24px; border-top: 4px solid var(--gdg-green); background: #F8F9FA; border-radius: 8px;">
-    <h3 style="margin-top: 0;">どこで詰まった?</h3>
-    <p>解決方法もセットで共有!</p>
+  <div style="padding: 20px; border-top: 4px solid var(--gdg-green); background: var(--gdg-surface); border-radius: 8px;">
+    <h3 style="margin: 0 0 8px;">Riverpod</h3>
+    <p><code>ConsumerWidget</code> と <code>WidgetRef</code> で Provider を読みました</p>
   </div>
-  <div style="padding: 24px; border-top: 4px solid var(--gdg-yellow); background: #F8F9FA; border-radius: 8px;">
-    <h3 style="margin-top: 0;">改善してみたいこと</h3>
-    <p>追加したい機能やデザイン</p>
+  <div style="padding: 20px; border-top: 4px solid var(--gdg-yellow); background: var(--gdg-surface); border-radius: 8px;">
+    <h3 style="margin: 0 0 8px;">Firestore</h3>
+    <p><code>StreamProvider</code> でリアルタイム更新を扱いました</p>
+  </div>
+  <div style="padding: 20px; border-top: 4px solid var(--gdg-red); background: var(--gdg-surface); border-radius: 8px;">
+    <h3 style="margin: 0 0 8px;">Stack</h3>
+    <p>画像の上に本文、ボタン、投稿者情報を重ねました</p>
   </div>
 </div>
 
 ---
 
-## 今日のまとめ
+## 共有してみましょう
 
-- Flutter は **Widget ツリー**で画面を組みます
-- Riverpod の **StreamProvider** で非同期データを扱えます
-- **AsyncValue.when()** でデータ / エラー / 読み込み状態を切り替えます
-- **ProviderScope** で親から子に値を注入できます
-- 詰まったらすぐに **Discord `#260521-flutter-workshop` で共有**してください!
+時間が残ったら、隣の人や Discord に共有してください!
+
+| 観点       | 話すこと                                   |
+| ---------- | ------------------------------------------ |
+| 進捗       | どのステップまで実装できましたか           |
+| 詰まった点 | どこで止まり、どう解決しましたか           |
+| 改善案     | デザインや機能で次に足したいものは何ですか |
+
+共有先: Discord `#260521-flutter-workshop`
+
+---
+
+## Extra で挑戦できること
+
+本編が終わった人は、codelab の Extra に進めます
+
+| Extra        | 追加する機能                           |
+| ------------ | -------------------------------------- |
+| ログイン機能 | Firebase Authentication の匿名ログイン |
+| 投稿機能     | 画像 URL と本文から Firestore に投稿   |
+| 投稿時刻     | `createdAt` から相対時間を表示         |
+
+まずは短い改善として、本文の文字サイズ、ボタン位置、空状態の見た目を調整しても OK です
+
+---
+
+## 次に読むもの
+
+- 完成版のコード: `https://github.com/gdsc-osaka/flutter-workshop-example`
+- Flutter の学習パス: `https://docs.flutter.dev/learn/pathway`
+- Flutter の状態管理: `https://docs.flutter.dev/data-and-backend/state-mgmt/options`
+- Riverpod の Provider: `https://riverpod.dev/docs/concepts2/providers`
+
+詰まったところや改善したところを `#260521-flutter-workshop` に残してください!
 
 ---
 
@@ -780,5 +933,4 @@ IconButton.filledTonal(
 
 # Thank you!
 
-楽しいアプリ作りを!
 質問は `#260521-flutter-workshop` で待っています!

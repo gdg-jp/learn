@@ -10,6 +10,7 @@ PYTHON ?= python3
 MARP   ?= npx --yes -p @marp-team/marp-cli@latest marp
 
 POSTFIX  := .claat/fix-claat-codespans.py
+SLIDE_POSTFIX := .marp/fix-slide-html.py
 LIBS_SRC ?= portfolio-2025/libs
 
 # Marp theme. Slides can live in any directory; pass the path via INPUT=.
@@ -48,7 +49,9 @@ slide:
 	  echo "Usage: make slide path/to/deck.md [path/to/deck.html]"; \
 	  exit 2; \
 	fi
-	$(MARP) --theme-set $(MARP_THEME) --html "$(word 1,$(ARGS))" -o "$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.html,$(word 1,$(ARGS))))"
+	@OUT="$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.html,$(word 1,$(ARGS))))"; \
+	$(MARP) --theme-set $(MARP_THEME) --html "$(word 1,$(ARGS))" -o "$$OUT"; \
+	$(PYTHON) $(SLIDE_POSTFIX) "$$OUT"
 
 # Export a Marp deck to PDF. Usage:
 #   make slide-pdf path/to/deck.md [path/to/deck.pdf]

@@ -11,27 +11,39 @@ size: 16:9
    <div class="fit">…</div> wrapper for finer-grained scaling. */
 (() => {
   const MIN_FONT_PX = 12;
+  const CODE_MIN_FONT_PX = 9;
   const STEP = 0.96;
   const MAX_ITERS = 40;
   const TOLERANCE = 1;
+  let scheduled = false;
 
   const overflows = (el) =>
     el.scrollHeight > el.clientHeight + TOLERANCE ||
     el.scrollWidth  > el.clientWidth  + TOLERANCE;
 
-  const shrinkSection = (section) => {
-    if (section.dataset.autofit === "skip") return;
-    if (!overflows(section)) return;
-    const base = parseFloat(getComputedStyle(section).fontSize) || 28;
+  const shrinkElement = (el, minFontPx, shouldShrink = () => overflows(el)) => {
+    if (!shouldShrink()) return;
+    const base = parseFloat(getComputedStyle(el).fontSize) || 18;
     let size = base;
-    for (let i = 0; i < MAX_ITERS && overflows(section) && size > MIN_FONT_PX; i++) {
+    for (let i = 0; i < MAX_ITERS && shouldShrink() && size > minFontPx; i++) {
       size *= STEP;
-      section.style.fontSize = `${size}px`;
+      el.style.fontSize = `${size}px`;
     }
   };
 
-  const scaleFitBlocks = () => {
-    for (const fit of document.querySelectorAll(".fit")) {
+  const shrinkCodeBlocks = (section) => {
+    for (const pre of section.querySelectorAll("pre")) {
+      shrinkElement(pre, CODE_MIN_FONT_PX, () => overflows(pre) || overflows(section));
+    }
+  };
+
+  const shrinkSection = (section) => {
+    if (section.dataset.autofit === "skip") return;
+    shrinkElement(section, MIN_FONT_PX, () => overflows(section));
+  };
+
+  const scaleFitBlocks = (root) => {
+    for (const fit of root.querySelectorAll(".fit")) {
       if (!fit.scrollHeight) continue;
       const ratio = Math.min(1, fit.clientHeight / fit.scrollHeight);
       fit.style.transformOrigin = "top left";
@@ -39,10 +51,32 @@ size: 16:9
     }
   };
 
-  window.addEventListener("load", () => {
-    scaleFitBlocks();
-    for (const section of document.querySelectorAll("section")) shrinkSection(section);
+  const processSection = (section) => {
+    if (!section.clientWidth || !section.clientHeight) return;
+    scaleFitBlocks(section);
+    shrinkCodeBlocks(section);
+    shrinkSection(section);
+  };
+
+  const processVisibleSections = () => {
+    scheduled = false;
+    for (const section of document.querySelectorAll("section")) processSection(section);
+  };
+
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => requestAnimationFrame(processVisibleSections));
+  };
+
+  window.addEventListener("load", schedule);
+  window.addEventListener("resize", schedule);
+  new MutationObserver(schedule).observe(document.documentElement, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class"],
   });
+  schedule();
 })();
 </script>
 

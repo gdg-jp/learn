@@ -173,7 +173,7 @@ pre {
   border-radius: 8px;
   font-size: 18px;
   line-height: 1.45;
-  overflow: auto;
+  overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -283,6 +283,11 @@ section:not(.title):not(.lead):not(.section):not(.invert):not(.split) {
    on either to avoid overlapping the bg image, and drop the reserved
    right-padding since the content column is already narrowed by Marp. */
 section[data-marpit-advanced-background]:not(.title):not(.lead):not(.section):not(.invert):not(.split) {
+  background-image: none;
+  padding-right: 80px;
+}
+
+section:has(> .container):not(.title):not(.lead):not(.section):not(.invert):not(.split) {
   background-image: none;
   padding-right: 80px;
 }
@@ -508,9 +513,9 @@ section.invert::after  { color: rgba(248, 249, 250, 0.65); }
 /* ---------- Layout: two-column ---------- */
 section.split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
-  column-gap: 48px;
+  column-gap: 80px;
   align-items: start;
 }
 
@@ -524,9 +529,25 @@ section.split h1, section.split h2 {
    <div class="container">, each column in <div class="col">. */
 .container {
   display: flex;
+  gap: 80px;
+  align-items: flex-start;
+  width: 100%;
 }
 .col {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Marp's `![bg right:* fit]` renders images as background figures that
+   otherwise run flush to the slide edge. Keep right-side figures inside a
+   comfortable content box so QR codes and diagrams do not get clipped. */
+section[data-marpit-advanced-background="background"][data-marpit-advanced-background-split="right"]
+  > div[data-marpit-advanced-background-container]
+  > figure {
+  box-sizing: border-box !important;
+  padding: 64px 72px 92px 28px !important;
+  background-origin: content-box !important;
+  background-clip: content-box !important;
 }
 
 /* ---------- Auto-fit content (PowerPoint-style shrink-to-fit) ---------- */

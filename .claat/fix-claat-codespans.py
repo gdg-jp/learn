@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-process claat-exported index.html files.
 
-Six fixes are applied:
+Seven fixes are applied:
 
 1. Escape unescaped HTML tags inside inline <code>...</code> spans. claat's
    markdown renderer leaves backtick spans like `<html>` as
@@ -18,13 +18,17 @@ Six fixes are applied:
 3. Wrap <pre> code blocks with a toolbar that provides copy and light/dark
    theme buttons.
 
-4. Inject local CSS and JS that make code blocks light by default, style the
+4. Repair markdown links left behind when claat strips standalone <button>
+   wrappers. Button syntax such as `<button>\n[label](url)\n</button>` can
+   otherwise become plain text instead of a `<paper-button>`.
+
+5. Inject local CSS and JS that make code blocks light by default, style the
    toolbar buttons, preserve the dark-mode toggle, and add a full outline to
    callouts.
 
-5. Add the repository favicon from assets/favicon.png.
+6. Add the repository favicon from assets/favicon.png.
 
-6. Convert bare http(s) URLs in prose into links.
+7. Convert bare http(s) URLs in prose into links.
 """
 
 import html as html_lib
@@ -337,6 +341,31 @@ def wrap_code_blocks(html: str) -> tuple[str, int]:
     return pattern.subn(repl, html)
 
 
+def repair_button_links(html: str) -> tuple[str, int]:
+    br = r"<br\s*/?>"
+    spacer = rf"(?:\s|{br})*"
+    pattern = re.compile(
+        rf"<(?P<tag>p|li)(?P<attrs>[^>]*)>"
+        rf"{spacer}\[(?P<label>[^\]\n]+)\]\((?P<href>[^\s)]+)\){spacer}"
+        rf"</(?P=tag)>",
+        re.IGNORECASE,
+    )
+
+    def repl(m: re.Match) -> str:
+        tag = m.group("tag")
+        attrs = m.group("attrs")
+        label = html_lib.escape(html_lib.unescape(m.group("label")))
+        href = html_lib.escape(html_lib.unescape(m.group("href")), quote=True)
+        button = (
+            f'<a href="{href}" target="_blank">'
+            f'<paper-button class="colored" raised>{label}</paper-button>'
+            "</a>"
+        )
+        return f"<{tag}{attrs}>{button}</{tag}>"
+
+    return pattern.subn(repl, html)
+
+
 def linkify_bare_urls(html: str) -> tuple[str, int]:
     tag_pattern = re.compile(r"(<[^>]+>)")
     url_pattern = re.compile(r"https?://[^\s<>\"]+")
@@ -432,15 +461,16 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
     return html, n_style, n_script
 
 
-def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int, int]:
+def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
     html, n_blocks = wrap_code_blocks(html)
+    html, n_buttons = repair_button_links(html)
     html, n_links = linkify_bare_urls(html)
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside, n_blocks, n_links, n_favicon, n_style, n_script
+    return html, n_code, n_aside, n_blocks, n_buttons, n_links, n_favicon, n_style, n_script
 
 
 def main() -> int:
@@ -450,13 +480,14 @@ def main() -> int:
     for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as f:
             original = f.read()
-        fixed, n_code, n_aside, n_blocks, n_links, n_favicon, n_style, n_script = fix(original, path)
+        fixed, n_code, n_aside, n_blocks, n_buttons, n_links, n_favicon, n_style, n_script = fix(original, path)
         if fixed != original:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(fixed)
         print(
             f"{path}: fixed {n_code} code spans, wrapped {n_aside} asides, "
-            f"enhanced {n_blocks} code blocks, linkified {n_links} URLs, "
+            f"enhanced {n_blocks} code blocks, repaired {n_buttons} buttons, "
+            f"linkified {n_links} URLs, "
             f"injected {n_favicon} favicons, {n_style} styles and {n_script} scripts"
         )
     return 0
