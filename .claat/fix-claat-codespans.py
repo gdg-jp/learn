@@ -401,6 +401,18 @@ def exported_image_src_for_alt(html: str, alt: str) -> str | None:
     return None
 
 
+def site_path_for_output_asset(source: str, html_path: str | None) -> str:
+    if not source or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", source) or source.startswith(("/", "#")):
+        return source
+    if not html_path:
+        return source
+
+    html_dir_name = Path(html_path).resolve().parent.name
+    if not html_dir_name or source == html_dir_name or source.startswith(html_dir_name + "/"):
+        return source
+    return f"{html_dir_name}/{source}"
+
+
 def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[str, str]:
     values: dict[str, str] = {}
     codelab_metadata = load_codelab_metadata(html_path)
@@ -430,7 +442,7 @@ def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[
             source_md,
             html_path,
         )
-        values["og:image"] = image
+        values["og:image"] = site_path_for_output_asset(image, html_path)
 
     return values
 
