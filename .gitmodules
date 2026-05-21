@@ -7,3 +7,6 @@
 [submodule "flutter-workshop/example"]
 	path = flutter-workshop/example
 	url = https://github.com/gdsc-osaka/flutter-workshop-example.git
+[submodule "flutter-workshop/template-cloudshell"]
+	path = flutter-workshop/template-cloudshell
+	url = https://github.com/gdsc-osaka/flutter-workshop-cloudshell.git

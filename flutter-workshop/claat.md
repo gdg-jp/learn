@@ -14,7 +14,7 @@ Duration: 0:05:00
 
 このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。
 
-本編は Windows または macOS のセットアップを片方だけ進める想定で約 120 分です。Claat の表示時間には両 OS のセットアップと Extra ステップも含まれます。
+本編は Cloud Shell、Windows、macOS のセットアップを 1 つだけ進める想定で約 120 分です。Claat の表示時間には複数環境のセットアップと Extra ステップも含まれます。
 
 ### Discord で質問する
 
@@ -56,8 +56,9 @@ Duration: 0:05:00
 - VS Code の Flutter 拡張機能
 - Flutter SDK
 - Git
+- Cloud Shell を使う場合は Google アカウント
 
-このコードラボでは Flutter Web を Chrome で動かします。Android Studio、Android SDK、Xcode、iOS シミュレータ、Android エミュレータは使いません。
+ローカル環境では Flutter Web を Chrome で動かします。Cloud Shell では Web Preview を使います。Android Studio、Android SDK、Xcode、iOS シミュレータ、Android エミュレータは使いません。
 
 ### 前提知識
 
@@ -301,6 +302,73 @@ code .
 ```
 
 出力がなければ成功です。
+
+## セットアップ (Cloudshell)
+
+Duration: 0:10:00
+
+このステップでは、Google Cloud Shell でテンプレートコードを開きます。自分の PC に Flutter SDK を入れずに進めたい場合は、このステップだけ実行し、Windows / macOS のセットアップはスキップしてください。
+
+### コードの場所を確認する
+
+Cloud Shell 用テンプレートは、通常版テンプレートを Cloud Shell で起動しやすい形にしたものです。
+
+- Cloud Shell 用テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop-cloudshell
+- 通常版テンプレートコード: https://github.com/gdsc-osaka/flutter-workshop
+- 完成版のコード: https://github.com/gdsc-osaka/flutter-workshop-example
+
+> **Tip:** まずは Cloud Shell 用テンプレートを手順どおりに編集し、詰まったときだけ完成版のコードを参照してください。
+
+### Cloud Shell を開く
+
+下のボタンから Cloud Shell を開きます。リポジトリの clone、Cloud Shell Editor、チュートリアル表示が自動で始まります。
+
+<button>
+  [Cloud Shell でテンプレートを開く](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/gdsc-osaka/flutter-workshop-cloudshell.git&cloudshell_workspace=.&cloudshell_tutorial=cloudshell_tutorial.md&cloudshell_open_in_editor=lib/feed_page.dart&show=ide%2Cterminal&ephemeral=true)
+</button>
+
+Cloud Shell が初回起動の場合は、利用規約の確認や環境作成に数分かかることがあります。
+
+### Flutter をセットアップする
+
+Cloud Shell のターミナルで次を実行します。
+
+```bash
+git config --global --add safe.directory /google/flutter
+flutter --version
+flutter config --enable-web
+flutter pub get
+```
+
+> **Tip:** 初回実行では、Dart SDK がダウンロードされ、Flutter ツールがビルドされます。1 分ほどかかります。`Flutter 3.x • channel stable` などのコードが表示されます。
+
+**期待される出力の例:**
+
+```text
+Flutter 3.x.x • channel stable
+Got dependencies!
+```
+
+Cloud Shell には `/google/flutter` に Flutter SDK がプリインストールされており、`flutter` コマンドはそのまま使えます。Flutter SDK はダウンロードしません。`git config` は初回の `flutter` 実行で `fatal: detected dubious ownership` が出るのを防ぐために追加します。
+
+### テンプレートコードを起動する
+
+Cloud Shell では Chrome を直接起動せず、Web Preview 用の `web-server` デバイスで起動します。
+
+```bash
+flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+```
+
+**期待される出力:**
+
+```text
+Launching lib/main.dart on Web Server in debug mode
+lib/main.dart is being served at http://0.0.0.0:8080
+```
+
+Cloud Shell 右上の **Web Preview** から **Preview on port 8080** を開きます。`TODO: 投稿一覧を表示する` と表示されたら準備完了です。
+
+ファイルを保存したあと、起動中のターミナルで `r` を押すと Hot reload、`R` を押すと Hot restart できます。
 
 ## Flutter の画面構造をつかむ
 

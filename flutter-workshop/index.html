@@ -188,7 +188,7 @@
     
       <google-codelab-step label="はじめに" duration="5">
         <p>このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。</p>
-<p>本編は Windows または macOS のセットアップを片方だけ進める想定で約 120 分です。Claat の表示時間には両 OS のセットアップと Extra ステップも含まれます。</p>
+<p>本編は Cloud Shell、Windows、macOS のセットアップを 1 つだけ進める想定で約 120 分です。Claat の表示時間には複数環境のセットアップと Extra ステップも含まれます。</p>
 <h2 is-upgraded>Discord で質問する</h2>
 <p>詰まったところ、進捗、改善したところは Discord サーバーの <code>#260521-flutter-workshop</code> に共有してください。招待リンクは下のボタンから開けます。</p>
 <p><a href="https://discord.gg/pMTKHQRg" target="_blank"><paper-button class="colored" raised>Discord サーバーに参加する</paper-button></a></p>
@@ -220,8 +220,9 @@
 <li>VS Code の Flutter 拡張機能</li>
 <li>Flutter SDK</li>
 <li>Git</li>
+<li>Cloud Shell を使う場合は Google アカウント</li>
 </ul>
-<p>このコードラボでは Flutter Web を Chrome で動かします。Android Studio、Android SDK、Xcode、iOS シミュレータ、Android エミュレータは使いません。</p>
+<p>ローカル環境では Flutter Web を Chrome で動かします。Cloud Shell では Web Preview を使います。Android Studio、Android SDK、Xcode、iOS シミュレータ、Android エミュレータは使いません。</p>
 <h2 is-upgraded>前提知識</h2>
 <ul>
 <li>JavaScript、TypeScript、Java、Kotlin、Swift、C# など、いずれかのプログラミング言語の基本的な理解</li>
@@ -542,6 +543,87 @@ Flutter run key commands
 </code></pre>
 </div>
 <p>出力がなければ成功です。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="セットアップ (Cloudshell)" duration="10">
+        <p>このステップでは、Google Cloud Shell でテンプレートコードを開きます。自分の PC に Flutter SDK を入れずに進めたい場合は、このステップだけ実行し、Windows / macOS のセットアップはスキップしてください。</p>
+<h2 is-upgraded>コードの場所を確認する</h2>
+<p>Cloud Shell 用テンプレートは、通常版テンプレートを Cloud Shell で起動しやすい形にしたものです。</p>
+<ul>
+<li>Cloud Shell 用テンプレートコード: <a href="https://github.com/gdsc-osaka/flutter-workshop-cloudshell" target="_blank">https://github.com/gdsc-osaka/flutter-workshop-cloudshell</a></li>
+<li>通常版テンプレートコード: <a href="https://github.com/gdsc-osaka/flutter-workshop" target="_blank">https://github.com/gdsc-osaka/flutter-workshop</a></li>
+<li>完成版のコード: <a href="https://github.com/gdsc-osaka/flutter-workshop-example" target="_blank">https://github.com/gdsc-osaka/flutter-workshop-example</a></li>
+</ul>
+<aside class="special"><p><strong>Tip:</strong> まずは Cloud Shell 用テンプレートを手順どおりに編集し、詰まったときだけ完成版のコードを参照してください。</p></aside>
+<h2 is-upgraded>Cloud Shell を開く</h2>
+<p>下のボタンから Cloud Shell を開きます。リポジトリの clone、Cloud Shell Editor、チュートリアル表示が自動で始まります。</p>
+<p><a href="https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/gdsc-osaka/flutter-workshop-cloudshell.git&amp;cloudshell_workspace=.&amp;cloudshell_tutorial=cloudshell_tutorial.md&amp;cloudshell_open_in_editor=lib/feed_page.dart&amp;show=ide%2Cterminal&amp;ephemeral=true" target="_blank"><paper-button class="colored" raised>Cloud Shell でテンプレートを開く</paper-button></a></p>
+<p>Cloud Shell が初回起動の場合は、利用規約の確認や環境作成に数分かかることがあります。</p>
+<h2 is-upgraded>Flutter をセットアップする</h2>
+<p>Cloud Shell のターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">git config --global --add safe.directory /google/flutter
+flutter --version
+flutter config --enable-web
+flutter pub get
+</code></pre>
+</div>
+<aside class="special"><p><strong>Tip:</strong> 初回実行では、Dart SDK がダウンロードされ、Flutter ツールがビルドされます。1 分ほどかかります。<code>Flutter 3.x • channel stable</code> などのコードが表示されます。</p></aside>
+<p><strong>期待される出力の例:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Flutter 3.x.x • channel stable
+Got dependencies!
+</code></pre>
+</div>
+<p>Cloud Shell には <code>/google/flutter</code> に Flutter SDK がプリインストールされており、<code>flutter</code> コマンドはそのまま使えます。Flutter SDK はダウンロードしません。<code>git config</code> は初回の <code>flutter</code> 実行で <code>fatal: detected dubious ownership</code> が出るのを防ぐために追加します。</p>
+<h2 is-upgraded>テンプレートコードを起動する</h2>
+<p>Cloud Shell では Chrome を直接起動せず、Web Preview 用の <code>web-server</code> デバイスで起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Launching lib/main.dart on Web Server in debug mode
+lib/main.dart is being served at http://0.0.0.0:8080
+</code></pre>
+</div>
+<p>Cloud Shell 右上の <strong>Web Preview</strong> から <strong>Preview on port 8080</strong> を開きます。<code>TODO: 投稿一覧を表示する</code> と表示されたら準備完了です。</p>
+<p>ファイルを保存したあと、起動中のターミナルで <code>r</code> を押すと Hot reload、<code>R</code> を押すと Hot restart できます。</p>
 
 
       </google-codelab-step>
