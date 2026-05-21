@@ -53,13 +53,14 @@ Duration: 0:05:00
 * JavaScript、TypeScript、Java、Kotlin、Swift、C# など、いずれかのプログラミング言語の基本的な理解
 * 関数、クラス、配列、非同期処理という言葉を見たことがある程度の理解
 
-### このコードラボで扱わないこと
+### 本編で扱わないこと
 
 * Firebase プロジェクトの作成と初期設定
-* Firebase Security Rules の設計
 * 認証、投稿作成、投稿削除
 * iOS / Android のネイティブビルド
 * Riverpod のコード生成、テスト、アーキテクチャ設計
+
+認証と投稿作成は、本編完了後の Extra ステップで挑戦できます。
 
 ### 参考にした公開資料
 
@@ -1055,7 +1056,7 @@ Chrome で次の動作を確認します。
 
 ### 余裕があれば改善する
 
-時間が残ったら、次のどれかに挑戦してください。
+時間が残ったら、この後の Extra ステップに挑戦してください。短い改善から始める場合は、次のどれかを選びます。
 
 * 投稿本文の文字サイズや影を調整する
 * いいねボタンの位置や色を変える
@@ -1070,3 +1071,424 @@ Chrome で次の動作を確認します。
 * Riverpod の Provider: https://riverpod.dev/docs/concepts2/providers
 
 詰まったところ、改善したところ、気づいたことを Discord `#260521-flutter-workshop` に共有してください。
+
+## Extra: ログイン機能を追加する
+Duration: 0:25:00
+
+この Extra では、Firebase Authentication の匿名ログインを使って、アプリに「ログインしてからフィードを見る」流れを追加します。メールアドレスやパスワードを扱わず、まずはユーザー ID を持てる状態にします。
+
+### ゴールを確認する
+
+このステップで目指す状態は次のとおりです。
+
+* 未ログインならログイン画面を表示する
+* **匿名でログイン** ボタンを押すとフィード画面へ進む
+* Firebase Auth の `uid` を投稿者 ID として使えるようにする
+* ログアウトできる余地を残す
+
+> **Note:** Firebase Authentication の匿名ログインを使うには、Firebase Console の Authentication で Anonymous プロバイダを有効にします。短時間に大量の匿名アカウントを作ると制限されることがあります。
+
+### firebase_auth を追加する
+
+プロジェクトのルートで次を実行します。
+
+```bash
+flutter pub add firebase_auth
+```
+
+**期待される出力:**
+
+```text
+Changed 1 dependency!
+```
+
+`pubspec.yaml` に `firebase_auth` が追加されていれば成功です。
+
+### Auth 用の Provider を作る
+
+`lib/providers/auth_providers.dart` を新規作成します。
+
+```dart
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
+  return FirebaseAuth.instance;
+});
+
+final authStateProvider = StreamProvider<User?>((ref) {
+  return ref.watch(firebaseAuthProvider).authStateChanges();
+});
+
+final authActionsProvider = Provider<AuthActions>((ref) {
+  return AuthActions(ref.watch(firebaseAuthProvider));
+});
+
+class AuthActions {
+  const AuthActions(this._auth);
+
+  final FirebaseAuth _auth;
+
+  Future<void> signInAnonymously() async {
+    await _auth.signInAnonymously();
+  }
+
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
+}
+```
+
+`authStateProvider` はログイン状態の stream を返します。ログインすると `User` が届き、ログアウトすると `null` が届きます。
+
+### AuthGate を作る
+
+`lib/auth_gate.dart` を新規作成します。
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'feed_page.dart';
+import 'providers/auth_providers.dart';
+
+class AuthGate extends ConsumerWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+
+    return authState.when(
+      data: (user) {
+        if (user == null) {
+          return const _SignInView();
+        }
+
+        return const FeedPage();
+      },
+      error: (error, stackTrace) {
+        return Scaffold(
+          body: Center(
+            child: Text('ログイン状態を確認できませんでした: $error'),
+          ),
+        );
+      },
+      loading: () {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+}
+
+class _SignInView extends ConsumerWidget {
+  const _SignInView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Center(
+        child: FilledButton.icon(
+          onPressed: () async {
+            await ref.read(authActionsProvider).signInAnonymously();
+          },
+          icon: const Icon(Icons.login),
+          label: const Text('匿名でログイン'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+`AuthGate` はログイン状態に応じて、ログイン画面か `FeedPage` を出し分けます。
+
+### アプリの入口を差し替える
+
+`lib/app.dart` に `AuthGate` を import します。
+
+```dart
+import 'auth_gate.dart';
+```
+
+`MaterialApp` の `home` を次のように変更します。
+
+```dart
+home: const AuthGate(),
+```
+
+これでアプリ起動時に、ログイン状態を見てから画面を選ぶようになります。
+
+### ログインを確認する
+
+Hot restart して、Chrome で動作を確認します。
+
+**期待される表示:**
+
+* 未ログイン時は **匿名でログイン** ボタンが表示される
+* ボタンを押すとフィード画面へ遷移する
+* Firebase Console の Authentication に匿名ユーザーが作成される
+
+## Extra: 投稿機能を追加する
+Duration: 0:30:00
+
+この Extra では、画像 URL と本文を入力して新しい投稿を Firestore に追加します。まずは画像アップロードではなく、画像 URL を貼り付ける最小構成にします。
+
+### ゴールを確認する
+
+このステップで目指す状態は次のとおりです。
+
+* フィード画面から投稿作成画面を開く
+* 画像 URL と本文を入力して投稿する
+* Firestore の `posts` コレクションに新しいドキュメントを追加する
+* 投稿後、`postsProvider` の stream によってフィードの先頭に反映される
+
+> **Tip:** この Extra はログイン機能の後に進めます。Firebase Auth の `uid` を `authorId` として使うと、誰が投稿したかを Firestore に残せます。
+
+### createPost を追加する
+
+`lib/providers/post_providers.dart` の `PostActions` にメソッドを追加します。
+
+```dart
+Future<void> createPost({
+  required String authorId,
+  required String imageUrl,
+  required String text,
+});
+```
+
+次に、`FirestorePostActions` に実装を追加します。
+
+```dart
+@override
+Future<void> createPost({
+  required String authorId,
+  required String imageUrl,
+  required String text,
+}) async {
+  await _firestore.collection('posts').add({
+    'authorId': authorId,
+    'authorUrl': '',
+    'imageUrl': imageUrl,
+    'text': text,
+    'likes': 0,
+    'createdAt': FieldValue.serverTimestamp(),
+  });
+}
+```
+
+Cloud Firestore の `add()` は、コレクションに自動 ID のドキュメントを追加します。`createdAt` にはサーバー時刻を入れるため、ユーザーの端末時刻に依存しません。
+
+### 投稿作成画面を作る
+
+`lib/create_post_page.dart` を新規作成します。
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'providers/auth_providers.dart';
+import 'providers/post_providers.dart';
+
+class CreatePostPage extends ConsumerStatefulWidget {
+  const CreatePostPage({super.key});
+
+  @override
+  ConsumerState<CreatePostPage> createState() => _CreatePostPageState();
+}
+
+class _CreatePostPageState extends ConsumerState<CreatePostPage> {
+  final _imageUrlController = TextEditingController();
+  final _textController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _imageUrlController.dispose();
+    _textController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final imageUrl = _imageUrlController.text.trim();
+    final text = _textController.text.trim();
+
+    if (imageUrl.isEmpty || text.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final user = ref.read(authStateProvider).value;
+      await ref.read(postActionsProvider).createPost(
+            authorId: user?.uid ?? 'anonymous_user',
+            imageUrl: imageUrl,
+            text: text,
+          );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('投稿に失敗しました: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('投稿を作成')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          TextField(
+            controller: _imageUrlController,
+            decoration: const InputDecoration(
+              labelText: '画像 URL',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _textController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: '本文',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _isSaving ? null : _submit,
+            icon: _isSaving
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send),
+            label: const Text('投稿する'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+この画面では、入力された画像 URL と本文を `postActionsProvider` 経由で Firestore に保存します。
+
+### FeedPage から開けるようにする
+
+`lib/feed_page.dart` に投稿作成画面を import します。
+
+```dart
+import 'create_post_page.dart';
+```
+
+`Scaffold` に `floatingActionButton` を追加します。
+
+```dart
+floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => const CreatePostPage(),
+      ),
+    );
+  },
+  child: const Icon(Icons.add),
+),
+```
+
+`Scaffold` には `body` と同じ階層で `floatingActionButton` を渡します。
+
+### 投稿を確認する
+
+アプリを Hot restart し、`+` ボタンから投稿を作成します。
+
+**期待される表示:**
+
+* 投稿作成画面で画像 URL と本文を入力できる
+* **投稿する** を押すとフィードに戻る
+* 新しい投稿がフィードの先頭に表示される
+* Firebase Console の Firestore に新しい `posts` ドキュメントが追加される
+
+## Extra: 投稿時刻を表示する
+Duration: 0:10:00
+
+この Extra では、投稿カードに `createdAt` を表示します。Firestore の `createdAt` を UI に出すと、フィードが新着順で並んでいることを確認しやすくなります。
+
+### 時刻表示用の関数を追加する
+
+`lib/widgets/post_card.dart` の末尾に関数を追加します。
+
+```dart
+String formatCreatedAt(DateTime value) {
+  final now = DateTime.now();
+  final difference = now.difference(value);
+
+  if (difference.inMinutes < 1) {
+    return 'たった今';
+  }
+
+  if (difference.inHours < 1) {
+    return '${difference.inMinutes}分前';
+  }
+
+  if (difference.inDays < 1) {
+    return '${difference.inHours}時間前';
+  }
+
+  return '${difference.inDays}日前';
+}
+```
+
+`intl` などの追加パッケージを使わず、相対時間を簡単に表示する関数です。
+
+### 投稿者情報の横に表示する
+
+投稿者名の `Text(post.authorId, ...)` の近くに、時刻表示を追加します。
+
+```dart
+Text(
+  formatCreatedAt(post.createdAt),
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+  style: const TextStyle(
+    color: Colors.white70,
+    fontWeight: FontWeight.w500,
+    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+  ),
+),
+```
+
+表示位置は、投稿者名の右側でも下でも構いません。画面幅が狭い場合は `Column` にして、投稿者名の下に時刻を置くと崩れにくくなります。
+
+### 表示を確認する
+
+Hot reload して投稿カードを確認します。
+
+**期待される表示:**
+
+* 投稿者名の近くに `たった今`、`5分前`、`2時間前` のような表示が出る
+* 古い投稿ほど大きい時間差が表示される
+* 投稿本文やいいねボタンと重ならない

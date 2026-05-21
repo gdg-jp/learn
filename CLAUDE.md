@@ -54,6 +54,7 @@ The postfix script (`.claat/fix-claat-codespans.py`) fixes claat-output issues:
 - Re-wraps `<p><strong>Note:</strong>...</p>`-style paragraphs in `<aside class="warning">` / `<aside class="special">` to restore styled callout boxes. Recognized keywords: `Note`, `Notice`, `Tip`, `Tips`, `Hint`, `補足`, `Warning`, `Warn`, `Caution`, `Troubleshooting`. Add new keywords by editing the `ASIDE_KEYWORDS` dict.
 - Wraps generated `<pre>` code blocks with copy and light/dark theme icon controls. Code blocks default to light mode.
 - Injects local CSS/JS for the code-block controls and adds full outlines to warning and special callouts.
+- Adds a favicon link to the shared `assets/favicon.png`, using a relative path from the generated HTML file.
 
 A new codelab directory needs its own `libs/` or must override `LIBS_SRC` (the default reuses `portfolio-2025/libs`).
 

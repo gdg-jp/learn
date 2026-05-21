@@ -18,6 +18,7 @@
       color: red;
     }
   </style>
+<link id="claat-local-favicon" rel="icon" type="image/png" href="../assets/favicon.png">
 <style id="claat-local-preprocessor-style">
   google-codelab-step .instructions .claat-code-block {
     position: relative;
@@ -214,14 +215,14 @@
 <li>JavaScript、TypeScript、Java、Kotlin、Swift、C# など、いずれかのプログラミング言語の基本的な理解</li>
 <li>関数、クラス、配列、非同期処理という言葉を見たことがある程度の理解</li>
 </ul>
-<h2 is-upgraded>このコードラボで扱わないこと</h2>
+<h2 is-upgraded>本編で扱わないこと</h2>
 <ul>
 <li>Firebase プロジェクトの作成と初期設定</li>
-<li>Firebase Security Rules の設計</li>
 <li>認証、投稿作成、投稿削除</li>
 <li>iOS / Android のネイティブビルド</li>
 <li>Riverpod のコード生成、テスト、アーキテクチャ設計</li>
 </ul>
+<p>認証と投稿作成は、本編完了後の Extra ステップで挑戦できます。</p>
 <h2 is-upgraded>参考にした公開資料</h2>
 <p>構成は Google Codelabs の進め方に合わせています。完成像を先に示し、セットアップを独立させ、各ステップで目に見える成果を作る流れにしています。</p>
 <ul>
@@ -1448,7 +1449,7 @@ Flutter run key commands
 <li><code>Stack</code> と <code>Positioned</code> で画像の上に UI を重ねる方法</li>
 </ul>
 <h2 is-upgraded>余裕があれば改善する</h2>
-<p>時間が残ったら、次のどれかに挑戦してください。</p>
+<p>時間が残ったら、この後の Extra ステップに挑戦してください。短い改善から始める場合は、次のどれかを選びます。</p>
 <ul>
 <li>投稿本文の文字サイズや影を調整する</li>
 <li>いいねボタンの位置や色を変える</li>
@@ -1463,6 +1464,493 @@ Flutter run key commands
 <li>Riverpod の Provider: https://riverpod.dev/docs/concepts2/providers</li>
 </ul>
 <p>詰まったところ、改善したところ、気づいたことを Discord <code>#260521-flutter-workshop</code> に共有してください。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: ログイン機能を追加する" duration="25">
+        <p>この Extra では、Firebase Authentication の匿名ログインを使って、アプリに「ログインしてからフィードを見る」流れを追加します。メールアドレスやパスワードを扱わず、まずはユーザー ID を持てる状態にします。</p>
+<h2 is-upgraded>ゴールを確認する</h2>
+<p>このステップで目指す状態は次のとおりです。</p>
+<ul>
+<li>未ログインならログイン画面を表示する</li>
+<li><strong>匿名でログイン</strong> ボタンを押すとフィード画面へ進む</li>
+<li>Firebase Auth の <code>uid</code> を投稿者 ID として使えるようにする</li>
+<li>ログアウトできる余地を残す</li>
+</ul>
+<aside class="warning"><p><strong>Note:</strong> Firebase Authentication の匿名ログインを使うには、Firebase Console の Authentication で Anonymous プロバイダを有効にします。短時間に大量の匿名アカウントを作ると制限されることがあります。</p></aside>
+<h2 is-upgraded>firebase_auth を追加する</h2>
+<p>プロジェクトのルートで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">flutter pub add firebase_auth
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Changed 1 dependency!
+</code></pre>
+</div>
+<p><code>pubspec.yaml</code> に <code>firebase_auth</code> が追加されていれば成功です。</p>
+<h2 is-upgraded>Auth 用の Provider を作る</h2>
+<p><code>lib/providers/auth_providers.dart</code> を新規作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;package:firebase_auth/firebase_auth.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+final firebaseAuthProvider = Provider&lt;FirebaseAuth&gt;((ref) {
+  return FirebaseAuth.instance;
+});
+
+final authStateProvider = StreamProvider&lt;User?&gt;((ref) {
+  return ref.watch(firebaseAuthProvider).authStateChanges();
+});
+
+final authActionsProvider = Provider&lt;AuthActions&gt;((ref) {
+  return AuthActions(ref.watch(firebaseAuthProvider));
+});
+
+class AuthActions {
+  const AuthActions(this._auth);
+
+  final FirebaseAuth _auth;
+
+  Future&lt;void&gt; signInAnonymously() async {
+    await _auth.signInAnonymously();
+  }
+
+  Future&lt;void&gt; signOut() async {
+    await _auth.signOut();
+  }
+}
+</code></pre>
+</div>
+<p><code>authStateProvider</code> はログイン状態の stream を返します。ログインすると <code>User</code> が届き、ログアウトすると <code>null</code> が届きます。</p>
+<h2 is-upgraded>AuthGate を作る</h2>
+<p><code>lib/auth_gate.dart</code> を新規作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;feed_page.dart&#39;;
+import &#39;providers/auth_providers.dart&#39;;
+
+class AuthGate extends ConsumerWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+
+    return authState.when(
+      data: (user) {
+        if (user == null) {
+          return const _SignInView();
+        }
+
+        return const FeedPage();
+      },
+      error: (error, stackTrace) {
+        return Scaffold(
+          body: Center(
+            child: Text(&#39;ログイン状態を確認できませんでした: $error&#39;),
+          ),
+        );
+      },
+      loading: () {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+}
+
+class _SignInView extends ConsumerWidget {
+  const _SignInView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Center(
+        child: FilledButton.icon(
+          onPressed: () async {
+            await ref.read(authActionsProvider).signInAnonymously();
+          },
+          icon: const Icon(Icons.login),
+          label: const Text(&#39;匿名でログイン&#39;),
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+</div>
+<p><code>AuthGate</code> はログイン状態に応じて、ログイン画面か <code>FeedPage</code> を出し分けます。</p>
+<h2 is-upgraded>アプリの入口を差し替える</h2>
+<p><code>lib/app.dart</code> に <code>AuthGate</code> を import します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;auth_gate.dart&#39;;
+</code></pre>
+</div>
+<p><code>MaterialApp</code> の <code>home</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">home: const AuthGate(),
+</code></pre>
+</div>
+<p>これでアプリ起動時に、ログイン状態を見てから画面を選ぶようになります。</p>
+<h2 is-upgraded>ログインを確認する</h2>
+<p>Hot restart して、Chrome で動作を確認します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>未ログイン時は <strong>匿名でログイン</strong> ボタンが表示される</li>
+<li>ボタンを押すとフィード画面へ遷移する</li>
+<li>Firebase Console の Authentication に匿名ユーザーが作成される</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 投稿機能を追加する" duration="30">
+        <p>この Extra では、画像 URL と本文を入力して新しい投稿を Firestore に追加します。まずは画像アップロードではなく、画像 URL を貼り付ける最小構成にします。</p>
+<h2 is-upgraded>ゴールを確認する</h2>
+<p>このステップで目指す状態は次のとおりです。</p>
+<ul>
+<li>フィード画面から投稿作成画面を開く</li>
+<li>画像 URL と本文を入力して投稿する</li>
+<li>Firestore の <code>posts</code> コレクションに新しいドキュメントを追加する</li>
+<li>投稿後、<code>postsProvider</code> の stream によってフィードの先頭に反映される</li>
+</ul>
+<aside class="special"><p><strong>Tip:</strong> この Extra はログイン機能の後に進めます。Firebase Auth の <code>uid</code> を <code>authorId</code> として使うと、誰が投稿したかを Firestore に残せます。</p></aside>
+<h2 is-upgraded>createPost を追加する</h2>
+<p><code>lib/providers/post_providers.dart</code> の <code>PostActions</code> にメソッドを追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">Future&lt;void&gt; createPost({
+  required String authorId,
+  required String imageUrl,
+  required String text,
+});
+</code></pre>
+</div>
+<p>次に、<code>FirestorePostActions</code> に実装を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">@override
+Future&lt;void&gt; createPost({
+  required String authorId,
+  required String imageUrl,
+  required String text,
+}) async {
+  await _firestore.collection(&#39;posts&#39;).add({
+    &#39;authorId&#39;: authorId,
+    &#39;authorUrl&#39;: &#39;&#39;,
+    &#39;imageUrl&#39;: imageUrl,
+    &#39;text&#39;: text,
+    &#39;likes&#39;: 0,
+    &#39;createdAt&#39;: FieldValue.serverTimestamp(),
+  });
+}
+</code></pre>
+</div>
+<p>Cloud Firestore の <code>add()</code> は、コレクションに自動 ID のドキュメントを追加します。<code>createdAt</code> にはサーバー時刻を入れるため、ユーザーの端末時刻に依存しません。</p>
+<h2 is-upgraded>投稿作成画面を作る</h2>
+<p><code>lib/create_post_page.dart</code> を新規作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;package:flutter/material.dart&#39;;
+import &#39;package:flutter_riverpod/flutter_riverpod.dart&#39;;
+
+import &#39;providers/auth_providers.dart&#39;;
+import &#39;providers/post_providers.dart&#39;;
+
+class CreatePostPage extends ConsumerStatefulWidget {
+  const CreatePostPage({super.key});
+
+  @override
+  ConsumerState&lt;CreatePostPage&gt; createState() =&gt; _CreatePostPageState();
+}
+
+class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
+  final _imageUrlController = TextEditingController();
+  final _textController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _imageUrlController.dispose();
+    _textController.dispose();
+    super.dispose();
+  }
+
+  Future&lt;void&gt; _submit() async {
+    final imageUrl = _imageUrlController.text.trim();
+    final text = _textController.text.trim();
+
+    if (imageUrl.isEmpty || text.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final user = ref.read(authStateProvider).value;
+      await ref.read(postActionsProvider).createPost(
+            authorId: user?.uid ?? &#39;anonymous_user&#39;,
+            imageUrl: imageUrl,
+            text: text,
+          );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(&#39;投稿に失敗しました: $error&#39;)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(&#39;投稿を作成&#39;)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          TextField(
+            controller: _imageUrlController,
+            decoration: const InputDecoration(
+              labelText: &#39;画像 URL&#39;,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _textController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: &#39;本文&#39;,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _isSaving ? null : _submit,
+            icon: _isSaving
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send),
+            label: const Text(&#39;投稿する&#39;),
+          ),
+        ],
+      ),
+    );
+  }
+}
+</code></pre>
+</div>
+<p>この画面では、入力された画像 URL と本文を <code>postActionsProvider</code> 経由で Firestore に保存します。</p>
+<h2 is-upgraded>FeedPage から開けるようにする</h2>
+<p><code>lib/feed_page.dart</code> に投稿作成画面を import します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">import &#39;create_post_page.dart&#39;;
+</code></pre>
+</div>
+<p><code>Scaffold</code> に <code>floatingActionButton</code> を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.of(context).push(
+      MaterialPageRoute&lt;void&gt;(
+        builder: (context) =&gt; const CreatePostPage(),
+      ),
+    );
+  },
+  child: const Icon(Icons.add),
+),
+</code></pre>
+</div>
+<p><code>Scaffold</code> には <code>body</code> と同じ階層で <code>floatingActionButton</code> を渡します。</p>
+<h2 is-upgraded>投稿を確認する</h2>
+<p>アプリを Hot restart し、<code>+</code> ボタンから投稿を作成します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>投稿作成画面で画像 URL と本文を入力できる</li>
+<li><strong>投稿する</strong> を押すとフィードに戻る</li>
+<li>新しい投稿がフィードの先頭に表示される</li>
+<li>Firebase Console の Firestore に新しい <code>posts</code> ドキュメントが追加される</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 投稿時刻を表示する" duration="10">
+        <p>この Extra では、投稿カードに <code>createdAt</code> を表示します。Firestore の <code>createdAt</code> を UI に出すと、フィードが新着順で並んでいることを確認しやすくなります。</p>
+<h2 is-upgraded>時刻表示用の関数を追加する</h2>
+<p><code>lib/widgets/post_card.dart</code> の末尾に関数を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">String formatCreatedAt(DateTime value) {
+  final now = DateTime.now();
+  final difference = now.difference(value);
+
+  if (difference.inMinutes &lt; 1) {
+    return &#39;たった今&#39;;
+  }
+
+  if (difference.inHours &lt; 1) {
+    return &#39;${difference.inMinutes}分前&#39;;
+  }
+
+  if (difference.inDays &lt; 1) {
+    return &#39;${difference.inHours}時間前&#39;;
+  }
+
+  return &#39;${difference.inDays}日前&#39;;
+}
+</code></pre>
+</div>
+<p><code>intl</code> などの追加パッケージを使わず、相対時間を簡単に表示する関数です。</p>
+<h2 is-upgraded>投稿者情報の横に表示する</h2>
+<p>投稿者名の <code>Text(post.authorId, ...)</code> の近くに、時刻表示を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-dart" class="language-dart">Text(
+  formatCreatedAt(post.createdAt),
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+  style: const TextStyle(
+    color: Colors.white70,
+    fontWeight: FontWeight.w500,
+    shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
+  ),
+),
+</code></pre>
+</div>
+<p>表示位置は、投稿者名の右側でも下でも構いません。画面幅が狭い場合は <code>Column</code> にして、投稿者名の下に時刻を置くと崩れにくくなります。</p>
+<h2 is-upgraded>表示を確認する</h2>
+<p>Hot reload して投稿カードを確認します。</p>
+<p><strong>期待される表示:</strong></p>
+<ul>
+<li>投稿者名の近くに <code>たった今</code>、<code>5分前</code>、<code>2時間前</code> のような表示が出る</li>
+<li>古い投稿ほど大きい時間差が表示される</li>
+<li>投稿本文やいいねボタンと重ならない</li>
+</ul>
 
 
       </google-codelab-step>

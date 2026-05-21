@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-process claat-exported index.html files.
 
-Four fixes are applied:
+Five fixes are applied:
 
 1. Escape unescaped HTML tags inside inline <code>...</code> spans. claat's
    markdown renderer leaves backtick spans like `<html>` as
@@ -21,10 +21,14 @@ Four fixes are applied:
 4. Inject local CSS and JS that make code blocks light by default, style the
    toolbar buttons, preserve the dark-mode toggle, and add a full outline to
    callouts.
+
+5. Add the repository favicon from assets/favicon.png.
 """
 
+import os
 import re
 import sys
+from pathlib import Path
 
 ASIDE_KEYWORDS = {
     "Note": "warning",
@@ -41,6 +45,7 @@ ASIDE_KEYWORDS = {
 
 STYLE_ID = "claat-local-preprocessor-style"
 SCRIPT_ID = "claat-local-preprocessor-script"
+FAVICON_ID = "claat-local-favicon"
 
 CODE_TOOLBAR = """<div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -326,6 +331,25 @@ def wrap_code_blocks(html: str) -> tuple[str, int]:
     return pattern.subn(repl, html)
 
 
+def favicon_href_for(html_path: str) -> str:
+    repo_root = Path(__file__).resolve().parents[1]
+    favicon = repo_root / "assets" / "favicon.png"
+    html_dir = Path(html_path).resolve().parent
+    return os.path.relpath(favicon, html_dir).replace(os.sep, "/")
+
+
+def inject_favicon(html: str, href: str) -> tuple[str, int]:
+    if f'id="{FAVICON_ID}"' in html:
+        return html, 0
+
+    favicon_link = f'<link id="{FAVICON_ID}" rel="icon" type="image/png" href="{href}">'
+    html, n = re.subn(r"</head>", favicon_link + "\n</head>", html, count=1)
+    if n == 0:
+        html = favicon_link + "\n" + html
+        n = 1
+    return html, n
+
+
 def inject_local_assets(html: str) -> tuple[str, int, int]:
     n_style = 0
     n_script = 0
@@ -345,12 +369,14 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
     return html, n_style, n_script
 
 
-def fix(html: str) -> tuple[str, int, int, int, int, int]:
+def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
     html, n_blocks = wrap_code_blocks(html)
+    favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
+    html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside, n_blocks, n_style, n_script
+    return html, n_code, n_aside, n_blocks, n_favicon, n_style, n_script
 
 
 def main() -> int:
@@ -360,13 +386,14 @@ def main() -> int:
     for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as f:
             original = f.read()
-        fixed, n_code, n_aside, n_blocks, n_style, n_script = fix(original)
+        fixed, n_code, n_aside, n_blocks, n_favicon, n_style, n_script = fix(original, path)
         if fixed != original:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(fixed)
         print(
             f"{path}: fixed {n_code} code spans, wrapped {n_aside} asides, "
-            f"enhanced {n_blocks} code blocks, injected {n_style} styles and {n_script} scripts"
+            f"enhanced {n_blocks} code blocks, injected {n_favicon} favicons, "
+            f"{n_style} styles and {n_script} scripts"
         )
     return 0
 
