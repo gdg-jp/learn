@@ -32,8 +32,7 @@ Eight fixes are applied:
 
 8. Inject Open Graph and Twitter card meta tags from the source claat markdown.
    og:title uses the first H1, og:description uses the summary frontmatter, and
-   og:image prefers a sibling slide/ogp.png for a large preview before falling
-   back to the first markdown image.
+   og:image uses the first markdown image.
 """
 
 import argparse
@@ -402,16 +401,6 @@ def exported_image_src_for_alt(html: str, alt: str) -> str | None:
     return None
 
 
-def sibling_slide_ogp_image(html_path: str | None) -> str | None:
-    if not html_path:
-        return None
-
-    image = Path(html_path).resolve().parent / "slide" / "ogp.png"
-    if image.exists():
-        return "slide/ogp.png"
-    return None
-
-
 def site_url_for_output_asset(source: str, html_path: str | None) -> str:
     if not source or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", source) or source.startswith("#"):
         return source
@@ -454,23 +443,16 @@ def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[
 
     values["twitter:card"] = "summary_large_image"
 
-    image = sibling_slide_ogp_image(html_path)
-    image_is_large_preview = image is not None
-    image = image or markdown_metadata.get("image")
+    image = markdown_metadata.get("image")
     if image:
-        if not image_is_large_preview:
-            image = exported_image_src_for_alt(html, markdown_metadata.get("image_alt", "")) or resolve_relative_asset(
-                image,
-                source_md,
-                html_path,
-            )
+        image = exported_image_src_for_alt(html, markdown_metadata.get("image_alt", "")) or resolve_relative_asset(
+            image,
+            source_md,
+            html_path,
+        )
         image_url = site_url_for_output_asset(image, html_path)
         values["og:image"] = image_url
         values["twitter:image"] = image_url
-        if image_is_large_preview:
-            values["og:image:width"] = "1280"
-            values["og:image:height"] = "720"
-            values["og:image:type"] = "image/png"
 
     return values
 
