@@ -30,10 +30,10 @@ Eight fixes are applied:
 
 7. Convert bare http(s) URLs in prose into links.
 
-8. Inject Open Graph meta tags from the source claat markdown. og:title uses
-   the first H1, og:description uses the summary frontmatter, and og:image uses
-   the first markdown image, preferring claat's exported image path when it can
-   be matched by alt text.
+8. Inject Open Graph and Twitter card meta tags from the source claat markdown.
+   og:title uses the first H1, og:description uses the summary frontmatter, and
+   og:image prefers a sibling slide/ogp.png for a large preview before falling
+   back to the first markdown image.
 """
 
 import argparse
@@ -402,6 +402,16 @@ def exported_image_src_for_alt(html: str, alt: str) -> str | None:
     return None
 
 
+def sibling_slide_ogp_image(html_path: str | None) -> str | None:
+    if not html_path:
+        return None
+
+    image = Path(html_path).resolve().parent / "slide" / "ogp.png"
+    if image.exists():
+        return "slide/ogp.png"
+    return None
+
+
 def site_url_for_output_asset(source: str, html_path: str | None) -> str:
     if not source or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", source) or source.startswith("#"):
         return source
@@ -437,17 +447,30 @@ def ogp_values(html: str, html_path: str | None, source_md: str | None) -> dict[
 
     if title:
         values["og:title"] = title
+        values["twitter:title"] = title
     if description:
         values["og:description"] = description
+        values["twitter:description"] = description
 
-    image = markdown_metadata.get("image")
+    values["twitter:card"] = "summary_large_image"
+
+    image = sibling_slide_ogp_image(html_path)
+    image_is_large_preview = image is not None
+    image = image or markdown_metadata.get("image")
     if image:
-        image = exported_image_src_for_alt(html, markdown_metadata.get("image_alt", "")) or resolve_relative_asset(
-            image,
-            source_md,
-            html_path,
-        )
-        values["og:image"] = site_url_for_output_asset(image, html_path)
+        if not image_is_large_preview:
+            image = exported_image_src_for_alt(html, markdown_metadata.get("image_alt", "")) or resolve_relative_asset(
+                image,
+                source_md,
+                html_path,
+            )
+        image_url = site_url_for_output_asset(image, html_path)
+        values["og:image"] = image_url
+        values["twitter:image"] = image_url
+        if image_is_large_preview:
+            values["og:image:width"] = "1280"
+            values["og:image:height"] = "720"
+            values["og:image:type"] = "image/png"
 
     return values
 
@@ -459,8 +482,9 @@ def inject_ogp(html: str, values: dict[str, str]) -> tuple[str, int]:
     total = 0
     for prop, value in values.items():
         meta_id = OGP_META_ID_PREFIX + prop.replace(":", "-")
+        attr = "name" if prop.startswith("twitter:") else "property"
         content = html_lib.escape(value, quote=True)
-        tag = f'<meta id="{meta_id}" property="{prop}" content="{content}">'
+        tag = f'<meta id="{meta_id}" {attr}="{prop}" content="{content}">'
         pattern = re.compile(
             r'<meta\b(?=[^>]*(?:property|name)=["\']' + re.escape(prop) + r'["\'])[^>]*>\n?',
             re.IGNORECASE,
