@@ -131,6 +131,8 @@ Rules:
 - **Announce the filename** with inline code _before_ the block, never after
 - **Language tag** on the fence (`dart`, `kotlin`, `bash`, `yaml`, …) for syntax highlighting
 - **Diff syntax highlight** uses `diff <language>` on the fence, for example ` ```diff js `, so additions/deletions and the language are both highlighted
+- **Diff blocks need locator context** — include enough unchanged surrounding code for learners to know exactly where to apply the change. For method changes, include the enclosing class and method signature. For a branch or callback change, include the enclosing method and nearby sibling branches. For import changes, include the import group. For append-at-end changes, include the preceding class/function plus the new appended code.
+- **Avoid context-free additions** — don't show only `+Positioned(...)`, `+Text(...)`, or `+Future<void> ...` unless the surrounding parent (`Stack.children`, class, abstract class, etc.) is also visible.
 - **Complete and pasteable** — no `…` placeholders that learners must guess at
 - **1–2 sentence "why"** _after_ the block — what it does, not how
 
