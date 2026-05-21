@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-process claat-exported index.html files.
 
-Five fixes are applied:
+Six fixes are applied:
 
 1. Escape unescaped HTML tags inside inline <code>...</code> spans. claat's
    markdown renderer leaves backtick spans like `<html>` as
@@ -23,8 +23,11 @@ Five fixes are applied:
    callouts.
 
 5. Add the repository favicon from assets/favicon.png.
+
+6. Convert bare http(s) URLs in prose into links.
 """
 
+import html as html_lib
 import os
 import re
 import sys
@@ -42,6 +45,9 @@ ASIDE_KEYWORDS = {
     "Caution": "warning",
     "Troubleshooting": "warning",
 }
+
+SKIP_LINKIFY_TAGS = {"a", "code", "pre", "script", "style"}
+TRAILING_URL_PUNCTUATION = ".,;:!?)\\]}、。！？）】」』"
 
 STYLE_ID = "claat-local-preprocessor-style"
 SCRIPT_ID = "claat-local-preprocessor-script"
@@ -331,6 +337,63 @@ def wrap_code_blocks(html: str) -> tuple[str, int]:
     return pattern.subn(repl, html)
 
 
+def linkify_bare_urls(html: str) -> tuple[str, int]:
+    tag_pattern = re.compile(r"(<[^>]+>)")
+    url_pattern = re.compile(r"https?://[^\s<>\"]+")
+    stack: list[str] = []
+    total = 0
+    parts: list[str] = []
+
+    def linkify_text(text: str) -> str:
+        nonlocal total
+
+        def repl(m: re.Match) -> str:
+            nonlocal total
+            url = m.group(0)
+            trailing = ""
+            while url and url[-1] in TRAILING_URL_PUNCTUATION:
+                trailing = url[-1] + trailing
+                url = url[:-1]
+            if not url:
+                return m.group(0)
+
+            href = html_lib.escape(html_lib.unescape(url), quote=True)
+            total += 1
+            return f'<a href="{href}" target="_blank">{url}</a>{trailing}'
+
+        return url_pattern.sub(repl, text)
+
+    for part in tag_pattern.split(html):
+        if not part:
+            continue
+
+        if part.startswith("<"):
+            tag = re.match(r"</?\s*([a-zA-Z0-9-]+)", part)
+            if tag:
+                tag_name = tag.group(1).lower()
+                is_end = part.startswith("</")
+                is_self_closing = part.rstrip().endswith("/>")
+
+                if tag_name in SKIP_LINKIFY_TAGS:
+                    if is_end:
+                        for i in range(len(stack) - 1, -1, -1):
+                            if stack[i] == tag_name:
+                                del stack[i:]
+                                break
+                    elif not is_self_closing:
+                        stack.append(tag_name)
+
+            parts.append(part)
+            continue
+
+        if stack:
+            parts.append(part)
+        else:
+            parts.append(linkify_text(part))
+
+    return "".join(parts), total
+
+
 def favicon_href_for(html_path: str) -> str:
     repo_root = Path(__file__).resolve().parents[1]
     favicon = repo_root / "assets" / "favicon.png"
@@ -369,14 +432,15 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
     return html, n_style, n_script
 
 
-def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int]:
+def fix(html: str, html_path: str | None = None) -> tuple[str, int, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
     html, n_blocks = wrap_code_blocks(html)
+    html, n_links = linkify_bare_urls(html)
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside, n_blocks, n_favicon, n_style, n_script
+    return html, n_code, n_aside, n_blocks, n_links, n_favicon, n_style, n_script
 
 
 def main() -> int:
@@ -386,14 +450,14 @@ def main() -> int:
     for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as f:
             original = f.read()
-        fixed, n_code, n_aside, n_blocks, n_favicon, n_style, n_script = fix(original, path)
+        fixed, n_code, n_aside, n_blocks, n_links, n_favicon, n_style, n_script = fix(original, path)
         if fixed != original:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(fixed)
         print(
             f"{path}: fixed {n_code} code spans, wrapped {n_aside} asides, "
-            f"enhanced {n_blocks} code blocks, injected {n_favicon} favicons, "
-            f"{n_style} styles and {n_script} scripts"
+            f"enhanced {n_blocks} code blocks, linkified {n_links} URLs, "
+            f"injected {n_favicon} favicons, {n_style} styles and {n_script} scripts"
         )
     return 0
 

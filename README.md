@@ -56,6 +56,6 @@ Generated `index.html`, `libs/`, and slide HTML/PDFs are committed because GitHu
 
 ## Other directories
 
-- `.claat/fix-claat-codespans.py` — post-processor that escapes raw HTML inside inline `<code>` spans, restores `Note:` / `Tip:` callouts, enhances generated code blocks with copy/theme controls, and adds the shared favicon. Run automatically by `make claat`.
+- `.claat/fix-claat-codespans.py` — post-processor that escapes raw HTML inside inline `<code>` spans, restores `Note:` / `Tip:` callouts, enhances generated code blocks with copy/theme controls, linkifies bare URLs, and adds the shared favicon. Run automatically by `make claat`.
 - `.marp/gdg.css` — shared Marp theme (registered as `gdg`). See `.marp/template.md` for the available layout classes.
 - `web/` — legacy 2025 content; new workshops should follow the directory structure above.
