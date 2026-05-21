@@ -158,6 +158,57 @@
     color: #f8f9fa;
   }
 
+  google-codelab-step .instructions .claat-code-block pre > code.claat-diff-code {
+    display: block;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line {
+    display: block;
+    min-height: 1.4em;
+    margin: 0 -18px;
+    padding: 0 18px;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-marker {
+    display: inline-block;
+    width: 1ch;
+    font-weight: 600;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add {
+    background: #dff7e8;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {
+    background: #fce8e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {
+    background: #e8f0fe;
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add .claat-diff-marker {
+    color: #137333;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete .claat-diff-marker {
+    color: #d93025;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-add {
+    background: rgba(52, 168, 83, 0.24);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-delete {
+    background: rgba(234, 67, 53, 0.28);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-hunk {
+    background: rgba(66, 133, 244, 0.25);
+    color: #8ab4f8;
+  }
+
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
     border: 1px solid #ea8600;
     border-left-width: 4px;
@@ -180,6 +231,11 @@
   @media (max-width: 640px) {
     google-codelab-step .instructions .claat-code-block pre {
       padding: 56px 14px 16px;
+    }
+
+    google-codelab-step .instructions .claat-code-block .claat-diff-line {
+      margin: 0 -14px;
+      padding: 0 14px;
     }
   }
 </style>
@@ -867,7 +923,7 @@ return posts.when(
 </div>
 <p><code>postsProvider</code> を <code>watch</code> していますが、まだ画面には使っていません。</p>
 <h2 is-upgraded>posts.when の形を作る</h2>
-<p><code>lib/feed_page.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
+<p><code>lib/feed_page.dart</code> の <code>build</code> メソッドを次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -877,23 +933,30 @@ return posts.when(
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">@override
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
 Widget build(BuildContext context, WidgetRef ref) {
-  final posts = ref.watch(postsProvider);
+  // TODO
+-  ref.watch(postsProvider);
++  final posts = ref.watch(postsProvider);
 
-  return Scaffold(
-    body: posts.when(
-      data: (items) {
-        return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
-      },
-      error: (error, stackTrace) {
-        return Center(child: Text(&#39;エラー: $error&#39;));
-      },
-      loading: () {
-        return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
-      },
-    ),
-  );
+-  return const Scaffold(
+-    body: Center(
+-      child: Text(&#39;TODO: 投稿一覧を表示する&#39;),
+-    ),
+-  );
++  return Scaffold(
++    body: posts.when(
++      data: (items) {
++        return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
++      },
++      error: (error, stackTrace) {
++        return Center(child: Text(&#39;エラー: $error&#39;));
++      },
++      loading: () {
++        return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
++      },
++    ),
++  );
 }
 </code></pre>
 </div>
@@ -1000,7 +1063,7 @@ return firestore
 </div>
 <p><code>collection('posts')</code> でコレクションを選び、<code>orderBy('createdAt', descending: true)</code> で新着順に並べます。<code>snapshots()</code> は Firestore の変更を stream として返します。</p>
 <h2 is-upgraded>postsProvider を実装する</h2>
-<p><code>lib/providers/post_providers.dart</code> の <code>postsProvider</code> だけを以下に置き換えます。</p>
+<p><code>lib/providers/post_providers.dart</code> の <code>postsProvider</code> だけを次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1010,16 +1073,18 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
-  final firestore = ref.watch(firestoreProvider);
-
-  return firestore
-      .collection(&#39;posts&#39;)
-      .orderBy(&#39;createdAt&#39;, descending: true)
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs.map(Post.fromDocument).toList();
-      });
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">final postsProvider = StreamProvider&lt;List&lt;Post&gt;&gt;((ref) {
+-  // TODO
+-  return const Stream&lt;List&lt;Post&gt;&gt;.empty();
++  final firestore = ref.watch(firestoreProvider);
++
++  return firestore
++      .collection(&#39;posts&#39;)
++      .orderBy(&#39;createdAt&#39;, descending: true)
++      .snapshots()
++      .map((snapshot) {
++        return snapshot.docs.map(Post.fromDocument).toList();
++      });
 });
 </code></pre>
 </div>
@@ -1059,12 +1124,12 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;widgets/post_card.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;widgets/post_card.dart&#39;;
 </code></pre>
 </div>
 <p>この import により、<code>FeedPage</code> から <code>PostCard</code> と <code>currentPostProvider</code> を使えるようになります。</p>
 <h2 is-upgraded>data の UI をリストにする</h2>
-<p><code>lib/feed_page.dart</code> の <code>posts.when(data: ...)</code> の中身を以下に置き換えます。</p>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(data: ...)</code> の中身を次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1074,29 +1139,30 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">data: (items) {
-  if (items.isEmpty) {
-    return const _EmptyFeed();
-  }
-
-  return RefreshIndicator(
-    onRefresh: () {
-      return ref.refresh(postsProvider.future);
-    },
-    child: ListView.builder(
-      padding: EdgeInsets.zero,
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        return ProviderScope(
-          overrides: [
-            currentPostProvider.overrideWithValue(items[index]),
-          ],
-          child: const PostCard(),
-        );
-      },
-    ),
-  );
-},
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> data: (items) {
+-  return Center(child: Text(&#39;投稿数: ${items.length}&#39;));
++  if (items.isEmpty) {
++    return const _EmptyFeed();
++  }
++
++  return RefreshIndicator(
++    onRefresh: () {
++      return ref.refresh(postsProvider.future);
++    },
++    child: ListView.builder(
++      padding: EdgeInsets.zero,
++      itemCount: items.length,
++      itemBuilder: (context, index) {
++        return ProviderScope(
++          overrides: [
++            currentPostProvider.overrideWithValue(items[index]),
++          ],
++          child: const PostCard(),
++        );
++      },
++    ),
++  );
+ },
 </code></pre>
 </div>
 <p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。Pull to Refresh では <code>postsProvider</code> を再作成し、Firestore の stream から次の投稿一覧が届くまで待ちます。</p>
@@ -1111,29 +1177,29 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">class _EmptyFeed extends StatelessWidget {
-  const _EmptyFeed();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(
-          &#39;投稿がまだありません。Firestore に posts データを追加してください。&#39;,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+class _EmptyFeed extends StatelessWidget {
++  const _EmptyFeed();
++
++  @override
++  Widget build(BuildContext context) {
++    return const Center(
++      child: Padding(
++        padding: EdgeInsets.all(24),
++        child: Text(
++          &#39;投稿がまだありません。Firestore に posts データを追加してください。&#39;,
++          textAlign: TextAlign.center,
++        ),
++      ),
++    );
++  }
++}
 </code></pre>
 </div>
 <p>Firestore に投稿がない場合は、真っ白な画面ではなく次に何を確認すればよいかを表示します。</p>
 <p class="image-container"><img alt="Chrome で投稿がまだありませんと表示される画面" src="img/fe78fce96301fc7.png"></p>
 <aside class="special"><p><strong>Tip:</strong> Firestore にはデータが既に入っているためこのメッセージは表示されませんが、<code>postsProvider</code> を <code>return Stream.value([])</code> するように変更すると見られます。</p></aside>
 <h2 is-upgraded>error の UI を整える</h2>
-<p><code>lib/feed_page.dart</code> の <code>posts.when(error: ...)</code> の中身を以下に置き換えます。</p>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(error: ...)</code> の中身を次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1143,9 +1209,10 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">error: (error, stackTrace) {
-  return _ErrorView(message: error.toString());
-},
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> error: (error, stackTrace) {
+-  return Center(child: Text(&#39;エラー: $error&#39;));
++  return _ErrorView(message: error.toString());
+ },
 </code></pre>
 </div>
 <aside class="special"><p><strong>Tip:</strong> ここでの <code>error</code> は発生した例外オブジェクト、<code>stackTrace</code> はその例外がどこから発生したかを示す呼び出し経路です。画面には <code>error.toString()</code> のような短い情報を表示し、<code>stackTrace</code> はログや Crashlytics などの調査用に使います。</p></aside>
@@ -1159,48 +1226,48 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_outlined,
-              size: 40,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              &#39;Firestore から投稿を読み込めませんでした。&#39;,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+class _ErrorView extends StatelessWidget {
++  const _ErrorView({required this.message});
++
++  final String message;
++
++  @override
++  Widget build(BuildContext context) {
++    return Center(
++      child: Padding(
++        padding: const EdgeInsets.all(24),
++        child: Column(
++          mainAxisSize: MainAxisSize.min,
++          children: [
++            Icon(
++              Icons.cloud_off_outlined,
++              size: 40,
++              color: Theme.of(context).colorScheme.error,
++            ),
++            const SizedBox(height: 12),
++            const Text(
++              &#39;Firestore から投稿を読み込めませんでした。&#39;,
++              textAlign: TextAlign.center,
++            ),
++            const SizedBox(height: 8),
++            Text(
++              message,
++              textAlign: TextAlign.center,
++              style: Theme.of(context).textTheme.bodySmall,
++            ),
++          ],
++        ),
++      ),
++    );
++  }
++}
 </code></pre>
 </div>
 <p>この Widget は、エラーの概要と実際のメッセージを分けて表示します。</p>
 <p class="image-container"><img alt="Chrome で投稿を読み込めませんでしたと表示される画面" src="img/ec6c5e53e768169c.png"></p>
 <aside class="special"><p><strong>Tip:</strong> 通常はこのメッセージは表示されませんが、Windows / macOS を選択した方はネットワークを切断して再読み込みするとメッセージが見られます。</p></aside>
 <h2 is-upgraded>loading の UI を整える</h2>
-<p><code>lib/feed_page.dart</code> の <code>posts.when(loading: ...)</code> の中身を以下に置き換えます。</p>
+<p><code>lib/feed_page.dart</code> の <code>posts.when(loading: ...)</code> の中身を次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1210,9 +1277,10 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">loading: () {
-  return const Center(child: CircularProgressIndicator());
-},
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> loading: () {
+-  return const Center(child: Text(&#39;投稿を読み込んでいます...&#39;));
++  return const Center(child: CircularProgressIndicator());
+ },
 </code></pre>
 </div>
 <p>読み込み中はテキストではなく、Flutter 標準のインジケータを表示します。</p>
@@ -1264,7 +1332,7 @@ return firestore
 </div>
 <p><code>currentPostProvider</code> を <code>watch</code> していますが、まだ投稿データを表示していません。</p>
 <h2 is-upgraded>投稿データを読む</h2>
-<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
+<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1274,31 +1342,40 @@ return firestore
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">@override
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
 Widget build(BuildContext context, WidgetRef ref) {
-  final post = ref.watch(currentPostProvider);
+-  // TODO
+-  ref.watch(currentPostProvider);
++  final post = ref.watch(currentPostProvider);
 
-  return AspectRatio(
+-  return const AspectRatio(
++  return AspectRatio(
     aspectRatio: 9 / 16,
-    child: Image.network(
-      post.imageUrl,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
-
-        return const Center(child: CircularProgressIndicator());
-      },
-      errorBuilder: (context, error, stackTrace) {
-        return const ColoredBox(
-          color: Color(0xFF1D1D21),
-          child: Center(
-            child: Icon(Icons.broken_image_outlined, size: 48),
-          ),
-        );
-      },
-    ),
+-    child: ColoredBox(
+-      color: Color(0xFF1D1D21),
+-      child: Center(
+-        child: Text(&#39;TODO: 投稿カードを作る&#39;),
+-      ),
+-    ),
++    child: Image.network(
++      post.imageUrl,
++      fit: BoxFit.cover,
++      loadingBuilder: (context, child, loadingProgress) {
++        if (loadingProgress == null) {
++          return child;
++        }
++
++        return const Center(child: CircularProgressIndicator());
++      },
++      errorBuilder: (context, error, stackTrace) {
++        return const ColoredBox(
++          color: Color(0xFF1D1D21),
++          child: Center(
++            child: Icon(Icons.broken_image_outlined, size: 48),
++          ),
++        );
++      },
++    ),
   );
 }
 </code></pre>
@@ -1324,7 +1401,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 <p class="image-container"><img alt="投稿カードの重なり構造" src="img/fe4548d1bc10e3a4.svg"></p>
 <p><code>AspectRatio(aspectRatio: 9 / 16)</code> で縦長の投稿カードにします。</p>
 <h2 is-upgraded>グラデーションと本文を追加する</h2>
-<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを以下に置き換えます。</p>
+<p><code>lib/widgets/post_card.dart</code> の <code>build</code> メソッドを次の差分のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1334,63 +1411,82 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">@override
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">@override
 Widget build(BuildContext context, WidgetRef ref) {
   final post = ref.watch(currentPostProvider);
 
   return AspectRatio(
     aspectRatio: 9 / 16,
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        Image.network(
-          post.imageUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child;
-            }
-
-            return const Center(child: CircularProgressIndicator());
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return const ColoredBox(
-              color: Color(0xFF1D1D21),
-              child: Center(
-                child: Icon(Icons.broken_image_outlined, size: 48),
-              ),
-            );
-          },
-        ),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.transparent,
-                Color(0xB0000000),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          left: 16,
-          right: 80,
-          bottom: 28,
-          child: Text(
-            post.text,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
-            ),
-          ),
-        ),
-      ],
+-    child: Image.network(
+-      post.imageUrl,
+-      fit: BoxFit.cover,
+-      loadingBuilder: (context, child, loadingProgress) {
+-        if (loadingProgress == null) {
+-          return child;
+-        }
+-
+-        return const Center(child: CircularProgressIndicator());
+-      },
+-      errorBuilder: (context, error, stackTrace) {
+-        return const ColoredBox(
+-          color: Color(0xFF1D1D21),
+-          child: Center(
+-            child: Icon(Icons.broken_image_outlined, size: 48),
+-          ),
+-        );
+-      },
+-    ),
++    child: Stack(
++      fit: StackFit.expand,
++      children: [
++        Image.network(
++          post.imageUrl,
++          fit: BoxFit.cover,
++          loadingBuilder: (context, child, loadingProgress) {
++            if (loadingProgress == null) {
++              return child;
++            }
++
++            return const Center(child: CircularProgressIndicator());
++          },
++          errorBuilder: (context, error, stackTrace) {
++            return const ColoredBox(
++              color: Color(0xFF1D1D21),
++              child: Center(
++                child: Icon(Icons.broken_image_outlined, size: 48),
++              ),
++            );
++          },
++        ),
++        const DecoratedBox(
++          decoration: BoxDecoration(
++            gradient: LinearGradient(
++              begin: Alignment.topCenter,
++              end: Alignment.bottomCenter,
++              colors: [
++                Colors.transparent,
++                Colors.transparent,
++                Color(0xB0000000),
++              ],
++            ),
++          ),
++        ),
++        Positioned(
++          left: 16,
++          right: 80,
++          bottom: 28,
++          child: Text(
++            post.text,
++            maxLines: 3,
++            overflow: TextOverflow.ellipsis,
++            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
++              color: Colors.white,
++              fontWeight: FontWeight.w600,
++              shadows: const [Shadow(color: Colors.black87, blurRadius: 8)],
++            ),
++          ),
++        ),
++      ],
     ),
   );
 }
@@ -1423,7 +1519,7 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">import &#39;../providers/post_providers.dart&#39;;
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+import &#39;../providers/post_providers.dart&#39;;
 </code></pre>
 </div>
 <p><code>likedPostIdsProvider</code> と <code>postActionsProvider</code> を使うための import です。</p>
@@ -1438,8 +1534,9 @@ Widget build(BuildContext context, WidgetRef ref) {
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">final likedPostIds = ref.watch(likedPostIdsProvider);
-final isLiked = likedPostIds.contains(post.id);
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart"> final post = ref.watch(currentPostProvider);
++final likedPostIds = ref.watch(likedPostIdsProvider);
++final isLiked = likedPostIds.contains(post.id);
 </code></pre>
 </div>
 <p>いいね済みかどうかは、いいね済み投稿 ID の集合に <code>post.id</code> が含まれているかで判断します。</p>
@@ -1454,35 +1551,35 @@ final isLiked = likedPostIds.contains(post.id);
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">Positioned(
-  right: 8,
-  bottom: 20,
-  child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      IconButton.filledTonal(
-        tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
-        onPressed: () async {
-          await ref
-              .read(postActionsProvider)
-              .toggleLike(post, isLiked: isLiked);
-        },
-        icon: Icon(
-          isLiked ? Icons.favorite : Icons.favorite_border,
-          color: isLiked ? Colors.pinkAccent : Colors.white,
-        ),
-      ),
-      Text(
-        &#39;${post.likes}&#39;,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-        ),
-      ),
-    ],
-  ),
-),
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+Positioned(
++  right: 8,
++  bottom: 20,
++  child: Column(
++    mainAxisSize: MainAxisSize.min,
++    children: [
++      IconButton.filledTonal(
++        tooltip: isLiked ? &#39;いいねを取り消す&#39; : &#39;いいね&#39;,
++        onPressed: () async {
++          await ref
++              .read(postActionsProvider)
++              .toggleLike(post, isLiked: isLiked);
++        },
++        icon: Icon(
++          isLiked ? Icons.favorite : Icons.favorite_border,
++          color: isLiked ? Colors.pinkAccent : Colors.white,
++        ),
++      ),
++      Text(
++        &#39;${post.likes}&#39;,
++        style: const TextStyle(
++          color: Colors.white,
++          fontWeight: FontWeight.w700,
++          shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
++        ),
++      ),
++    ],
++  ),
++),
 </code></pre>
 </div>
 <p>ボタンを押したときは <code>postActionsProvider</code> を <code>read</code> して、Firestore の <code>likes</code> を更新します。表示に使う値は <code>watch</code>、操作を呼び出す Provider は <code>read</code> と使い分けます。</p>
@@ -1498,47 +1595,47 @@ final isLiked = likedPostIds.contains(post.id);
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-dart" class="language-dart">Positioned(
-  top: 12,
-  left: 12,
-  right: 12,
-  child: SafeArea(
-    bottom: false,
-    child: Row(
-      children: [
-        CircleAvatar(
-          radius: 17,
-          backgroundColor: Colors.white,
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: const Color(0xFF2A2A2E),
-            backgroundImage: post.authorUrl.isEmpty
-                ? null
-                : NetworkImage(post.authorUrl),
-            child: post.authorUrl.isEmpty
-                ? const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 18,
-                  )
-                : null,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          post.authorId,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
-          ),
-        ),
-      ],
-    ),
-  ),
-),
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="dart">+Positioned(
++  top: 12,
++  left: 12,
++  right: 12,
++  child: SafeArea(
++    bottom: false,
++    child: Row(
++      children: [
++        CircleAvatar(
++          radius: 17,
++          backgroundColor: Colors.white,
++          child: CircleAvatar(
++            radius: 15,
++            backgroundColor: const Color(0xFF2A2A2E),
++            backgroundImage: post.authorUrl.isEmpty
++                ? null
++                : NetworkImage(post.authorUrl),
++            child: post.authorUrl.isEmpty
++                ? const Icon(
++                    Icons.person,
++                    color: Colors.white,
++                    size: 18,
++                  )
++                : null,
++          ),
++        ),
++        const SizedBox(width: 10),
++        Text(
++          post.authorId,
++          maxLines: 1,
++          overflow: TextOverflow.ellipsis,
++          style: const TextStyle(
++            color: Colors.white,
++            fontWeight: FontWeight.w700,
++            shadows: [Shadow(color: Colors.black54, blurRadius: 8)],
++          ),
++        ),
++      ],
++    ),
++  ),
++),
 </code></pre>
 </div>
 <p><code>SafeArea</code> を使うと、スマートフォンのノッチやステータスバーに近い位置でも UI が隠れにくくなります。</p>
@@ -2146,6 +2243,65 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     return Promise.resolve();
   }
 
+  function escapeHtml(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function prettyLine(value, language) {
+    var escaped = escapeHtml(value);
+    if (!language || typeof window.prettyPrintOne !== 'function') return escaped;
+    try {
+      return window.prettyPrintOne(escaped, language);
+    } catch (error) {
+      return escaped;
+    }
+  }
+
+  function diffLineHtml(line, language) {
+    if (/^@@/.test(line)) {
+      return '<span class="claat-diff-line claat-diff-line-hunk">' + escapeHtml(line) + '</span>';
+    }
+
+    var marker = line.charAt(0);
+    var isFileHeader = /^(\+\+\+|---)/.test(line);
+    var className = 'claat-diff-line';
+    if (!isFileHeader && marker === '+') className += ' claat-diff-line-add';
+    if (!isFileHeader && marker === '-') className += ' claat-diff-line-delete';
+    if (isFileHeader) className += ' claat-diff-line-hunk';
+
+    if (marker === '+' || marker === '-' || marker === ' ') {
+      return (
+        '<span class="' + className + '">' +
+        '<span class="claat-diff-marker">' + escapeHtml(marker) + '</span>' +
+        prettyLine(line.slice(1), language) +
+        '</span>'
+      );
+    }
+
+    return '<span class="' + className + '">' + prettyLine(line, language) + '</span>';
+  }
+
+  function enhanceDiffCodeBlocks() {
+    document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {
+      if (code.dataset.claatDiffEnhanced === 'true') return;
+      var language = code.dataset.claatDiffLanguage || '';
+      var source = code.textContent.replace(/
+$/, '');
+      code.classList.add('claat-diff-code');
+      code.innerHTML = source.split('
+').map(function (line) {
+        return diffLineHtml(line, language);
+      }).join('
+');
+      code.dataset.claatDiffEnhanced = 'true';
+    });
+  }
+
   document.addEventListener('click', function (event) {
     var copyButton = event.target.closest('.claat-copy-code');
     var themeButton = event.target.closest('.claat-toggle-code-theme');
@@ -2176,6 +2332,7 @@ class _CreatePostPageState extends ConsumerState&lt;CreatePostPage&gt; {
     document.querySelectorAll('.claat-code-block').forEach(function (block) {
       setTheme(block, block.dataset.codeTheme || 'light');
     });
+    enhanceDiffCodeBlocks();
   });
 }());
 </script>

@@ -130,6 +130,7 @@ Rules:
 
 - **Announce the filename** with inline code _before_ the block, never after
 - **Language tag** on the fence (`dart`, `kotlin`, `bash`, `yaml`, …) for syntax highlighting
+- **Diff syntax highlight** uses `diff <language>` on the fence, for example ` ```diff js `, so additions/deletions and the language are both highlighted
 - **Complete and pasteable** — no `…` placeholders that learners must guess at
 - **1–2 sentence "why"** _after_ the block — what it does, not how
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-process claat-exported index.html files.
 
-Eight fixes are applied:
+Nine fixes are applied:
 
 1. Escape unescaped HTML tags inside inline <code>...</code> spans. claat's
    markdown renderer leaves backtick spans like `<html>` as
@@ -18,19 +18,22 @@ Eight fixes are applied:
 3. Wrap <pre> code blocks with a toolbar that provides copy and light/dark
    theme buttons.
 
-4. Repair markdown links left behind when claat strips standalone <button>
+4. Annotate `diff <language>` fenced code blocks so the browser can apply
+   diff line styling and nested language syntax highlighting.
+
+5. Repair markdown links left behind when claat strips standalone <button>
    wrappers. Button syntax such as `<button>\n[label](url)\n</button>` can
    otherwise become plain text instead of a `<paper-button>`.
 
-5. Inject local CSS and JS that make code blocks light by default, style the
+6. Inject local CSS and JS that make code blocks light by default, style the
    toolbar buttons, preserve the dark-mode toggle, and add a full outline to
    callouts.
 
-6. Add the repository favicon from assets/favicon.png.
+7. Add the repository favicon from assets/favicon.png.
 
-7. Convert bare http(s) URLs in prose into links.
+8. Convert bare http(s) URLs in prose into links.
 
-8. Inject Open Graph and Twitter card meta tags from the source claat markdown.
+9. Inject Open Graph and Twitter card meta tags from the source claat markdown.
    og:title uses the first H1, og:description uses the summary frontmatter, and
    og:image uses the first markdown image.
 """
@@ -206,6 +209,57 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
     color: #f8f9fa;
   }}
 
+  google-codelab-step .instructions .claat-code-block pre > code.claat-diff-code {{
+    display: block;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line {{
+    display: block;
+    min-height: 1.4em;
+    margin: 0 -18px;
+    padding: 0 18px;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-marker {{
+    display: inline-block;
+    width: 1ch;
+    font-weight: 600;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add {{
+    background: #dff7e8;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {{
+    background: #fce8e6;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {{
+    background: #e8f0fe;
+    color: #1967d2;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add .claat-diff-marker {{
+    color: #137333;
+  }}
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete .claat-diff-marker {{
+    color: #d93025;
+  }}
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-add {{
+    background: rgba(52, 168, 83, 0.24);
+  }}
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-delete {{
+    background: rgba(234, 67, 53, 0.28);
+  }}
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-hunk {{
+    background: rgba(66, 133, 244, 0.25);
+    color: #8ab4f8;
+  }}
+
   google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {{
     border: 1px solid #ea8600;
     border-left-width: 4px;
@@ -228,6 +282,11 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
   @media (max-width: 640px) {{
     google-codelab-step .instructions .claat-code-block pre {{
       padding: 56px 14px 16px;
+    }}
+
+    google-codelab-step .instructions .claat-code-block .claat-diff-line {{
+      margin: 0 -14px;
+      padding: 0 14px;
     }}
   }}
 </style>"""
@@ -261,6 +320,62 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     return Promise.resolve();
   }}
 
+  function escapeHtml(value) {{
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }}
+
+  function prettyLine(value, language) {{
+    var escaped = escapeHtml(value);
+    if (!language || typeof window.prettyPrintOne !== 'function') return escaped;
+    try {{
+      return window.prettyPrintOne(escaped, language);
+    }} catch (error) {{
+      return escaped;
+    }}
+  }}
+
+  function diffLineHtml(line, language) {{
+    if (/^@@/.test(line)) {{
+      return '<span class="claat-diff-line claat-diff-line-hunk">' + escapeHtml(line) + '</span>';
+    }}
+
+    var marker = line.charAt(0);
+    var isFileHeader = /^(\\+\\+\\+|---)/.test(line);
+    var className = 'claat-diff-line';
+    if (!isFileHeader && marker === '+') className += ' claat-diff-line-add';
+    if (!isFileHeader && marker === '-') className += ' claat-diff-line-delete';
+    if (isFileHeader) className += ' claat-diff-line-hunk';
+
+    if (marker === '+' || marker === '-' || marker === ' ') {{
+      return (
+        '<span class="' + className + '">' +
+        '<span class="claat-diff-marker">' + escapeHtml(marker) + '</span>' +
+        prettyLine(line.slice(1), language) +
+        '</span>'
+      );
+    }}
+
+    return '<span class="' + className + '">' + prettyLine(line, language) + '</span>';
+  }}
+
+  function enhanceDiffCodeBlocks() {{
+    document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {{
+      if (code.dataset.claatDiffEnhanced === 'true') return;
+      var language = code.dataset.claatDiffLanguage || '';
+      var source = code.textContent.replace(/\\n$/, '');
+      code.classList.add('claat-diff-code');
+      code.innerHTML = source.split('\\n').map(function (line) {{
+        return diffLineHtml(line, language);
+      }}).join('\\n');
+      code.dataset.claatDiffEnhanced = 'true';
+    }});
+  }}
+
   document.addEventListener('click', function (event) {{
     var copyButton = event.target.closest('.claat-copy-code');
     var themeButton = event.target.closest('.claat-toggle-code-theme');
@@ -291,6 +406,7 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     document.querySelectorAll('.claat-code-block').forEach(function (block) {{
       setTheme(block, block.dataset.codeTheme || 'light');
     }});
+    enhanceDiffCodeBlocks();
   }});
 }}());
 </script>"""
@@ -349,6 +465,52 @@ def load_markdown_metadata(source_md: str | None) -> dict[str, str]:
         return {}
 
     return parse_markdown_metadata(path.read_text(encoding="utf-8"))
+
+
+def load_markdown_code_fences(source_md: str | None) -> list[dict[str, str]]:
+    if not source_md:
+        return []
+
+    path = Path(source_md)
+    if not path.exists():
+        return []
+
+    return parse_markdown_code_fences(path.read_text(encoding="utf-8"))
+
+
+def parse_markdown_code_fences(markdown: str) -> list[dict[str, str]]:
+    fences: list[dict[str, str]] = []
+    lines = markdown.splitlines()
+    i = 0
+
+    while i < len(lines):
+        match = re.match(r"^([ \t]*)(`{3,}|~{3,})(.*)$", lines[i])
+        if not match:
+            i += 1
+            continue
+
+        indent, fence, info = match.groups()
+        fence_char = fence[0]
+        fence_len = len(fence)
+        closing_pattern = re.compile(rf"^{re.escape(indent)}{re.escape(fence_char)}{{{fence_len},}}\s*$")
+
+        i += 1
+        while i < len(lines) and not closing_pattern.match(lines[i]):
+            i += 1
+        if i < len(lines):
+            i += 1
+
+        info_words = info.strip().split()
+        is_diff = bool(info_words) and info_words[0] == "diff"
+        fences.append(
+            {
+                "info": info.strip(),
+                "is_diff": "true" if is_diff else "",
+                "diff_language": info_words[1] if is_diff and len(info_words) > 1 else "",
+            }
+        )
+
+    return fences
 
 
 def load_codelab_metadata(html_path: str | None) -> dict[str, str]:
@@ -545,6 +707,68 @@ def retag_troubleshooting_asides(html: str) -> tuple[str, int]:
     return pattern.subn(r'<aside class="troubleshooting">\1', html)
 
 
+def set_or_append_attr(tag: str, name: str, value: str) -> str:
+    escaped_value = html_lib.escape(value, quote=True)
+    pattern = re.compile(rf'\b{re.escape(name)}=(["\'])(.*?)\1', re.DOTALL)
+
+    def repl(match: re.Match) -> str:
+        return f'{name}={match.group(1)}{escaped_value}{match.group(1)}'
+
+    tag, n = pattern.subn(repl, tag, count=1)
+    if n:
+        return tag
+    return tag[:-1] + f' {name}="{escaped_value}">'
+
+
+def append_class_attr(tag: str, class_name: str) -> str:
+    pattern = re.compile(r'\bclass=(["\'])(.*?)\1', re.DOTALL)
+    match = pattern.search(tag)
+    if not match:
+        return tag[:-1] + f' class="{class_name}">'
+
+    classes = match.group(2).split()
+    if class_name not in classes:
+        classes.append(class_name)
+    value = " ".join(classes)
+    return pattern.sub(f'class={match.group(1)}{html_lib.escape(value, quote=True)}{match.group(1)}', tag, count=1)
+
+
+def annotate_diff_code_blocks(html: str, source_md: str | None) -> tuple[str, int]:
+    fences = load_markdown_code_fences(source_md)
+    code_index = 0
+    total = 0
+    pattern = re.compile(r"(?P<open><pre\b[^>]*>\s*<code\b(?P<attrs>[^>]*)>)(?P<body>.*?</code>\s*</pre>)", re.DOTALL)
+
+    def repl(match: re.Match) -> str:
+        nonlocal code_index, total
+
+        fence = fences[code_index] if code_index < len(fences) else {}
+        code_index += 1
+
+        open_tag = match.group("open")
+        has_diff_attr = bool(re.search(r'\b(?:class|language)=["\'][^"\']*\blanguage-diff\b', open_tag))
+        is_diff = fence.get("is_diff") == "true" or has_diff_attr
+        if not is_diff or 'data-claat-diff="true"' in open_tag:
+            return match.group(0)
+
+        language = fence.get("diff_language", "")
+        code_tag_match = re.search(r"<code\b[^>]*>", open_tag)
+        if not code_tag_match:
+            return match.group(0)
+
+        code_tag = code_tag_match.group(0)
+        code_tag = append_class_attr(code_tag, "claat-diff-code")
+        code_tag = set_or_append_attr(code_tag, "data-claat-diff", "true")
+        if language:
+            code_tag = set_or_append_attr(code_tag, "data-claat-diff-language", language)
+
+        total += 1
+        updated_open = open_tag[: code_tag_match.start()] + code_tag + open_tag[code_tag_match.end() :]
+        return updated_open + match.group("body")
+
+    return pattern.sub(repl, html), total
+
+
 def wrap_code_blocks(html: str) -> tuple[str, int]:
     if 'class="claat-code-block"' in html:
         return html, 0
@@ -695,10 +919,11 @@ def fix(
     html: str,
     html_path: str | None = None,
     source_md: str | None = None,
-) -> tuple[str, int, int, int, int, int, int, int, int, int]:
+) -> tuple[str, int, int, int, int, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
     html, n_retagged = retag_troubleshooting_asides(html)
+    html, n_diff = annotate_diff_code_blocks(html, source_md)
     html, n_blocks = wrap_code_blocks(html)
     html, n_buttons = repair_button_links(html)
     html, n_links = linkify_bare_urls(html)
@@ -706,7 +931,7 @@ def fix(
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside + n_retagged, n_blocks, n_buttons, n_links, n_ogp, n_favicon, n_style, n_script
+    return html, n_code, n_aside + n_retagged, n_diff, n_blocks, n_buttons, n_links, n_ogp, n_favicon, n_style, n_script
 
 
 def main() -> int:
@@ -726,6 +951,7 @@ def main() -> int:
             fixed,
             n_code,
             n_aside,
+            n_diff,
             n_blocks,
             n_buttons,
             n_links,
@@ -739,7 +965,8 @@ def main() -> int:
                 f.write(fixed)
         print(
             f"{path}: fixed {n_code} code spans, wrapped {n_aside} asides, "
-            f"enhanced {n_blocks} code blocks, repaired {n_buttons} buttons, "
+            f"annotated {n_diff} diff blocks, enhanced {n_blocks} code blocks, "
+            f"repaired {n_buttons} buttons, "
             f"linkified {n_links} URLs, "
             f"injected {n_ogp} OGP tags, {n_favicon} favicons, "
             f"{n_style} styles and {n_script} scripts"
