@@ -180,10 +180,11 @@
     
       <google-codelab-step label="はじめに" duration="5">
         <p>このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。</p>
+<p>本編は Windows または macOS のセットアップを片方だけ進める想定で約 120 分です。Claat の表示時間には両 OS のセットアップと Extra ステップも含まれます。</p>
 <p class="image-container"><img alt="Flutter のマスコット Dash" src="img/668f79a43e73c2a1.png"></p>
 <h2 is-upgraded>このコードラボで作るもの</h2>
 <p>縦スクロールで投稿を眺める Web 対応の Flutter アプリを作ります。</p>
-<p class="image-container"><img alt="完成イメージ" src="img/d54b6d04c7f4c4fb.png"></p>
+<p class="image-container"><img alt="完成イメージ" src="img/89c0c34cd1851f3a.png"></p>
 <p>完成すると、次の機能を持つフィード画面になります。</p>
 <ul>
 <li>Firestore の <code>posts</code> コレクションから投稿を新着順に表示する</li>
@@ -294,6 +295,8 @@ winget install --id Microsoft.VisualStudioCode -e --source winget
 <li><code>Flutter: New Project</code> を選択します。</li>
 <li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
 <li>SDK の保存先として <code>C:\src</code> などの短いパスを選びます。</li>
+<li><strong>Clone Flutter</strong> を選択し、SDK のダウンロードが完了するまで待ちます。</li>
+<li><strong>Add SDK to PATH</strong> が表示されたら選択します。</li>
 </ol>
 <aside class="warning"><p><strong>Warning:</strong> Flutter SDK は <code>C:\Program Files</code> のようにスペースを含むパスに置かないでください。<code>C:\src\flutter</code> のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。</p></aside>
 <p>インストール後、VS Code と PowerShell を開き直します。</p>
@@ -443,6 +446,8 @@ Flutter run key commands
 <li><code>Flutter: New Project</code> を選択します。</li>
 <li>Flutter SDK が見つからない場合は <strong>Download SDK</strong> を選択します。</li>
 <li>SDK の保存先として <code>~/development</code> などの作業用フォルダを選びます。</li>
+<li><strong>Clone Flutter</strong> を選択し、SDK のダウンロードが完了するまで待ちます。</li>
+<li><strong>Add SDK to PATH</strong> が表示されたら選択します。</li>
 </ol>
 <p>インストール後、VS Code とターミナルを開き直します。</p>
 <h2 is-upgraded>Flutter Web を確認する</h2>
@@ -616,7 +621,11 @@ q  Quit
       </google-codelab-step>
     
       <google-codelab-step label="Riverpod と Firestore のデータフローをつかむ" duration="15">
-        <p>このステップでは、今回使う Riverpod の部品を確認します。覚えるのは <code>ProviderScope</code>、<code>Provider</code>、<code>StreamProvider</code>、<code>NotifierProvider</code>、<code>ref.watch</code>、<code>ref.read</code> だけです。</p>
+        <p>このステップでは、今回作るアプリ全体の構成と、Riverpod の部品を確認します。覚えるのは <code>ProviderScope</code>、<code>Provider</code>、<code>StreamProvider</code>、<code>NotifierProvider</code>、<code>ref.watch</code>、<code>ref.read</code> だけです。</p>
+<h2 is-upgraded>アプリ全体の構成を確認する</h2>
+<p>このコードラボでは、Flutter の UI、Riverpod の Provider、Firebase のサービスを次のようにつなぎます。</p>
+<p class="image-container"><img alt="ミニ SNS アプリ全体のアーキテクチャ" src="img/be16f4745718cccd.svg"></p>
+<p>本編では <code>FeedPage</code> と <code>PostCard</code> から Riverpod の Provider を読み、Firestore の <code>posts</code> コレクションを表示・更新します。Extra では Firebase Authentication を足して、匿名ログインしたユーザー ID を投稿者 ID として使います。</p>
 <h2 is-upgraded>Riverpod を使う理由</h2>
 <p><code>StatefulWidget</code> だけで状態を持つと、その状態は基本的に Widget の内側に閉じます。離れた Widget で同じ状態を使いたい場合、親から子へ値を渡し続ける必要があります。</p>
 <p class="image-container"><img alt="Widget 内だけで状態を持つ場合と Riverpod を使う場合の違い" src="img/fddcee102ee9100d.svg"></p>
@@ -815,7 +824,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 </td></tr>
 <tr><td colspan="1" rowspan="1"><p><code>authorId</code></p>
 </td><td colspan="1" rowspan="1"><p><code>String</code></p>
-</td><td colspan="1" rowspan="1"><p>投稿者のユーザー名</p>
+</td><td colspan="1" rowspan="1"><p>投稿者 ID。本編では表示名としても使う</p>
 </td></tr>
 <tr><td colspan="1" rowspan="1"><p><code>text</code></p>
 </td><td colspan="1" rowspan="1"><p><code>String</code></p>
@@ -934,8 +943,8 @@ return firestore
   }
 
   return RefreshIndicator(
-    onRefresh: () async {
-      ref.invalidate(postsProvider);
+    onRefresh: () {
+      return ref.refresh(postsProvider.future);
     },
     child: ListView.builder(
       padding: EdgeInsets.zero,
@@ -953,7 +962,7 @@ return firestore
 },
 </code></pre>
 </div>
-<p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。</p>
+<p><code>ListView.builder</code> で投稿の数だけ <code>PostCard</code> を作ります。1 件分の投稿は <code>ProviderScope</code> の <code>overrides</code> で <code>currentPostProvider</code> に渡します。Pull to Refresh では <code>postsProvider</code> を再作成し、Firestore の stream から次の投稿一覧が届くまで待ちます。</p>
 <h2 is-upgraded>空状態の UI を追加する</h2>
 <p><code>lib/feed_page.dart</code> の <code>FeedPage</code> クラスの下に、空状態用の Widget を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">

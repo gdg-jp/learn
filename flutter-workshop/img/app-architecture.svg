@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">ミニ SNS アプリ全体のアーキテクチャ</title>
+  <desc id="desc">Flutter Web アプリ、Riverpod Provider、Cloud Firestore、Firebase Authentication の関係を示す図</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3C4043"/>
+    </marker>
+    <style>
+      .title { font: 700 30px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .label { font: 700 21px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #202124; }
+      .small { font: 400 15px Arial, "Hiragino Sans", "Noto Sans JP", sans-serif; fill: #3C4043; }
+      .mono { font: 500 15px "Roboto Mono", Menlo, Consolas, monospace; fill: #3C4043; }
+      .box { stroke: #3C4043; stroke-width: 2; rx: 10; ry: 10; }
+      .group { fill: #F8FAFD; stroke: #9AA0A6; stroke-width: 2; stroke-dasharray: 8 8; rx: 16; ry: 16; }
+      .solid-group { fill: #F8FAFD; stroke: #9AA0A6; stroke-width: 2; rx: 16; ry: 16; }
+      .arrow { stroke: #3C4043; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .muted-arrow { stroke: #5F6368; stroke-width: 2; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <text x="64" y="66" class="title">ミニ SNS アプリ全体のアーキテクチャ</text>
+  <text x="64" y="98" class="small">UI は Provider を読み、Provider が Firebase とローカル状態をつなぎます。</text>
+
+  <rect x="55" y="160" width="160" height="130" class="box" fill="#E3F2FD"/>
+  <text x="135" y="202" text-anchor="middle" class="label">Chrome</text>
+  <text x="135" y="230" text-anchor="middle" class="small">Flutter Web を実行</text>
+
+  <rect x="255" y="130" width="590" height="485" class="solid-group"/>
+  <text x="282" y="166" class="label">Flutter アプリ</text>
+  <text x="282" y="190" class="small">編集する Dart ファイルと Riverpod の状態</text>
+
+  <rect x="295" y="225" width="175" height="76" class="box" fill="#E3F2FD"/>
+  <text x="382" y="255" text-anchor="middle" class="label">起動処理</text>
+  <text x="382" y="280" text-anchor="middle" class="mono">main.dart / app.dart</text>
+
+  <rect x="295" y="355" width="175" height="76" class="box" fill="#E8F5E9"/>
+  <text x="382" y="385" text-anchor="middle" class="label">FeedPage</text>
+  <text x="382" y="410" text-anchor="middle" class="small">一覧の状態を表示</text>
+
+  <rect x="295" y="485" width="175" height="76" class="box" fill="#FFF8E1"/>
+  <text x="382" y="515" text-anchor="middle" class="label">PostCard</text>
+  <text x="382" y="540" text-anchor="middle" class="small">投稿 1 件を表示</text>
+
+  <rect x="535" y="210" width="270" height="265" class="group"/>
+  <text x="560" y="246" class="label">Riverpod Providers</text>
+
+  <rect x="570" y="270" width="200" height="58" class="box" fill="#E8F5E9"/>
+  <text x="670" y="294" text-anchor="middle" class="label">postsProvider</text>
+  <text x="670" y="315" text-anchor="middle" class="small">投稿一覧 stream</text>
+
+  <rect x="570" y="350" width="200" height="58" class="box" fill="#FFF8E1"/>
+  <text x="670" y="374" text-anchor="middle" class="label">postActions</text>
+  <text x="670" y="395" text-anchor="middle" class="small">いいね / 投稿作成</text>
+
+  <rect x="570" y="430" width="200" height="58" class="box" fill="#FCE8E6"/>
+  <text x="670" y="454" text-anchor="middle" class="label">likedPostIds</text>
+  <text x="670" y="475" text-anchor="middle" class="small">ローカルいいね状態</text>
+
+  <rect x="535" y="505" width="270" height="76" class="box" fill="#E3F2FD"/>
+  <text x="670" y="535" text-anchor="middle" class="label">Extra: AuthGate</text>
+  <text x="670" y="560" text-anchor="middle" class="small">ログイン状態で画面を出し分け</text>
+
+  <rect x="890" y="130" width="330" height="485" class="solid-group"/>
+  <text x="918" y="166" class="label">Firebase</text>
+  <text x="918" y="190" class="small">配布済み設定を使うバックエンド</text>
+
+  <rect x="945" y="255" width="220" height="110" class="box" fill="#E3F2FD"/>
+  <text x="1055" y="292" text-anchor="middle" class="label">Cloud Firestore</text>
+  <text x="1055" y="320" text-anchor="middle" class="mono">posts</text>
+  <text x="1055" y="344" text-anchor="middle" class="small">画像 / 本文 / いいね数</text>
+
+  <rect x="945" y="450" width="220" height="94" class="box" fill="#FCE8E6"/>
+  <text x="1055" y="486" text-anchor="middle" class="label">Firebase Auth</text>
+  <text x="1055" y="514" text-anchor="middle" class="small">匿名ログイン (Extra)</text>
+
+  <path d="M215 225 H255" class="arrow"/>
+  <path d="M382 301 V355" class="arrow"/>
+  <path d="M382 431 V485" class="arrow"/>
+
+  <path d="M470 393 H535 V299 H570" class="arrow"/>
+  <circle cx="505" cy="393" r="17" fill="#34A853"/>
+  <text x="505" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">1</text>
+  <text x="492" y="382" class="small">ref.watch()</text>
+
+  <path d="M770 299 H890 V310 H945" class="arrow"/>
+  <circle cx="835" cy="299" r="17" fill="#34A853"/>
+  <text x="835" y="306" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">2</text>
+  <text x="793" y="278" class="small">snapshots()</text>
+
+  <path d="M945 340 H890 V392 H470" class="arrow"/>
+  <circle cx="835" cy="392" r="17" fill="#34A853"/>
+  <text x="835" y="399" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">3</text>
+  <text x="795" y="421" class="small">List&lt;Post&gt;</text>
+
+  <path d="M470 523 H535 V379 H570" class="arrow"/>
+  <circle cx="505" cy="523" r="17" fill="#34A853"/>
+  <text x="505" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">4</text>
+  <text x="487" y="552" class="small">ref.read()</text>
+
+  <path d="M770 379 H865 V315 H945" class="arrow"/>
+  <circle cx="835" cy="379" r="17" fill="#34A853"/>
+  <text x="835" y="386" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">5</text>
+  <text x="805" y="360" class="small">likes 更新</text>
+
+  <path d="M670 408 V430" class="arrow"/>
+  <path d="M805 543 H870 V497 H945" class="muted-arrow"/>
+  <circle cx="870" cy="543" r="17" fill="#34A853"/>
+  <text x="870" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">6</text>
+  <text x="830" y="572" class="small">Extra</text>
+
+  <rect x="72" y="565" width="165" height="52" class="box" fill="#F8FAFD"/>
+  <text x="154" y="587" text-anchor="middle" class="small">本編: フィード表示</text>
+  <text x="154" y="608" text-anchor="middle" class="small">Extra: 認証 / 投稿作成</text>
+</svg>

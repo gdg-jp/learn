@@ -1,4 +1,4 @@
-summary: Flutter と Riverpod でミニ SNS フィードを作る 120 分ハンズオン
+summary: Flutter と Riverpod でミニ SNS フィードを作る本編 120 分 + Extra 付きハンズオン
 id: flutter-workshop
 categories: Flutter, Dart, Firebase, Web
 environments: Web
@@ -12,6 +12,8 @@ author: GDG on Campus University of Osaka
 Duration: 0:05:00
 
 このコードラボでは、Flutter と Riverpod を使って、Firestore から投稿をリアルタイム取得するミニ SNS フィードを作ります。テンプレートコードから始めて、3 つの Dart ファイルを編集しながら完成版に近づけます。
+
+本編は Windows または macOS のセットアップを片方だけ進める想定で約 120 分です。Claat の表示時間には両 OS のセットアップと Extra ステップも含まれます。
 
 ![Flutter のマスコット Dash](img/header-image-dash.png)
 
@@ -124,6 +126,8 @@ Flutter 公式のインストールページでは、VS Code などの Code OSS 
 5. `Flutter: New Project` を選択します。
 6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
 7. SDK の保存先として `C:\src` などの短いパスを選びます。
+8. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
+9. **Add SDK to PATH** が表示されたら選択します。
 
 > **Warning:** Flutter SDK は `C:\Program Files` のようにスペースを含むパスに置かないでください。`C:\src\flutter` のような短いパスを使うと、ツールや拡張機能のパス解決でつまずきにくくなります。
 
@@ -230,6 +234,8 @@ Flutter 公式のインストールページでは、VS Code などの Code OSS 
 5. `Flutter: New Project` を選択します。
 6. Flutter SDK が見つからない場合は **Download SDK** を選択します。
 7. SDK の保存先として `~/development` などの作業用フォルダを選びます。
+8. **Clone Flutter** を選択し、SDK のダウンロードが完了するまで待ちます。
+9. **Add SDK to PATH** が表示されたら選択します。
 
 インストール後、VS Code とターミナルを開き直します。
 
@@ -357,7 +363,15 @@ q  Quit
 ## Riverpod と Firestore のデータフローをつかむ
 Duration: 0:15:00
 
-このステップでは、今回使う Riverpod の部品を確認します。覚えるのは `ProviderScope`、`Provider`、`StreamProvider`、`NotifierProvider`、`ref.watch`、`ref.read` だけです。
+このステップでは、今回作るアプリ全体の構成と、Riverpod の部品を確認します。覚えるのは `ProviderScope`、`Provider`、`StreamProvider`、`NotifierProvider`、`ref.watch`、`ref.read` だけです。
+
+### アプリ全体の構成を確認する
+
+このコードラボでは、Flutter の UI、Riverpod の Provider、Firebase のサービスを次のようにつなぎます。
+
+![ミニ SNS アプリ全体のアーキテクチャ](img/app-architecture.svg)
+
+本編では `FeedPage` と `PostCard` から Riverpod の Provider を読み、Firestore の `posts` コレクションを表示・更新します。Extra では Firebase Authentication を足して、匿名ログインしたユーザー ID を投稿者 ID として使います。
 
 ### Riverpod を使う理由
 
@@ -514,7 +528,7 @@ final postsProvider = StreamProvider<List<Post>>((ref) {
 | `id` | `String` | Firestore ドキュメント ID |
 | `imageUrl` | `String` | 投稿画像の URL |
 | `authorUrl` | `String` | 投稿者アイコンの URL |
-| `authorId` | `String` | 投稿者のユーザー名 |
+| `authorId` | `String` | 投稿者 ID。本編では表示名としても使う |
 | `text` | `String` | 投稿本文 |
 | `likes` | `int` | いいね数 |
 | `createdAt` | `DateTime` | 投稿日時 |
@@ -599,8 +613,8 @@ data: (items) {
   }
 
   return RefreshIndicator(
-    onRefresh: () async {
-      ref.invalidate(postsProvider);
+    onRefresh: () {
+      return ref.refresh(postsProvider.future);
     },
     child: ListView.builder(
       padding: EdgeInsets.zero,
@@ -618,7 +632,7 @@ data: (items) {
 },
 ```
 
-`ListView.builder` で投稿の数だけ `PostCard` を作ります。1 件分の投稿は `ProviderScope` の `overrides` で `currentPostProvider` に渡します。
+`ListView.builder` で投稿の数だけ `PostCard` を作ります。1 件分の投稿は `ProviderScope` の `overrides` で `currentPostProvider` に渡します。Pull to Refresh では `postsProvider` を再作成し、Firestore の stream から次の投稿一覧が届くまで待ちます。
 
 ### 空状態の UI を追加する
 

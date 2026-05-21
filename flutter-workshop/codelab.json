@@ -3,11 +3,11 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2026-05-21T11:38:16+09:00",
+  "updated": "2026-05-21T11:54:32+09:00",
   "id": "flutter-workshop",
   "duration": 200,
   "title": "Flutter でミニ SNS アプリを作ろう",
-  "summary": "Flutter と Riverpod でミニ SNS フィードを作る 120 分ハンズオン",
+  "summary": "Flutter と Riverpod でミニ SNS フィードを作る本編 120 分 + Extra 付きハンズオン",
   "source": "flutter-workshop/claat.md",
   "theme": "",
   "status": [
