@@ -17,7 +17,7 @@ This repo has a custom Marp template at `.marp/template.md` with bespoke CSS in 
    ```
 2. **Copy `.marp/template.md` to `<content-name>/slide.md`.** Do not write the frontmatter, the `<script>` block, or the `<style>` block from scratch — all three are load-bearing (see "Load-bearing template blocks" below).
 3. Replace the example slides with the user's content. The template's example slides demonstrate every supported class — keep the patterns whose layout you need, delete the rest.
-4. Build: `make slide <content-name>/slide.md`
+4. Build: `make slide <content-name>`
 5. PDF (when asked): `npx -p @marp-team/marp-cli@latest marp --theme-set .marp/gdg.css --html <content-name>/slide.md -o <content-name>/slide.pdf`
 
 ### Before you write copy — load the references that apply
@@ -121,7 +121,7 @@ There is no `card`, `quote`, `flow`, or `chart` class — build those with inlin
 ## Building
 
 ```bash
-make slide <content-name>/slide.md
+make slide <content-name>
 ```
 
 This calls Marp CLI with `--theme-set .marp/gdg.css --html`. `--html` is required — the template and most inline patterns contain raw HTML. The generated HTML is **committed** because GitHub Pages serves it directly at `https://gdsc-osaka.github.io/education/<content-name>/slide/`.

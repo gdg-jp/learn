@@ -31,10 +31,10 @@ Both build flows go through the root `Makefile` and use positional args (not `KE
 
 ```bash
 # Export a claat codelab (only claat-generated files in the output directory are overwritten; siblings like slide.md, slide/, img/ are left in place)
-make claat <content-name>/claat.md
+make claat <content-name>
 
 # Render a Marp deck
-make slide <content-name>/slide.md
+make slide <content-name>
 ```
 
 For PDFs, invoke Marp CLI directly: `npx -p @marp-team/marp-cli@latest marp --theme-set .marp/gdg.css --html source.md -o source.pdf`.

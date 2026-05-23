@@ -24,15 +24,15 @@ ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 .PHONY: claat slide slide-pdf index
 
 # Export a claat codelab. Usage:
-#   make claat path/to/codelab.md [path/to/output]
-#   (output defaults to the directory containing codelab.md)
+#   make claat <content-name>
+#   (source: <content-name>/claat.md, output: <content-name>/)
 claat:
-	@MD=$(word 1,$(ARGS)); OUT=$(word 2,$(ARGS)); \
-	if [ -z "$$MD" ]; then \
-	  echo "Usage: make claat path/to/codelab.md [path/to/output]"; \
+	@DIR=$(word 1,$(ARGS)); \
+	if [ -z "$$DIR" ]; then \
+	  echo "Usage: make claat <content-name>"; \
 	  exit 2; \
 	fi; \
-	[ -z "$$OUT" ] && OUT=$$(dirname "$$MD"); \
+	MD="$$DIR/claat.md"; OUT="$$DIR"; \
 	TMPDIR=$$(mktemp -d); \
 	$(CLAAT) export -o "$$TMPDIR" "$$MD"; \
 	EXPORTED=$$(ls "$$TMPDIR"); \
@@ -46,19 +46,19 @@ claat:
 	$(PYTHON) scripts/gen-index.py
 
 # Render a Marp deck. Usage:
-#   make slide path/to/deck.md [path/to/deck.html]
+#   make slide <content-name>
+#   (source: <content-name>/slide.md, output: <content-name>/slide/index.html)
 #
-# Also renders the first slide as an OGP image (<output-dir>/ogp.png) so the
-# postfix script can advertise it via og:image.
+# Also renders the first slide as an OGP image (<content-name>/slide/ogp.png).
 slide:
 	@if [ -z "$(ARGS)" ]; then \
-	  echo "Usage: make slide path/to/deck.md [path/to/deck.html]"; \
+	  echo "Usage: make slide <content-name>"; \
 	  exit 2; \
 	fi
-	@SRC="$(word 1,$(ARGS))"; \
-	OUT="$(word 2,$(ARGS))"; \
-	[ -z "$$OUT" ] && OUT="$$(dirname "$$SRC")/slide/index.html"; \
-	OGP="$$(dirname "$$OUT")/ogp.png"; \
+	@DIR="$(word 1,$(ARGS))"; \
+	SRC="$$DIR/slide.md"; \
+	OUT="$$DIR/slide/index.html"; \
+	OGP="$$DIR/slide/ogp.png"; \
 	$(MARP) --theme-set $(MARP_THEME) --html "$$SRC" -o "$$OUT"; \
 	$(MARP) --theme-set $(MARP_THEME) --html --allow-local-files --image png "$$SRC" -o "$$OGP"; \
 	$(PYTHON) $(SLIDE_POSTFIX) "$$OUT"; \

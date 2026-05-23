@@ -25,11 +25,11 @@ Marp CLI runs via `npx` and needs no install. Python 3 is required for the claat
 ## Build commands
 
 ```bash
-# Export a claat codelab (output defaults to the directory containing claat.md)
-make claat <content-name>/claat.md
+# Export a claat codelab (<content-name>/claat.md → <content-name>/)
+make claat <content-name>
 
-# Render a Marp deck (output defaults to <content-name>/slide/index.html)
-make slide <content-name>/slide.md
+# Render a Marp deck (<content-name>/slide.md → <content-name>/slide/index.html)
+make slide <content-name>
 ```
 
 For PDFs, invoke Marp directly:
