@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Image to music flow</title>
+  <desc id="desc">A flat flow diagram showing an image and prompt going into Lyria 3 Pro and producing music.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#3c4043"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #ffffff; }
+    .card { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .blue { fill: #e8f0fe; }
+    .green { fill: #e6f4ea; }
+    .yellow { fill: #fef7e0; }
+    .line { stroke: #3c4043; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    .wave { stroke: #4285f4; stroke-width: 5; fill: none; stroke-linecap: round; }
+    .muted { fill: #5f6368; }
+    .bold { font-weight: 700; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <text x="95" y="95" font-size="34" class="bold">画像は「世界観」、テキストは「音楽指示」</text>
+  <text x="95" y="132" font-size="19" class="muted">画像だけで足りない音楽情報を、プロンプトで補います。</text>
+
+  <rect x="95" y="220" width="230" height="250" rx="12" class="card"/>
+  <rect x="125" y="255" width="170" height="112" rx="8" class="blue"/>
+  <rect x="145" y="305" width="22" height="62" fill="#4285f4"/>
+  <rect x="182" y="285" width="28" height="82" fill="#34a853"/>
+  <rect x="228" y="270" width="18" height="97" fill="#fbbc04"/>
+  <circle cx="264" cy="285" r="13" fill="#ea4335"/>
+  <text x="140" y="420" font-size="22" class="bold">画像</text>
+  <text x="140" y="450" font-size="17" class="muted">色・明暗・構図</text>
+
+  <path class="line" d="M345 345 H445"/>
+
+  <rect x="465" y="220" width="270" height="250" rx="12" class="card"/>
+  <text x="500" y="275" font-size="22" class="bold">Prompt</text>
+  <rect x="500" y="305" width="200" height="86" rx="8" class="yellow"/>
+  <text x="520" y="338" font-size="17">future bass</text>
+  <text x="520" y="366" font-size="17">bright synths</text>
+  <text x="520" y="394" font-size="17">hopeful mood</text>
+
+  <path class="line" d="M755 345 H855"/>
+
+  <rect x="875" y="220" width="230" height="250" rx="12" class="green" stroke="#dadce0"/>
+  <text x="918" y="275" font-size="22" class="bold">Lyria 3 Pro</text>
+  <path class="wave" d="M910 355 C930 320, 950 390, 970 355 S1010 320, 1030 355 S1070 390, 1090 355"/>
+  <text x="930" y="430" font-size="22" class="bold">音楽</text>
+
+  <rect x="280" y="535" width="640" height="64" rx="12" fill="#f8fafd" stroke="#dadce0"/>
+  <text x="330" y="576" font-size="21" class="bold">画像の雰囲気 + テキストの具体性 = 方向づけしやすい曲</text>
+</svg>

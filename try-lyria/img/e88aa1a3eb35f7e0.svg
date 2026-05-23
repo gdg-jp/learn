@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Media Studio checklist</title>
+  <desc id="desc">A flat Media Studio screen highlighting account, project, and model selection.</desc>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #f8fafd; }
+    .panel { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .blue { fill: #e8f0fe; }
+    .green { fill: #e6f4ea; }
+    .yellow { fill: #fef7e0; }
+    .accent-blue { fill: #4285f4; }
+    .accent-green { fill: #34a853; }
+    .accent-yellow { fill: #fbbc04; }
+    .line { stroke: #3c4043; stroke-width: 3; fill: none; stroke-linecap: round; }
+    .muted { fill: #5f6368; }
+    .bold { font-weight: 700; }
+    .mono { font-family: "SFMono-Regular", Consolas, monospace; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <rect x="80" y="60" width="1040" height="545" rx="16" class="panel"/>
+  <rect x="80" y="60" width="1040" height="64" rx="16" class="blue"/>
+  <text x="120" y="101" font-size="24" class="bold">Agent Platform Media Studio</text>
+  <rect x="610" y="78" width="220" height="34" rx="8" fill="#ffffff" stroke="#dadce0"/>
+  <text x="630" y="101" font-size="16" class="mono">lyria-hands-on</text>
+  <circle cx="1075" cy="93" r="22" class="accent-blue"/>
+  <text x="1062" y="101" font-size="19" fill="#ffffff" class="bold">Me</text>
+
+  <rect x="125" y="165" width="305" height="375" rx="12" class="panel"/>
+  <text x="155" y="205" font-size="22" class="bold">確認 1</text>
+  <text x="155" y="240" font-size="20">Google アカウント</text>
+  <text x="155" y="278" font-size="17" class="muted">Google Form に登録した</text>
+  <text x="155" y="305" font-size="17" class="muted">アカウントでログイン</text>
+  <line x1="320" y1="190" x2="1058" y2="98" class="line"/>
+  <circle cx="320" cy="190" r="20" class="accent-blue"/>
+  <text x="314" y="198" font-size="20" fill="#ffffff" class="bold">1</text>
+
+  <rect x="462" y="165" width="305" height="375" rx="12" class="panel"/>
+  <text x="492" y="205" font-size="22" class="bold">確認 2</text>
+  <text x="492" y="240" font-size="20">Project</text>
+  <text x="492" y="278" font-size="17" class="muted">プロジェクト選択欄が</text>
+  <text x="492" y="305" font-size="17" class="mono">lyria-hands-on</text>
+  <text x="492" y="332" font-size="17" class="muted">になっている</text>
+  <line x1="630" y1="190" x2="720" y2="96" class="line"/>
+  <circle cx="630" cy="190" r="20" class="accent-green"/>
+  <text x="624" y="198" font-size="20" fill="#ffffff" class="bold">2</text>
+
+  <rect x="800" y="165" width="245" height="375" rx="12" class="panel"/>
+  <text x="830" y="205" font-size="22" class="bold">確認 3</text>
+  <text x="830" y="240" font-size="20">Model</text>
+  <rect x="830" y="272" width="175" height="48" rx="8" class="green" stroke="#dadce0"/>
+  <text x="850" y="303" font-size="18" class="bold">Lyria 3 Pro</text>
+  <text x="830" y="360" font-size="17" class="muted">音楽生成モデルとして</text>
+  <text x="830" y="387" font-size="17" class="muted">選択されている</text>
+  <circle cx="1015" cy="296" r="20" class="accent-yellow"/>
+  <text x="1009" y="304" font-size="20" class="bold">3</text>
+
+  <rect x="220" y="565" width="760" height="54" rx="10" class="yellow" stroke="#dadce0"/>
+  <text x="278" y="599" font-size="20" class="bold">この 3 つが揃うと、音楽生成を始められます</text>
+</svg>

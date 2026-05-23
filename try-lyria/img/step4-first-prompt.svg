@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">First prompt flow</title>
+  <desc id="desc">A three step flow for entering a prompt, generating, and previewing music.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#3c4043"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #ffffff; }
+    .card { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .blue { fill: #e8f0fe; }
+    .green { fill: #e6f4ea; }
+    .yellow { fill: #fef7e0; }
+    .accent-blue { fill: #4285f4; }
+    .accent-green { fill: #34a853; }
+    .accent-yellow { fill: #fbbc04; }
+    .line { stroke: #3c4043; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    .wave { stroke: #4285f4; stroke-width: 5; fill: none; stroke-linecap: round; }
+    .muted { fill: #5f6368; }
+    .bold { font-weight: 700; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <text x="105" y="105" font-size="34" class="bold">まずは短いプロンプトで 1 曲作る</text>
+  <text x="105" y="140" font-size="19" class="muted">最初の目標は、完璧な曲ではなく「生成して再生する」ことです。</text>
+
+  <rect x="105" y="235" width="280" height="235" rx="12" class="card"/>
+  <circle cx="150" cy="280" r="28" class="accent-blue"/>
+  <text x="141" y="290" font-size="26" fill="#ffffff" class="bold">1</text>
+  <text x="135" y="345" font-size="24" class="bold">Prompt</text>
+  <rect x="135" y="370" width="220" height="56" rx="8" class="blue"/>
+  <text x="153" y="405" font-size="17">明るい EDM を指定</text>
+
+  <path class="line" d="M405 352 H515"/>
+
+  <rect x="535" y="235" width="280" height="235" rx="12" class="card"/>
+  <circle cx="580" cy="280" r="28" class="accent-yellow"/>
+  <text x="571" y="290" font-size="26" class="bold">2</text>
+  <text x="565" y="345" font-size="24" class="bold">Generate</text>
+  <rect x="565" y="370" width="220" height="56" rx="8" class="yellow"/>
+  <text x="594" y="405" font-size="17">生成ボタンを押す</text>
+
+  <path class="line" d="M835 352 H945"/>
+
+  <rect x="965" y="235" width="130" height="235" rx="12" class="green" stroke="#dadce0" stroke-width="2"/>
+  <circle cx="1010" cy="280" r="28" class="accent-green"/>
+  <text x="1001" y="290" font-size="26" fill="#ffffff" class="bold">3</text>
+  <text x="992" y="345" font-size="22" class="bold">Preview</text>
+  <circle cx="1030" cy="390" r="25" class="accent-green"/>
+  <polygon points="1022,376 1022,404 1045,390" fill="#ffffff"/>
+
+  <path class="wave" d="M250 555 C285 500, 320 610, 355 555 S425 500, 460 555 S530 610, 565 555 S635 500, 670 555 S740 610, 775 555 S845 500, 880 555 S950 610, 985 555"/>
+</svg>

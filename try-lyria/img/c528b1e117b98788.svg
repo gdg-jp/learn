@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Prompt recipe</title>
+  <desc id="desc">A flat infographic showing the parts of a music prompt as a production brief.</desc>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #ffffff; }
+    .card { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .blue { fill: #e8f0fe; }
+    .green { fill: #e6f4ea; }
+    .yellow { fill: #fef7e0; }
+    .red { fill: #fce8e6; }
+    .muted { fill: #5f6368; }
+    .bold { font-weight: 700; }
+    .mono { font-family: "SFMono-Regular", Consolas, monospace; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <text x="105" y="95" font-size="34" class="bold">プロンプト = 音楽制作の指示書</text>
+  <text x="105" y="132" font-size="19" class="muted">感想ではなく、曲を作るための材料を具体的に書きます。</text>
+
+  <rect x="95" y="190" width="310" height="125" rx="12" class="blue" stroke="#dadce0"/>
+  <text x="125" y="233" font-size="23" class="bold">Genre</text>
+  <text x="125" y="268" font-size="18">city pop, EDM, lo-fi</text>
+
+  <rect x="445" y="190" width="310" height="125" rx="12" class="green" stroke="#dadce0"/>
+  <text x="475" y="233" font-size="23" class="bold">Mood</text>
+  <text x="475" y="268" font-size="18">bright, nostalgic, calm</text>
+
+  <rect x="795" y="190" width="310" height="125" rx="12" class="yellow" stroke="#dadce0"/>
+  <text x="825" y="233" font-size="23" class="bold">Instruments</text>
+  <text x="825" y="268" font-size="18">piano, bass, guitar, synth</text>
+
+  <rect x="95" y="355" width="310" height="125" rx="12" class="green" stroke="#dadce0"/>
+  <text x="125" y="398" font-size="23" class="bold">Tempo</text>
+  <text x="125" y="433" font-size="18">upbeat, 115 BPM</text>
+
+  <rect x="445" y="355" width="310" height="125" rx="12" class="yellow" stroke="#dadce0"/>
+  <text x="475" y="398" font-size="23" class="bold">Structure</text>
+  <text x="475" y="433" font-size="18">intro, main, outro</text>
+
+  <rect x="795" y="355" width="310" height="125" rx="12" class="red" stroke="#dadce0"/>
+  <text x="825" y="398" font-size="23" class="bold">Negative prompt</text>
+  <text x="825" y="433" font-size="18">harsh noise, distortion</text>
+
+  <rect x="250" y="535" width="700" height="72" rx="12" fill="#f8fafd" stroke="#dadce0"/>
+  <text x="318" y="581" font-size="22" class="bold">何を、どんな雰囲気で、どんな音で鳴らすかを書く</text>
+</svg>

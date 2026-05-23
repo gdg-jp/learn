@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Media Studio final result mockup</title>
+  <desc id="desc">A flat diagram of Media Studio generating and playing music with Lyria 3 Pro.</desc>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #f8fafd; }
+    .panel { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .soft-blue { fill: #e8f0fe; }
+    .soft-green { fill: #e6f4ea; }
+    .soft-yellow { fill: #fef7e0; }
+    .accent-blue { fill: #4285f4; }
+    .accent-green { fill: #34a853; }
+    .accent-yellow { fill: #fbbc04; }
+    .line { stroke: #3c4043; stroke-width: 3; fill: none; stroke-linecap: round; }
+    .muted { fill: #5f6368; }
+    .mono { font-family: "SFMono-Regular", Consolas, monospace; }
+    .bold { font-weight: 700; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <rect x="95" y="70" width="1010" height="535" rx="16" class="panel"/>
+  <rect x="95" y="70" width="1010" height="58" rx="16" class="soft-blue"/>
+  <circle cx="130" cy="99" r="8" fill="#ea4335"/>
+  <circle cx="155" cy="99" r="8" fill="#fbbc04"/>
+  <circle cx="180" cy="99" r="8" fill="#34a853"/>
+  <text x="220" y="106" font-size="22" class="bold">Agent Platform Media Studio</text>
+  <text x="885" y="106" font-size="17" class="muted">Project: lyria-hands-on</text>
+
+  <rect x="135" y="165" width="410" height="365" rx="12" class="panel"/>
+  <text x="165" y="205" font-size="22" class="bold">Prompt</text>
+  <rect x="165" y="225" width="350" height="130" rx="10" fill="#f8fafd" stroke="#dadce0"/>
+  <text x="188" y="260" font-size="18">Bright synth leads,</text>
+  <text x="188" y="290" font-size="18">punchy drums,</text>
+  <text x="188" y="320" font-size="18">festival atmosphere</text>
+  <rect x="165" y="378" width="165" height="52" rx="8" class="soft-green" stroke="#dadce0"/>
+  <text x="185" y="411" font-size="18" class="bold">Lyria 3 Pro</text>
+  <rect x="350" y="378" width="165" height="52" rx="8" class="accent-blue"/>
+  <text x="386" y="411" font-size="18" fill="#ffffff" class="bold">Generate</text>
+  <text x="165" y="474" font-size="16" class="muted">テキストや画像で曲の方向性を伝える</text>
+
+  <rect x="620" y="165" width="430" height="365" rx="12" class="panel"/>
+  <text x="650" y="205" font-size="22" class="bold">Generated track</text>
+  <rect x="650" y="230" width="370" height="80" rx="10" class="soft-green"/>
+  <circle cx="695" cy="270" r="24" class="accent-green"/>
+  <polygon points="688,257 688,283 710,270" fill="#ffffff"/>
+  <text x="740" y="265" font-size="20" class="bold">Track 01</text>
+  <text x="740" y="290" font-size="16" class="muted">Ready to preview</text>
+
+  <path class="line" d="M665 386 C690 330, 715 442, 740 386 S790 330, 815 386 S865 442, 890 386 S940 330, 980 386"/>
+  <line x1="660" y1="386" x2="1000" y2="386" stroke="#dadce0" stroke-width="2"/>
+  <rect x="650" y="445" width="125" height="46" rx="8" class="soft-yellow" stroke="#dadce0"/>
+  <text x="680" y="475" font-size="17" class="bold">Preview</text>
+  <rect x="795" y="445" width="125" height="46" rx="8" fill="#f8fafd" stroke="#dadce0"/>
+  <text x="820" y="475" font-size="17" class="bold">Download</text>
+
+  <circle cx="585" cy="346" r="28" class="accent-yellow"/>
+  <text x="576" y="355" font-size="24" class="bold">→</text>
+  <text x="430" y="585" font-size="24" class="bold">Prompt = 音楽制作の指示書</text>
+</svg>

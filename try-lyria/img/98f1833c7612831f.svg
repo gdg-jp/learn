@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Neon city sample image</title>
+  <desc id="desc">A flat neon city night illustration used as an image prompt sample.</desc>
+  <style>
+    .sky { fill: #14213d; }
+    .road { fill: #202124; }
+    .building-blue { fill: #1a73e8; }
+    .building-green { fill: #188038; }
+    .building-dark { fill: #303134; }
+    .window-yellow { fill: #fbbc04; }
+    .window-red { fill: #ea4335; }
+    .window-cyan { fill: #80deea; }
+    .line { stroke: #80deea; stroke-width: 5; fill: none; stroke-linecap: round; }
+  </style>
+
+  <rect class="sky" width="1200" height="675"/>
+  <circle cx="970" cy="115" r="52" fill="#fbbc04"/>
+  <rect x="0" y="470" width="1200" height="205" class="road"/>
+
+  <rect x="70" y="245" width="125" height="225" class="building-dark"/>
+  <rect x="230" y="190" width="150" height="280" class="building-blue"/>
+  <rect x="420" y="260" width="120" height="210" class="building-green"/>
+  <rect x="585" y="150" width="170" height="320" class="building-dark"/>
+  <rect x="805" y="230" width="135" height="240" class="building-blue"/>
+  <rect x="980" y="275" width="120" height="195" class="building-green"/>
+
+  <g>
+    <rect x="100" y="280" width="24" height="18" class="window-cyan"/>
+    <rect x="145" y="320" width="24" height="18" class="window-yellow"/>
+    <rect x="105" y="370" width="24" height="18" class="window-red"/>
+    <rect x="265" y="230" width="24" height="18" class="window-yellow"/>
+    <rect x="315" y="275" width="24" height="18" class="window-cyan"/>
+    <rect x="265" y="330" width="24" height="18" class="window-red"/>
+    <rect x="455" y="300" width="24" height="18" class="window-cyan"/>
+    <rect x="500" y="360" width="24" height="18" class="window-yellow"/>
+    <rect x="630" y="195" width="24" height="18" class="window-red"/>
+    <rect x="690" y="245" width="24" height="18" class="window-cyan"/>
+    <rect x="640" y="320" width="24" height="18" class="window-yellow"/>
+    <rect x="840" y="275" width="24" height="18" class="window-cyan"/>
+    <rect x="890" y="340" width="24" height="18" class="window-red"/>
+    <rect x="1015" y="320" width="24" height="18" class="window-yellow"/>
+    <rect x="1060" y="385" width="24" height="18" class="window-cyan"/>
+  </g>
+
+  <path d="M440 675 L565 470 H635 L760 675" fill="#2b2c30"/>
+  <line x1="600" y1="470" x2="600" y2="675" stroke="#fbbc04" stroke-width="5"/>
+  <path class="line" d="M115 525 C220 500, 300 555, 410 530 S610 500, 720 535 S940 560, 1085 520"/>
+  <path d="M0 470 H1200" stroke="#80deea" stroke-width="6"/>
+</svg>

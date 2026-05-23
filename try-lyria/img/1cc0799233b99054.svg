@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Email registration flow</title>
+  <desc id="desc">A three step flow from Google Form to IAM registration to Media Studio access.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#3c4043"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+    .bg { fill: #ffffff; }
+    .card { fill: #ffffff; stroke: #dadce0; stroke-width: 2; }
+    .blue { fill: #e8f0fe; }
+    .green { fill: #e6f4ea; }
+    .yellow { fill: #fef7e0; }
+    .accent-blue { fill: #4285f4; }
+    .accent-green { fill: #34a853; }
+    .accent-yellow { fill: #fbbc04; }
+    .line { stroke: #3c4043; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    .muted { fill: #5f6368; }
+    .bold { font-weight: 700; }
+    .mono { font-family: "SFMono-Regular", Consolas, monospace; }
+  </style>
+
+  <rect class="bg" width="1200" height="675"/>
+  <text x="110" y="95" font-size="34" class="bold">未登録の方は、先にメールアドレスを登録します</text>
+  <text x="110" y="132" font-size="19" class="muted">登録されたアカウントだけが、イベント用プロジェクトで Lyria 3 Pro を使えます。</text>
+
+  <rect x="105" y="215" width="280" height="235" rx="12" class="card"/>
+  <circle cx="150" cy="260" r="28" class="accent-blue"/>
+  <text x="141" y="270" font-size="26" fill="#ffffff" class="bold">1</text>
+  <rect x="185" y="238" width="150" height="46" rx="8" class="blue"/>
+  <text x="205" y="268" font-size="20" class="bold">Google Form</text>
+  <text x="135" y="330" font-size="22" class="bold">メールアドレスを送信</text>
+  <text x="135" y="370" font-size="17" class="muted">Gmail アドレスを入力</text>
+  <text x="135" y="400" font-size="17" class="mono">gdgs.jp/lyria-form</text>
+
+  <path class="line" d="M405 330 H515"/>
+
+  <rect x="535" y="215" width="280" height="235" rx="12" class="card"/>
+  <circle cx="580" cy="260" r="28" class="accent-yellow"/>
+  <text x="571" y="270" font-size="26" class="bold">2</text>
+  <rect x="615" y="238" width="150" height="46" rx="8" class="yellow"/>
+  <text x="645" y="268" font-size="20" class="bold">運営側</text>
+  <text x="565" y="330" font-size="22" class="bold">IAM ユーザー登録</text>
+  <text x="565" y="370" font-size="17" class="muted">イベント用 Project に追加</text>
+  <text x="565" y="400" font-size="17" class="mono">lyria-hands-on</text>
+
+  <path class="line" d="M835 330 H945"/>
+
+  <rect x="965" y="215" width="130" height="235" rx="12" class="green" stroke="#dadce0" stroke-width="2"/>
+  <circle cx="1005" cy="260" r="28" class="accent-green"/>
+  <text x="996" y="270" font-size="26" fill="#ffffff" class="bold">3</text>
+  <text x="990" y="330" font-size="22" class="bold">利用</text>
+  <text x="990" y="365" font-size="18" class="bold">開始</text>
+  <text x="990" y="405" font-size="16" class="muted">Media</text>
+  <text x="990" y="430" font-size="16" class="muted">Studio</text>
+
+  <rect x="245" y="510" width="710" height="72" rx="12" class="blue" stroke="#dadce0"/>
+  <text x="295" y="555" font-size="22" class="bold">登録済みの方は、このステップをスキップして Media Studio へ進みます</text>
+</svg>

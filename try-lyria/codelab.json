@@ -1,0 +1,26 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2026-05-23T17:32:12+09:00",
+  "id": "try-lyria",
+  "duration": 15,
+  "title": "Lyria 3 Pro で音楽生成を体験しよう",
+  "summary": "Lyria 3 Pro と Media Studio で音楽生成を体験する 15 分ハンズオン",
+  "source": "try-lyria/claat.md",
+  "theme": "",
+  "status": [
+    "draft"
+  ],
+  "category": [
+    "ai",
+    "googlecloud",
+    "lyria"
+  ],
+  "tags": [
+    "web"
+  ],
+  "feedback": "https://github.com/gdsc-osaka/education/issues",
+  "url": "try-lyria"
+}
