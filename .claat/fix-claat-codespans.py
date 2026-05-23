@@ -23,7 +23,9 @@ Nine fixes are applied:
 
 5. Repair markdown links left behind when claat strips standalone <button>
    wrappers. Button syntax such as `<button>\n[label](url)\n</button>` can
-   otherwise become plain text instead of a `<paper-button>`.
+   otherwise become plain text instead of a `<paper-button>`. Image download
+   links are also restored to `<paper-button>` links with a `download`
+   attribute.
 
 6. Inject local CSS and JS that make code blocks light by default, style the
    toolbar buttons, preserve the dark-mode toggle, and add a full outline to
@@ -838,6 +840,26 @@ def repair_button_links(html: str) -> tuple[str, int]:
     return pattern.subn(repl, html)
 
 
+def repair_image_download_links(html: str) -> tuple[str, int]:
+    pattern = re.compile(
+        r'<a\b[^>]*\bhref=(?P<quote>["\'])(?P<href>img/[^"\']+\.(?:png|jpe?g|webp|svg))(?P=quote)[^>]*>'
+        r"(?P<label>[^<]*画像をダウンロード[^<]*)</a>",
+        re.IGNORECASE,
+    )
+
+    def repl(m: re.Match) -> str:
+        href = html_lib.escape(html_lib.unescape(m.group("href")), quote=True)
+        filename = html_lib.escape(Path(html_lib.unescape(m.group("href"))).name, quote=True)
+        label = html_lib.escape(html_lib.unescape(m.group("label")).strip())
+        return (
+            f'<a href="{href}" download="{filename}">'
+            f'<paper-button class="colored" raised>{label}</paper-button>'
+            "</a>"
+        )
+
+    return pattern.subn(repl, html)
+
+
 def linkify_bare_urls(html: str) -> tuple[str, int]:
     tag_pattern = re.compile(r"(<[^>]+>)")
     url_pattern = re.compile(r"https?://[^\s<>\"]+")
@@ -952,6 +974,8 @@ def fix(
     html, n_diff = annotate_diff_code_blocks(html, source_md)
     html, n_blocks = wrap_code_blocks(html)
     html, n_buttons = repair_button_links(html)
+    html, n_download_buttons = repair_image_download_links(html)
+    n_buttons += n_download_buttons
     html, n_links = linkify_bare_urls(html)
     html, n_ogp = inject_ogp(html, ogp_values(html, html_path, source_md))
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"

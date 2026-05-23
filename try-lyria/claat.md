@@ -210,13 +210,51 @@ Duration: 0:02:00
 
 手元にある写真やイラストを 1 枚選びます。夜景、海、自然、部屋、イベント写真など、雰囲気が伝わりやすい画像が向いています。
 
-手元に画像がない場合は、次のサンプル画像を使っても構いません。
+手元に画像がない場合は、次のサンプル画像を使っても構いません。気になる画像を 1 枚選び、画像を見て感じた雰囲気をプロンプトに足してみます。
 
 ![ネオンの夜景サンプル画像](img/sample-neon-night.svg)
 
+### サンプル画像を選ぶ
+
+Jazz:
+
+![ジャズクラブの実写風サンプル画像](img/sample-jazz.png)
+
+<a href="img/sample-jazz.png" download="sample-jazz.png">
+  <paper-button class="colored" raised>ジャズ画像をダウンロード</paper-button>
+</a>
+
+```text
+Warm jazz ballad in a small club. Upright bass, brushed drums, soft piano, and smoky saxophone. Relaxed late-night mood with intimate room ambience.
+```
+
+Orchestra:
+
+![オーケストラホールの実写風サンプル画像](img/sample-orchestra.png)
+
+<a href="img/sample-orchestra.png" download="sample-orchestra.png">
+  <paper-button class="colored" raised>オーケストラ画像をダウンロード</paper-button>
+</a>
+
+```text
+Grand orchestral music inspired by a concert hall. Rising strings, warm brass, gentle woodwinds, and cinematic percussion. Elegant and emotional mood.
+```
+
+Sea:
+
+![朝の海辺の実写風サンプル画像](img/sample-sea.png)
+
+<a href="img/sample-sea.png" download="sample-sea.png">
+  <paper-button class="colored" raised>海の画像をダウンロード</paper-button>
+</a>
+
+```text
+Peaceful ambient music inspired by a calm morning sea. Soft piano, airy pads, gentle strings, and slow wave-like movement. Spacious and hopeful mood.
+```
+
 ### 画像とプロンプトを入力する
 
-画像アップロード欄がある場合は画像を追加し、テキスト欄に次のプロンプトを入力します。
+画像アップロード欄がある場合は画像を追加し、選んだ画像の下にあるプロンプト例をテキスト欄に入力します。自分の画像を使う場合は、次の例のように画像の雰囲気を短い英文で補います。
 
 ```text
 Emotional future bass inspired by neon city nightlife. Bright synth chords, soft vocal chops, deep bass, and a hopeful mood.
