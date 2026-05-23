@@ -840,6 +840,14 @@ sudden volume changes
 
 ---
 
+## 画像を追加する
+
+<div style="text-align: center;">
+  <img src="../img/screenshot_05_add_image.png" alt="Media Studio に画像を追加する" style="height: 520px; max-width: 100%; object-fit: contain; border: 1px solid var(--gdg-line); border-radius: 8px;">
+</div>
+
+---
+
 ## 画像 + テキストの例
 
 ```text
