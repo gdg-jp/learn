@@ -21,7 +21,7 @@ ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 %:
 	@:
 
-.PHONY: claat slide slide-pdf
+.PHONY: claat slide slide-pdf index
 
 # Export a claat codelab. Usage:
 #   make claat path/to/codelab.md path/to/output
@@ -40,7 +40,8 @@ claat:
 	rm -rf "$$OUT/libs"; \
 	cp -R "$(LIBS_SRC)" "$$OUT/libs"; \
 	sed -i '' 's|https://storage.googleapis.com/claat-public/|libs/|g' "$$OUT/index.html"; \
-	$(PYTHON) $(POSTFIX) --source-md "$$MD" "$$OUT/index.html"
+	$(PYTHON) $(POSTFIX) --source-md "$$MD" "$$OUT/index.html"; \
+	$(PYTHON) scripts/gen-index.py
 
 # Render a Marp deck. Usage:
 #   make slide path/to/deck.md [path/to/deck.html]
@@ -57,7 +58,8 @@ slide:
 	OGP="$$(dirname "$$OUT")/ogp.png"; \
 	$(MARP) --theme-set $(MARP_THEME) --html "$$SRC" -o "$$OUT"; \
 	$(MARP) --theme-set $(MARP_THEME) --html --allow-local-files --image png "$$SRC" -o "$$OGP"; \
-	$(PYTHON) $(SLIDE_POSTFIX) "$$OUT"
+	$(PYTHON) $(SLIDE_POSTFIX) "$$OUT"; \
+	$(PYTHON) scripts/gen-index.py
 
 # Export a Marp deck to PDF. Usage:
 #   make slide-pdf path/to/deck.md [path/to/deck.pdf]
@@ -67,3 +69,8 @@ slide-pdf:
 	  exit 2; \
 	fi
 	$(MARP) --theme-set $(MARP_THEME) --html --pdf --allow-local-files "$(word 1,$(ARGS))" -o "$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.pdf,$(word 1,$(ARGS))))"
+
+# Regenerate the root index.html resource listing.
+#   make index
+index:
+	$(PYTHON) scripts/gen-index.py
