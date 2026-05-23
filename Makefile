@@ -24,13 +24,15 @@ ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 .PHONY: claat slide slide-pdf index
 
 # Export a claat codelab. Usage:
-#   make claat path/to/codelab.md path/to/output
+#   make claat path/to/codelab.md [path/to/output]
+#   (output defaults to the directory containing codelab.md)
 claat:
 	@MD=$(word 1,$(ARGS)); OUT=$(word 2,$(ARGS)); \
-	if [ -z "$$MD" ] || [ -z "$$OUT" ]; then \
-	  echo "Usage: make claat path/to/codelab.md path/to/output"; \
+	if [ -z "$$MD" ]; then \
+	  echo "Usage: make claat path/to/codelab.md [path/to/output]"; \
 	  exit 2; \
 	fi; \
+	[ -z "$$OUT" ] && OUT=$$(dirname "$$MD"); \
 	TMPDIR=$$(mktemp -d); \
 	$(CLAAT) export -o "$$TMPDIR" "$$MD"; \
 	EXPORTED=$$(ls "$$TMPDIR"); \
@@ -54,7 +56,8 @@ slide:
 	  exit 2; \
 	fi
 	@SRC="$(word 1,$(ARGS))"; \
-	OUT="$(if $(word 2,$(ARGS)),$(word 2,$(ARGS)),$(patsubst %.md,%.html,$(word 1,$(ARGS))))"; \
+	OUT="$(word 2,$(ARGS))"; \
+	[ -z "$$OUT" ] && OUT="$$(dirname "$$SRC")/slide/index.html"; \
 	OGP="$$(dirname "$$OUT")/ogp.png"; \
 	$(MARP) --theme-set $(MARP_THEME) --html "$$SRC" -o "$$OUT"; \
 	$(MARP) --theme-set $(MARP_THEME) --html --allow-local-files --image png "$$SRC" -o "$$OGP"; \

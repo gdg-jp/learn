@@ -24,7 +24,7 @@ Plus reference material loaded on demand:
 1. Create `<content-name>/claat.md` and `<content-name>/img/` for images.
 2. Outline the codelab using the [skeleton](#codelab-skeleton) in Part 1.
 3. Write the file using the conventions in both parts.
-4. Build: `make claat <content-name>/claat.md <content-name>`
+4. Build: `make claat <content-name>/claat.md`
 5. Verify the generated `index.html` looks right (check callout boxes and code spans especially).
 
 ---
@@ -426,7 +426,7 @@ Standard Markdown: `[text](url)`, `**bold**`, `*italic*`. These all render norma
 ## Build and verify
 
 ```bash
-make claat <content-name>/claat.md <content-name>
+make claat <content-name>/claat.md
 ```
 
 After building, open `<content-name>/index.html` in a browser and check:
