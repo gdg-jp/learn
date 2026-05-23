@@ -18,228 +18,6 @@
       color: red;
     }
   </style>
-<meta id="claat-local-ogp-og-title" property="og:title" content="Lyria 3 Pro で音楽生成を体験しよう">
-<meta id="claat-local-ogp-twitter-title" name="twitter:title" content="Lyria 3 Pro で音楽生成を体験しよう">
-<meta id="claat-local-ogp-og-description" property="og:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 15 分ハンズオン">
-<meta id="claat-local-ogp-twitter-description" name="twitter:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 15 分ハンズオン">
-<meta id="claat-local-ogp-twitter-card" name="twitter:card" content="summary_large_image">
-<meta id="claat-local-ogp-og-image" property="og:image" content="https://edu.gdgoc-osaka.jp/try-lyria/img/661bd6c01f94ae72.png">
-<meta id="claat-local-ogp-twitter-image" name="twitter:image" content="https://edu.gdgoc-osaka.jp/try-lyria/img/661bd6c01f94ae72.png">
-<link id="claat-local-favicon" rel="icon" type="image/png" href="../assets/favicon.png">
-<style id="claat-local-preprocessor-style">
-  google-codelab-step .instructions .claat-code-block {
-    position: relative;
-    margin: 16px 0;
-    background: #f1f3f4;
-    border-radius: 0;
-    overflow: hidden;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre {
-    margin: 0;
-    padding: 18px 88px 18px 18px;
-    color: #37474f;
-    background: #f1f3f4;
-    border-radius: 0;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre > code {
-    color: inherit;
-    background: transparent;
-    padding: 0;
-  }
-
-  google-codelab-step .instructions .claat-code-toolbar {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 1;
-    display: flex;
-    gap: 14px;
-    align-items: center;
-  }
-
-  google-codelab-step .instructions .claat-code-button {
-    width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    border-radius: 50%;
-    color: #202124;
-    background: transparent;
-    cursor: pointer;
-  }
-
-  google-codelab-step .instructions .claat-code-button:hover,
-  google-codelab-step .instructions .claat-code-button:focus-visible {
-    background: rgba(60, 64, 67, 0.12);
-    outline: none;
-  }
-
-  google-codelab-step .instructions .claat-code-button .material-icons {
-    margin: 0;
-    font-size: 24px;
-    line-height: 1;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre .pln,
-  google-codelab-step .instructions .claat-code-block pre .pun {
-    color: #37474f;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre .kwd,
-  google-codelab-step .instructions .claat-code-block pre .typ,
-  google-codelab-step .instructions .claat-code-block pre .tag {
-    color: #9334e6;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre .str,
-  google-codelab-step .instructions .claat-code-block pre .atv {
-    color: #188038;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre .com {
-    color: #5f6368;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre .atn,
-  google-codelab-step .instructions .claat-code-block pre .lit,
-  google-codelab-step .instructions .claat-code-block pre .dec {
-    color: #1967d2;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {
-    background: #28323f;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {
-    color: #f8f9fa;
-    background: #28323f;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button {
-    color: #f8f9fa;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:hover,
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:focus-visible {
-    background: rgba(248, 249, 250, 0.16);
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .str,
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .atv {
-    color: #34a853;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .kwd {
-    color: #f538a0;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .com {
-    color: #bdc1c6;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .typ,
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .tag {
-    color: #24c1e0;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .lit,
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .dec {
-    color: #4285f4;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pln,
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pun {
-    color: #f8f9fa;
-  }
-
-  google-codelab-step .instructions .claat-code-block pre > code.claat-diff-code {
-    display: block;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line {
-    display: block;
-    min-height: 1.4em;
-    margin: 0 -18px;
-    padding: 0 18px;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-marker {
-    display: inline-block;
-    width: 1ch;
-    font-weight: 600;
-    user-select: none;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line-add {
-    background: #dff7e8;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {
-    background: #fce8e6;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {
-    background: #e8f0fe;
-    color: #1967d2;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line-add .claat-diff-marker {
-    color: #137333;
-  }
-
-  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete .claat-diff-marker {
-    color: #d93025;
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-add {
-    background: rgba(52, 168, 83, 0.24);
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-delete {
-    background: rgba(234, 67, 53, 0.28);
-  }
-
-  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-hunk {
-    background: rgba(66, 133, 244, 0.25);
-    color: #8ab4f8;
-  }
-
-  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
-    border: 1px solid #ea8600;
-    border-left-width: 4px;
-  }
-
-  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {
-    border: 1px solid #d93025;
-    border-left-width: 4px;
-    border-color: #d93025;
-    background: #fce8e6;
-    color: #212124;
-  }
-
-  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
-  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
-    border: 1px solid #137333;
-    border-left-width: 4px;
-  }
-
-  @media (max-width: 640px) {
-    google-codelab-step .instructions .claat-code-block pre {
-      padding: 56px 14px 16px;
-    }
-
-    google-codelab-step .instructions .claat-code-block .claat-diff-line {
-      margin: 0 -14px;
-      padding: 0 14px;
-    }
-  }
-</style>
 </head>
 <body>
   <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
@@ -278,7 +56,7 @@
 <li>API、Python、ターミナルを使った生成</li>
 <li>音楽理論や作曲ソフトの使い方</li>
 </ul>
-<aside class="special"><p><strong>補足:</strong> 参加者は、運営側が用意した課金有効済みの Google Cloud プロジェクトを使います。自分の Google Cloud プロジェクトでは作業しません。</p></aside>
+<p><strong>補足:</strong> 参加者は、運営側が用意した課金有効済みの Google Cloud プロジェクトを使います。自分の Google Cloud プロジェクトでは作業しません。</p>
 
 
       </google-codelab-step>
@@ -290,9 +68,9 @@
 <p>Media Studio で Lyria 3 Pro を使うには、運営側が用意した Google Cloud プロジェクト <code>lyria-hands-on</code> に、参加者の Google アカウントを IAM ユーザーとして追加する必要があります。</p>
 <h2 is-upgraded>フォームに回答する</h2>
 <p>下のボタンから Google Form を開き、Google Cloud にログインする Gmail アドレスを入力して送信します。</p>
-<p><a href="https://gdgs.jp/lyria-form" target="_blank"><paper-button class="colored" raised>参加用 Google Form を開く</paper-button></a></p>
+<p><br>  [参加用 Google Form を開く](https://gdgs.jp/lyria-form)<br></p>
 <p>フォーム送信後、運営スタッフがアカウントを登録します。登録が終わるまで、Media Studio にアクセスできない場合があります。</p>
-<aside class="warning"><p><strong>Warning:</strong> 必ず、これから Google Cloud Console にログインするアカウントのメールアドレスを入力してください。別のアカウントを入力すると、プロジェクトが見えません。</p></aside>
+<p><strong>Warning:</strong> 必ず、これから Google Cloud Console にログインするアカウントのメールアドレスを入力してください。別のアカウントを入力すると、プロジェクトが見えません。</p>
 <h2 is-upgraded>登録完了を待つ</h2>
 <p>フォームを送信したら、メンターまたは運営スタッフに声をかけてください。登録完了の案内を受けてから、次のステップへ進みます。</p>
 
@@ -304,7 +82,7 @@
 <p class="image-container"><img alt="Media Studio で確認する 3 つの場所" src="img/e88aa1a3eb35f7e0.svg"></p>
 <h2 is-upgraded>Media Studio の URL を開く</h2>
 <p>下のボタンから、イベント用プロジェクトを指定した Media Studio を開きます。</p>
-<p><a href="https://console.cloud.google.com/agent-platform/studio/media/music?project=lyria-hands-on" target="_blank"><paper-button class="colored" raised>Media Studio を開く</paper-button></a></p>
+<p><br>  [Media Studio を開く](https://console.cloud.google.com/agent-platform/studio/media/music?project=lyria-hands-on)<br></p>
 <p>画面が開いたら、右上のアカウントアイコンを確認します。Google Form に登録したアカウントでログインしていることを確認してください。</p>
 <h2 is-upgraded>スマートフォンで開く場合</h2>
 <p>PC での参加を推奨します。スマートフォンで画面を確認する場合は、ブラウザのメニューからデスクトップ用サイトを表示します。</p>
@@ -313,7 +91,7 @@
 <h2 is-upgraded>プロジェクトを確認する</h2>
 <p>画面上部のプロジェクト選択欄で、プロジェクトが <code>lyria-hands-on</code> になっていることを確認します。</p>
 <p>別のプロジェクトが表示されている場合は、プロジェクト選択欄を開き、<code>lyria-hands-on</code> を選びます。</p>
-<aside class="warning"><p><strong>Warning:</strong> このハンズオンでは、必ず <code>lyria-hands-on</code> プロジェクトを使います。自分のプロジェクトに切り替えて生成しないでください。</p></aside>
+<p><strong>Warning:</strong> このハンズオンでは、必ず <code>lyria-hands-on</code> プロジェクトを使います。自分のプロジェクトに切り替えて生成しないでください。</p>
 <h2 is-upgraded>Lyria 3 Pro を選ぶ</h2>
 <p>音楽生成の画面で、モデルとして <code>Lyria 3 Pro</code> を選択します。すでに選ばれている場合は、そのままで構いません。</p>
 <h2 is-upgraded>困ったときの見分け方</h2>
@@ -341,10 +119,10 @@
     
       <google-codelab-step label="Google Cloud の Lyria が使えない場合のフォールバック" duration="1">
         <p>Google Cloud の権限や画面表示の都合で Media Studio が使えない場合は、Gemini アプリの音楽生成からハンズオンを続けます。</p>
-<aside class="warning"><p><strong>Caution:</strong> Media Studio が開けた方は、このステップをスキップして「テキストから最初の曲を作る」へ進んでください。</p></aside>
+<p><strong>Caution:</strong> Media Studio が開けた方は、このステップをスキップして「テキストから最初の曲を作る」へ進んでください。</p>
 <h2 is-upgraded>Gemini アプリを開く</h2>
 <p>下のボタンから Gemini アプリを開きます。Google Cloud で使う予定だった Google アカウントでログインしてください。</p>
-<p><a href="https://gemini.google.com/app" target="_blank"><paper-button class="colored" raised>Gemini アプリを開く</paper-button></a></p>
+<p><br>  [Gemini アプリを開く](https://gemini.google.com/app)<br></p>
 <h2 is-upgraded>音楽生成を選ぶ</h2>
 <p>入力欄の左にある <code>+</code> ボタンを押します。</p>
 <p class="image-container"><img alt="Gemini アプリで入力欄左の追加ボタンを押す" src="img/7d0e4584c1226655.png"></p>
@@ -361,18 +139,8 @@
 <h2 is-upgraded>短いプロンプトを入力する</h2>
 <p>プロンプト入力欄に、次の英文を貼り付けます。</p>
 <p class="image-container"><img alt="Media Studio のプロンプト入力欄にテキストを入力する" src="img/9b3ac27d58098e0c.png"></p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Energetic electronic dance music with bright synth leads, punchy drums, and a cheerful festival atmosphere. Clean mix, upbeat rhythm.
 </code></pre>
-</div>
 <p>このプロンプトは、「明るいシンセ」「力強いドラム」「フェスのような雰囲気」を Lyria に伝えています。</p>
 <h2 is-upgraded>生成して再生する</h2>
 <p>生成ボタンを押し、結果が表示されるまで待ちます。生成が完了したら、再生ボタンを押して音を確認します。</p>
@@ -396,30 +164,11 @@
 <p class="image-container"><img alt="音楽プロンプトを構成する要素" src="img/c528b1e117b98788.svg"></p>
 <h2 is-upgraded>短すぎるプロンプトを確認する</h2>
 <p>たとえば、次のようなプロンプトでも音楽は生成できます。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Cool pop music.
 </code></pre>
-</div>
 <p>ただし、これだけでは「どんな pop なのか」「どんな楽器なのか」「速さはどれくらいか」が Lyria に伝わりにくくなります。</p>
 <h2 is-upgraded>指示を具体的にする</h2>
 <p>同じ pop でも、次のように要素を分けて書くと、曲の方向性を伝えやすくなります。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Modern city pop with nostalgic 80s synth textures.
 Mood: bright, nostalgic, and relaxed.
 Instruments: warm electric piano, slap bass, clean guitar, and disco-inspired drums.
@@ -427,22 +176,11 @@ Tempo: upbeat, around 115 BPM.
 Structure: short intro, catchy main section, gentle outro.
 Production: clean mix with soft reverb.
 </code></pre>
-</div>
 <p>このプロンプトでは、ジャンル、雰囲気、楽器、テンポ、構成、音作りを分けて指定しています。</p>
 <h2 is-upgraded>避けたい要素を書く</h2>
 <p>画面に Negative prompt の入力欄がある場合は、避けたい要素を書きます。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">harsh noise, aggressive distortion, sudden volume changes
 </code></pre>
-</div>
 <p>Negative prompt は「入れてほしくないもの」を伝える欄です。最初は短く、明確な言葉だけを書くのがおすすめです。</p>
 <h2 is-upgraded>聴き比べる</h2>
 <p>生成した曲を聴き、短いプロンプトとの違いを確認します。</p>
@@ -469,7 +207,7 @@ Production: clean mix with soft reverb.
 </td><td colspan="1" rowspan="1"><p>音の質感</p>
 </td></tr>
 </table>
-<aside class="special"><p><strong>Tip:</strong> 良いプロンプトは、感想文ではなく制作指示書です。「かっこいい曲」よりも、「何が、どんな速さで、どんな雰囲気で鳴るか」を書きます。</p></aside>
+<p><strong>Tip:</strong> 良いプロンプトは、感想文ではなく制作指示書です。「かっこいい曲」よりも、「何が、どんな速さで、どんな雰囲気で鳴るか」を書きます。</p>
 
 
       </google-codelab-step>
@@ -484,68 +222,28 @@ Production: clean mix with soft reverb.
 <h2 is-upgraded>サンプル画像を選ぶ</h2>
 <p>Jazz:</p>
 <p class="image-container"><img alt="ジャズクラブの実写風サンプル画像" src="img/7d2403e8b4e292fa.png"></p>
-<p><a href="img/sample-jazz.png" download="sample-jazz.png"><paper-button class="colored" raised>ジャズ画像をダウンロード</paper-button></a></p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
+<p><a href="img/sample-jazz.png" target="_blank">   ジャズ画像をダウンロード</a></p>
 <pre><code language="language-text" class="language-text">Warm jazz ballad in a small club. Upright bass, brushed drums, soft piano, and smoky saxophone. Relaxed late-night mood with intimate room ambience.
 </code></pre>
-</div>
 <p>Orchestra:</p>
 <p class="image-container"><img alt="オーケストラホールの実写風サンプル画像" src="img/5324e643c5948cfa.png"></p>
-<p><a href="img/sample-orchestra.png" download="sample-orchestra.png"><paper-button class="colored" raised>オーケストラ画像をダウンロード</paper-button></a></p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
+<p><a href="img/sample-orchestra.png" target="_blank">   オーケストラ画像をダウンロード</a></p>
 <pre><code language="language-text" class="language-text">Grand orchestral music inspired by a concert hall. Rising strings, warm brass, gentle woodwinds, and cinematic percussion. Elegant and emotional mood.
 </code></pre>
-</div>
 <p>Sea:</p>
 <p class="image-container"><img alt="朝の海辺の実写風サンプル画像" src="img/8e77591d3b2250f6.png"></p>
-<p><a href="img/sample-sea.png" download="sample-sea.png"><paper-button class="colored" raised>海の画像をダウンロード</paper-button></a></p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
+<p><a href="img/sample-sea.png" target="_blank">   海の画像をダウンロード</a></p>
 <pre><code language="language-text" class="language-text">Peaceful ambient music inspired by a calm morning sea. Soft piano, airy pads, gentle strings, and slow wave-like movement. Spacious and hopeful mood.
 </code></pre>
-</div>
 <h2 is-upgraded>画像とプロンプトを入力する</h2>
 <p>画像アップロード欄がある場合は画像を追加し、選んだ画像の下にあるプロンプト例をテキスト欄に入力します。自分の画像を使う場合は、次の例のように画像の雰囲気を短い英文で補います。</p>
 <p class="image-container"><img alt="Media Studio で画像を追加するボタン" src="img/a5fe32722963f175.png"></p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Emotional future bass inspired by neon city nightlife. Bright synth chords, soft vocal chops, deep bass, and a hopeful mood.
 </code></pre>
-</div>
 <p>画像は色、明暗、構図、世界観を伝える材料になります。テキストでは、ジャンルや楽器など、画像だけでは分かりにくい音楽的な指示を補います。</p>
 <h2 is-upgraded>生成して聴き比べる</h2>
 <p>生成ボタンを押して、画像なしで作った曲と聴き比べます。画像の雰囲気が曲にどのように反映されたかを確認します。</p>
-<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 画像アップロード欄が見つからない場合は、このステップをスキップして、テキストプロンプトだけで生成してください。画面の機能は更新されることがあります。</p></aside>
+<p><strong>Troubleshooting:</strong> 画像アップロード欄が見つからない場合は、このステップをスキップして、テキストプロンプトだけで生成してください。画面の機能は更新されることがあります。</p>
 
 
       </google-codelab-step>
@@ -562,64 +260,24 @@ Production: clean mix with soft reverb.
 </ul>
 <h2 is-upgraded>余裕がある人向けのプロンプト例</h2>
 <p>EDM:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Festival EDM with energetic synth leads, huge drops, punchy kick drums, and emotional chord progressions.
 </code></pre>
-</div>
 <p>Lo-fi:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Relaxed lo-fi hip hop with dusty vinyl texture, mellow piano, soft drums, and rainy night atmosphere.
 </code></pre>
-</div>
 <p>Cinematic:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Epic cinematic orchestral music with rising strings, deep percussion, and emotional brass swells.
 </code></pre>
-</div>
 <p>Anime opening:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
 <pre><code language="language-text" class="language-text">Emotional anime opening theme with fast drums, bright guitars, uplifting energy, and a dramatic chorus.
 </code></pre>
-</div>
 <h2 is-upgraded>次のステップ</h2>
 <ul>
 <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/music/music-gen-prompt-guide?hl=ja" target="_blank">Lyria のプロンプトガイド</a>を読んで、プロンプト要素を増やす</li>
 <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/music/generate-music?hl=ja" target="_blank">Vertex AI の音楽生成ドキュメント</a>で Media Studio の使い方を確認する</li>
 <li><a href="https://deepmind.google/models/lyria/" target="_blank">Lyria 3 のモデル紹介</a>で、モデルが扱える表現を確認する</li>
 </ul>
-<aside class="special"><p><strong>補足:</strong> 2026-05-23 時点で、Cloud の音楽生成ドキュメントには Lyria 2 / <code>lyria-002</code> を中心とした説明も含まれています。このハンズオンでは、イベント用の Media Studio 画面に表示される <code>Lyria 3 Pro</code> を使います。</p></aside>
+<p><strong>補足:</strong> 2026-05-23 時点で、Cloud の音楽生成ドキュメントには Lyria 2 / <code>lyria-002</code> を中心とした説明も含まれています。このハンズオンでは、イベント用の Media Studio 画面に表示される <code>Lyria 3 Pro</code> を使います。</p>
 
 
       </google-codelab-step>
@@ -632,149 +290,5 @@ Production: clean mix with soft reverb.
   <script src="libs/codelab-elements.js"></script>
   <script src="//support.google.com/inapp/api.js"></script>
 
-<script id="claat-local-preprocessor-script">
-(function () {
-  function setTheme(block, theme) {
-    var isDark = theme === 'dark';
-    var toggle = block.querySelector('.claat-toggle-code-theme');
-    block.dataset.codeTheme = isDark ? 'dark' : 'light';
-    if (!toggle) return;
-    toggle.setAttribute('aria-label', isDark ? 'Use light code theme' : 'Use dark code theme');
-    toggle.setAttribute('title', isDark ? 'Use light code theme' : 'Use dark code theme');
-    var icon = toggle.querySelector('.material-icons');
-    if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-  }
-
-  function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
-    }
-    var textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    return Promise.resolve();
-  }
-
-  function diffCopyText(source) {
-    return source.replace(/\n$/, '').split('\n').reduce(function (lines, line) {
-      if (/^@@/.test(line) || /^(\+\+\+|---)/.test(line)) return lines;
-      var marker = line.charAt(0);
-      if (marker === '-') return lines;
-      if (marker === '+' || marker === ' ') {
-        var body = line.slice(1);
-        if (marker === '+' && /^ [^\s]/.test(body)) body = body.slice(1);
-        lines.push(body);
-        return lines;
-      }
-      lines.push(line);
-      return lines;
-    }, []).join('\n');
-  }
-
-  function codeTextForCopy(code) {
-    if (!code) return '';
-    if (code.dataset && (code.dataset.claatDiff === 'true' || code.classList.contains('language-diff'))) {
-      return diffCopyText(code.dataset.claatDiffSource || code.textContent);
-    }
-    return code.innerText;
-  }
-
-  function escapeHtml(value) {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function prettyLine(value, language) {
-    var escaped = escapeHtml(value);
-    if (!language || typeof window.prettyPrintOne !== 'function') return escaped;
-    try {
-      return window.prettyPrintOne(escaped, language);
-    } catch (error) {
-      return escaped;
-    }
-  }
-
-  function diffLineHtml(line, language) {
-    if (/^@@/.test(line)) {
-      return '<span class="claat-diff-line claat-diff-line-hunk">' + escapeHtml(line) + '</span>';
-    }
-
-    var marker = line.charAt(0);
-    var isFileHeader = /^(\+\+\+|---)/.test(line);
-    var className = 'claat-diff-line';
-    if (!isFileHeader && marker === '+') className += ' claat-diff-line-add';
-    if (!isFileHeader && marker === '-') className += ' claat-diff-line-delete';
-    if (isFileHeader) className += ' claat-diff-line-hunk';
-
-    if (marker === '+' || marker === '-' || marker === ' ') {
-      return (
-        '<span class="' + className + '">' +
-        '<span class="claat-diff-marker">' + escapeHtml(marker) + '</span>' +
-        prettyLine(line.slice(1), language) +
-        '</span>'
-      );
-    }
-
-    return '<span class="' + className + '">' + prettyLine(line, language) + '</span>';
-  }
-
-  function enhanceDiffCodeBlocks() {
-    document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {
-      if (code.dataset.claatDiffEnhanced === 'true') return;
-      var language = code.dataset.claatDiffLanguage || '';
-      var source = code.textContent.replace(/\n$/, '');
-      code.dataset.claatDiffSource = source;
-      code.classList.add('claat-diff-code');
-      code.innerHTML = source.split('\n').map(function (line) {
-        return diffLineHtml(line, language);
-      }).join('');
-      code.dataset.claatDiffEnhanced = 'true';
-    });
-  }
-
-  document.addEventListener('click', function (event) {
-    var copyButton = event.target.closest('.claat-copy-code');
-    var themeButton = event.target.closest('.claat-toggle-code-theme');
-    if (!copyButton && !themeButton) return;
-
-    var block = event.target.closest('.claat-code-block');
-    if (!block) return;
-
-    if (copyButton) {
-      var code = block.querySelector('pre > code') || block.querySelector('pre');
-      if (!code) return;
-      copyText(codeTextForCopy(code)).then(function () {
-        var icon = copyButton.querySelector('.material-icons');
-        if (!icon) return;
-        icon.textContent = 'done';
-        window.setTimeout(function () {
-          icon.textContent = 'content_copy';
-        }, 1200);
-      });
-    }
-
-    if (themeButton) {
-      setTheme(block, block.dataset.codeTheme === 'dark' ? 'light' : 'dark');
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.claat-code-block').forEach(function (block) {
-      setTheme(block, block.dataset.codeTheme || 'light');
-    });
-    enhanceDiffCodeBlocks();
-  });
-}());
-</script>
 </body>
 </html>
