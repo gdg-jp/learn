@@ -11,6 +11,8 @@ author: GDG on Campus University of Osaka
 ## はじめに
 Duration: 0:01:00
 
+![Lyria 3 Pro 音楽生成ハンズオンのカバー画像](img/codelab_ogp.png)
+
 このコードラボでは、プログラミングや音楽制作の経験がない方を対象に、ブラウザだけで Lyria 3 Pro による音楽生成を体験します。
 
 ![Media Studio で音楽を生成している完成イメージ](img/step1-final-result.svg)
@@ -91,17 +93,9 @@ Duration: 0:03:00
 
 PC での参加を推奨します。スマートフォンで画面を確認する場合は、ブラウザのメニューからデスクトップ用サイトを表示します。
 
-Android の場合:
+左から、Android Chrome、iPhone Safari の手順 1、手順 2、デスクトップ表示後の画面です。
 
-![Android Chrome でデスクトップ用サイトを表示する](img/screenshot_01_android_desktop_mode.png)
-
-iPhone の場合:
-
-![iPhone Safari でページメニューを開く](img/screenshot_02_iphone_desktop_mode_1.png)
-
-![iPhone Safari でデスクトップ用Webサイトを表示を選ぶ](img/screenshot_02_iphone_desktop_mode_2.png)
-
-![iPhone Safari でデスクトップ表示になった状態](img/screenshot_02_iphone_desktop_mode_3.png)
+![スマートフォンでデスクトップ用サイトを表示する手順](img/screenshot_mobile_desktop_mode.png)
 
 ### プロジェクトを確認する
 
@@ -275,6 +269,8 @@ Peaceful ambient music inspired by a calm morning sea. Soft piano, airy pads, ge
 ### 画像とプロンプトを入力する
 
 画像アップロード欄がある場合は画像を追加し、選んだ画像の下にあるプロンプト例をテキスト欄に入力します。自分の画像を使う場合は、次の例のように画像の雰囲気を短い英文で補います。
+
+![Media Studio で画像を追加するボタン](img/screenshot_05_add_image.png)
 
 ```text
 Emotional future bass inspired by neon city nightlife. Bright synth chords, soft vocal chops, deep bass, and a hopeful mood.
