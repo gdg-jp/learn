@@ -87,6 +87,22 @@ Duration: 0:03:00
 
 画面が開いたら、右上のアカウントアイコンを確認します。Google Form に登録したアカウントでログインしていることを確認してください。
 
+### スマートフォンで開く場合
+
+PC での参加を推奨します。スマートフォンで画面を確認する場合は、ブラウザのメニューからデスクトップ用サイトを表示します。
+
+Android の場合:
+
+![Android Chrome でデスクトップ用サイトを表示する](img/screenshot_01_android_desktop_mode.png)
+
+iPhone の場合:
+
+![iPhone Safari でページメニューを開く](img/screenshot_02_iphone_desktop_mode_1.png)
+
+![iPhone Safari でデスクトップ用Webサイトを表示を選ぶ](img/screenshot_02_iphone_desktop_mode_2.png)
+
+![iPhone Safari でデスクトップ表示になった状態](img/screenshot_02_iphone_desktop_mode_3.png)
+
 ### プロジェクトを確認する
 
 画面上部のプロジェクト選択欄で、プロジェクトが `lyria-hands-on` になっていることを確認します。
@@ -118,6 +134,8 @@ Duration: 0:03:00
 
 プロンプト入力欄に、次の英文を貼り付けます。
 
+![Media Studio のプロンプト入力欄にテキストを入力する](img/screenshot_03_input_prompt_to_media_studio.png)
+
 ```text
 Energetic electronic dance music with bright synth leads, punchy drums, and a cheerful festival atmosphere. Clean mix, upbeat rhythm.
 ```
@@ -127,6 +145,8 @@ Energetic electronic dance music with bright synth leads, punchy drums, and a ch
 ### 生成して再生する
 
 生成ボタンを押し、結果が表示されるまで待ちます。生成が完了したら、再生ボタンを押して音を確認します。
+
+![生成された曲の再生ボタンを押す](img/screenshot_04_tap_play_button.png)
 
 **期待される結果:**
 
