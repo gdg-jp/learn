@@ -20,8 +20,8 @@
   </style>
 <meta id="claat-local-ogp-og-title" property="og:title" content="Lyria 3 Pro で音楽生成を体験しよう">
 <meta id="claat-local-ogp-twitter-title" name="twitter:title" content="Lyria 3 Pro で音楽生成を体験しよう">
-<meta id="claat-local-ogp-og-description" property="og:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 15 分ハンズオン">
-<meta id="claat-local-ogp-twitter-description" name="twitter:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 15 分ハンズオン">
+<meta id="claat-local-ogp-og-description" property="og:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 25 分ハンズオン">
+<meta id="claat-local-ogp-twitter-description" name="twitter:description" content="Lyria 3 Pro と Media Studio で音楽生成を体験する 25 分ハンズオン">
 <meta id="claat-local-ogp-twitter-card" name="twitter:card" content="summary_large_image">
 <meta id="claat-local-ogp-og-image" property="og:image" content="https://edu.gdgoc-osaka.jp/try-lyria/img/661bd6c01f94ae72.png">
 <meta id="claat-local-ogp-twitter-image" name="twitter:image" content="https://edu.gdgoc-osaka.jp/try-lyria/img/661bd6c01f94ae72.png">
@@ -252,15 +252,17 @@
     
       <google-codelab-step label="はじめに" duration="1">
         <p class="image-container"><img alt="Lyria 3 Pro 音楽生成ハンズオンのカバー画像" src="img/661bd6c01f94ae72.png"></p>
-<p>このコードラボでは、プログラミングや音楽制作の経験がない方を対象に、ブラウザだけで Lyria 3 Pro による音楽生成を体験します。</p>
+<p>このコードラボでは、プログラミングや音楽制作の経験がない方を対象に、ブラウザだけで Lyria 3 Pro による音楽生成を体験します。短いプロンプトから始めて、非公式ブログやユーザー投稿でよく紹介されている実践的なコツを使いながら、曲の方向性を調整していきます。</p>
 <p class="image-container"><img alt="Media Studio で音楽を生成している完成イメージ" src="img/b5ad2800d8f7f423.svg"></p>
 <h2 is-upgraded>このコードラボで作るもの</h2>
-<p>Google Cloud の Agent Platform Media Studio を使って、テキストや画像から短い音楽を生成します。最初は短い説明で作り、その後にジャンル、雰囲気、楽器、テンポなどを足して、生成結果がどう変わるかを聴き比べます。</p>
+<p>Google Cloud の Agent Platform Media Studio を使って、テキストや画像から短い音楽を生成します。最初は短い説明で作り、その後にジャンル、雰囲気、楽器、テンポ、曲の構成、避けたい要素などを足して、生成結果がどう変わるかを聴き比べます。</p>
 <h2 is-upgraded>このコードラボで学ぶこと</h2>
 <ul>
 <li>Media Studio を開いて Lyria 3 Pro を選択する方法</li>
 <li>短いテキストプロンプトから音楽を生成する方法</li>
 <li>ジャンル、雰囲気、楽器、テンポを指定して生成結果を調整する方法</li>
+<li>BGM、ボーカル曲、長めの曲でプロンプトを書き分ける方法</li>
+<li>アーティスト名に頼らず、音楽的な特徴で方向性を伝える方法</li>
 <li>Negative prompt で避けたい要素を伝える方法</li>
 <li>画像とテキストを組み合わせて曲の方向性を伝える方法</li>
 </ul>
@@ -391,7 +393,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="プロンプトを音楽の指示書にする" duration="3">
+      <google-codelab-step label="プロンプトを音楽の指示書にする" duration="5">
         <p>このステップでは、短いプロンプトを「音楽の制作指示書」に変えて、生成結果をコントロールします。</p>
 <p class="image-container"><img alt="音楽プロンプトを構成する要素" src="img/c528b1e117b98788.svg"></p>
 <h2 is-upgraded>短すぎるプロンプトを確認する</h2>
@@ -409,6 +411,31 @@
 </code></pre>
 </div>
 <p>ただし、これだけでは「どんな pop なのか」「どんな楽器なのか」「速さはどれくらいか」が Lyria に伝わりにくくなります。</p>
+<h2 is-upgraded>4 つの基本要素を入れる</h2>
+<p>非公式のプロンプト解説記事では、まず <code>Genre</code>、<code>Mood</code>、<code>Instruments</code>、<code>Tempo</code> の 4 つを入れる方法がよく紹介されています。音楽用語に詳しくなくても、この 4 つだけで「何を作りたいか」が伝わりやすくなります。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>要素</p>
+</td><td colspan="1" rowspan="1"><p>書くこと</p>
+</td><td colspan="1" rowspan="1"><p>例</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Genre</p>
+</td><td colspan="1" rowspan="1"><p>曲の大きな種類</p>
+</td><td colspan="1" rowspan="1"><p><code>city pop</code>, <code>lo-fi hip hop</code>, <code>cinematic orchestral</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Mood</p>
+</td><td colspan="1" rowspan="1"><p>感情や雰囲気</p>
+</td><td colspan="1" rowspan="1"><p><code>bright</code>, <code>nostalgic</code>, <code>calm</code>, <code>tense</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Instruments</p>
+</td><td colspan="1" rowspan="1"><p>目立たせたい音</p>
+</td><td colspan="1" rowspan="1"><p><code>warm electric piano</code>, <code>soft piano</code>, <code>brushed drums</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Tempo</p>
+</td><td colspan="1" rowspan="1"><p>速さやノリ</p>
+</td><td colspan="1" rowspan="1"><p><code>slow</code>, <code>mid-tempo</code>, <code>around 115 BPM</code></p>
+</td></tr>
+</table>
+<aside class="special"><p><strong>Tip:</strong> 迷ったら、ジャンル、雰囲気、楽器、テンポを 1 行ずつ書きます。長い文章にするより、要素を分けた方があとから直しやすくなります。</p></aside>
 <h2 is-upgraded>指示を具体的にする</h2>
 <p>同じ pop でも、次のように要素を分けて書くと、曲の方向性を伝えやすくなります。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -429,6 +456,21 @@ Production: clean mix with soft reverb.
 </code></pre>
 </div>
 <p>このプロンプトでは、ジャンル、雰囲気、楽器、テンポ、構成、音作りを分けて指定しています。</p>
+<h2 is-upgraded>アーティスト名ではなく特徴を書く</h2>
+<p>既存のアーティスト名や曲名をそのまま入れるより、音の特徴に分解して書く方が安定します。たとえば「特定の歌手みたいに」ではなく、次のように書きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Country-pop crossover with acoustic guitar, bright airy vocals, storytelling lyrics, crisp drums, and a warm radio-ready mix.
+</code></pre>
+</div>
+<p>この書き方では、ジャンルの混ざり方、歌声の印象、歌詞の方向性、音作りを説明しています。特定の作品をまねるのではなく、自分が欲しい音の条件を並べます。</p>
 <h2 is-upgraded>避けたい要素を書く</h2>
 <p>画面に Negative prompt の入力欄がある場合は、避けたい要素を書きます。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -474,7 +516,96 @@ Production: clean mix with soft reverb.
 
       </google-codelab-step>
     
-      <google-codelab-step label="画像から曲の雰囲気を作る" duration="2">
+      <google-codelab-step label="用途に合わせてプロンプトを変える" duration="4">
+        <p>このステップでは、同じ Lyria でも、BGM、ボーカル曲、長めの曲で指示を変える練習をします。1 つずつ生成しても、読むだけでも構いません。</p>
+<h2 is-upgraded>短く試してから仕上げる</h2>
+<p>ユーザー投稿では、最初から長い曲を狙うより、短いプロンプトで方向性を確認してから、よかった要素だけを残して詳しくする方法がよく使われています。</p>
+<p>Gemini アプリで <code>Fast</code> や短尺生成を選べる場合は、まず短く試します。仕上げたい方向が決まったら、<code>Lyria 3 Pro</code> や長めの生成で、構成や音作りを足します。</p>
+<aside class="special"><p><strong>補足:</strong> 画面によって、モデル名や長さの選択肢は変わることがあります。選べない場合は、同じモデルのまま短いプロンプトから試してください。</p></aside>
+<h2 is-upgraded>BGM は主張しすぎないようにする</h2>
+<p>動画や発表の後ろで流す BGM では、強い主旋律や歌声が邪魔になることがあります。次のように、<code>instrumental only</code>、<code>no vocals</code>、<code>low energy</code>、<code>no melodic lead</code> を入れて、控えめな音に寄せます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Minimal ambient background music for a tutorial video.
+Mood: calm, focused, and unobtrusive.
+Instruments: soft piano, airy pads, subtle percussion.
+Tempo: slow, steady, and relaxed.
+Arrangement: instrumental only, no vocals, no melodic lead, no sudden volume changes.
+</code></pre>
+</div>
+<p>このプロンプトは、曲そのものを目立たせるより、話し声や映像を邪魔しないことを優先しています。</p>
+<h2 is-upgraded>長めの曲は構成を書く</h2>
+<p>Lyria 3 Pro で長めの曲を作る場合は、曲の流れを明示すると展開が保ちやすくなります。セクションを角括弧で書き、どこで盛り上げるかを指定します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Upbeat indie pop song with clean guitars, warm bass, live drums, and bright synth accents.
+Mood: hopeful, youthful, and energetic.
+Tempo: around 125 BPM.
+
+[Intro]
+Short guitar riff with light drums.
+
+[Verse 1]
+Lower energy, storytelling vocal melody, simple groove.
+
+[Chorus]
+Big uplifting hook, brighter synths, fuller drums, memorable melody.
+
+[Bridge]
+Drop the drums, add atmospheric pads, then build back up.
+
+[Outro]
+Return to the guitar riff and end cleanly.
+</code></pre>
+</div>
+<p>この書き方は、<code>Intro</code>、<code>Verse</code>、<code>Chorus</code>、<code>Bridge</code>、<code>Outro</code> のような区切りを Lyria に伝えます。3 分前後の曲を狙うときほど、構成を書いた方が比較しやすくなります。</p>
+<h2 is-upgraded>歌詞は情景で書く</h2>
+<p>ボーカル曲にしたい場合は、抽象的な言葉だけでなく、具体的な場面を入れます。非公式の制作メモでは、ありきたりな感情語より、見えるもの、聞こえるもの、誰がどこにいるのかを書く方法がすすめられています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Acoustic pop ballad with a gentle male vocal, fingerpicked guitar, soft piano, and a warm intimate mix.
+Mood: reflective, sincere, and hopeful.
+
+[Verse 1]
+Rain on the station roof
+Your scarf in the yellow light
+I keep the ticket folded
+Like a promise for tonight
+
+[Chorus]
+Stay until the morning
+Stay until the sky turns blue
+Every road feels softer
+When it leads me back to you
+</code></pre>
+</div>
+<p>歌詞を入れるときは、1 行を短めにするとメロディに乗りやすくなります。最初の生成で歌い方が合わない場合は、声質、テンポ、伴奏の密度を変えて試します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="画像から曲の雰囲気を作る" duration="3">
         <p>このステップでは、画像とテキストを組み合わせて、曲の世界観を伝えます。</p>
 <p class="image-container"><img alt="画像とテキストから音楽を生成する流れ" src="img/35759597106475e9.svg"></p>
 <h2 is-upgraded>画像を 1 枚選ぶ</h2>
@@ -542,7 +673,7 @@ Production: clean mix with soft reverb.
 <pre><code language="language-text" class="language-text">Emotional future bass inspired by neon city nightlife. Bright synth chords, soft vocal chops, deep bass, and a hopeful mood.
 </code></pre>
 </div>
-<p>画像は色、明暗、構図、世界観を伝える材料になります。テキストでは、ジャンルや楽器など、画像だけでは分かりにくい音楽的な指示を補います。</p>
+<p>画像は色、明暗、構図、世界観を伝える材料になります。ただし、画像だけではテンポ、楽器、構成、ボーカルの有無までは決まりません。テキストでは、ジャンルや楽器など、画像だけでは分かりにくい音楽的な指示を補います。</p>
 <h2 is-upgraded>生成して聴き比べる</h2>
 <p>生成ボタンを押して、画像なしで作った曲と聴き比べます。画像の雰囲気が曲にどのように反映されたかを確認します。</p>
 <aside class="troubleshooting"><p><strong>Troubleshooting:</strong> 画像アップロード欄が見つからない場合は、このステップをスキップして、テキストプロンプトだけで生成してください。画面の機能は更新されることがあります。</p></aside>
@@ -551,12 +682,14 @@ Production: clean mix with soft reverb.
       </google-codelab-step>
     
       <google-codelab-step label="まとめと次の一手" duration="1">
-        <p>このコードラボでは、Lyria 3 Pro と Media Studio を使って、ブラウザだけで音楽生成を体験しました。</p>
+        <p>このコードラボでは、Lyria 3 Pro と Media Studio を使って、ブラウザだけで音楽生成を体験しました。短いプロンプトから始めて、要素を分ける、避けたい音を書く、用途に合わせて制約する、画像で雰囲気を補う、という流れを試しました。</p>
 <h2 is-upgraded>学んだこと</h2>
 <ul>
 <li>Media Studio を開いて Lyria 3 Pro を選択する方法</li>
 <li>短いテキストプロンプトから音楽を生成する方法</li>
 <li>ジャンル、雰囲気、楽器、テンポを指定して生成結果を調整する方法</li>
+<li>BGM、ボーカル曲、長めの曲でプロンプトを書き分ける方法</li>
+<li>セクションタグで曲の展開を伝える方法</li>
 <li>Negative prompt で避けたい要素を伝える方法</li>
 <li>画像とテキストを組み合わせて曲の方向性を伝える方法</li>
 </ul>
@@ -613,6 +746,28 @@ Production: clean mix with soft reverb.
 <pre><code language="language-text" class="language-text">Emotional anime opening theme with fast drums, bright guitars, uplifting energy, and a dramatic chorus.
 </code></pre>
 </div>
+<h2 is-upgraded>プロンプトの型</h2>
+<p>迷ったときは、次の型に当てはめます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Genre: [ジャンルや時代感]
+Mood: [感情、明るさ、緊張感]
+Instruments: [目立たせたい楽器]
+Tempo: [slow / mid-tempo / upbeat / BPM]
+Structure: [Intro / Verse / Chorus / Bridge / Outro]
+Vocals: [instrumental only / female vocal / male vocal / choir など]
+Avoid: [避けたい音、歌声、展開]
+Use case: [BGM / short jingle / full song / opening theme など]
+</code></pre>
+</div>
+<p>この型を全部埋める必要はありません。生成結果を聴いて、変えたい項目だけを書き換えます。</p>
 <h2 is-upgraded>次のステップ</h2>
 <ul>
 <li><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/music/music-gen-prompt-guide?hl=ja" target="_blank">Lyria のプロンプトガイド</a>を読んで、プロンプト要素を増やす</li>
@@ -620,6 +775,44 @@ Production: clean mix with soft reverb.
 <li><a href="https://deepmind.google/models/lyria/" target="_blank">Lyria 3 のモデル紹介</a>で、モデルが扱える表現を確認する</li>
 </ul>
 <aside class="special"><p><strong>補足:</strong> 2026-05-23 時点で、Cloud の音楽生成ドキュメントには Lyria 2 / <code>lyria-002</code> を中心とした説明も含まれています。このハンズオンでは、イベント用の Media Studio 画面に表示される <code>Lyria 3 Pro</code> を使います。</p></aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 非公式 Tips 早見表" duration="3">
+        <p>このステップは、2026-05-23 時点で公開されているユーザーブログ、解説記事、ユーザー投稿の傾向を箇条書きでまとめたものです。非公式情報は画面やモデルの更新で変わるため、必ず実際の生成結果を聴いて判断してください。</p>
+<h2 is-upgraded>プロンプトの組み立て</h2>
+<ul>
+<li>まず <code>Genre</code>、<code>Mood</code>、<code>Instruments</code>、<code>Tempo</code> の 4 要素を書く。</li>
+<li>「かっこいい曲」のような感想ではなく、制作指示書として書く。</li>
+<li>特定のアーティスト名や曲名に頼らず、声質、楽器、テンポ、ミックスの特徴に分解して書く。</li>
+<li>具体的すぎるキー、音量、細かいエフェクト指定は効きにくいことがあるため、最初は大きな方向性から調整する。</li>
+<li>Negative prompt は長くしすぎず、<code>no vocals</code>、<code>no sudden volume changes</code>、<code>no harsh noise</code> のように短く明確に書く。</li>
+</ul>
+<h2 is-upgraded>用途別の調整</h2>
+<ul>
+<li>BGM では <code>instrumental only</code>、<code>no vocals</code>、<code>low energy</code>、<code>no melodic lead</code> を入れて、主張しすぎない音にする。</li>
+<li>長めの曲では <code>[Intro]</code>、<code>[Verse]</code>、<code>[Chorus]</code>、<code>[Bridge]</code>、<code>[Outro]</code> のようなセクションタグで展開を指定する。</li>
+<li>ボーカル曲では抽象的な感情語だけでなく、場所、光、天気、持ち物などの具体的な情景を書く。</li>
+<li>歌詞は 1 行を短めにして、コーラスは verse より覚えやすく単純にする。</li>
+<li>ロックやメタルなど強いジャンルは丸く出ることがあるため、ドラム、歪み、テンポ、エネルギー感を具体的に書いて何度か試す。</li>
+</ul>
+<h2 is-upgraded>試行錯誤の進め方</h2>
+<ul>
+<li>最初から長い曲を狙わず、短い生成で方向性を確認してから Lyria 3 Pro で仕上げる。</li>
+<li>1 回のプロンプトに全部を詰め込まず、よかった要素を残し、変えたい要素だけを書き換える。</li>
+<li>インストの土台を先に作り、必要に応じてボーカルや歌詞の指定を足す。</li>
+<li>画像入力は雰囲気の補助として使い、テンポ、楽器、構成、ボーカルの有無はテキストで補う。</li>
+<li>生成結果を聴いたら、明るさ、速さ、目立つ楽器、展開、ボーカルの有無をメモして次のプロンプトに反映する。</li>
+</ul>
+<h2 is-upgraded>参考リンク</h2>
+<ul>
+<li><a href="https://artlist.io/blog/lyria-3-prompts/" target="_blank">Artlist: Lyria 3 prompts</a></li>
+<li><a href="https://sonilo.com/blog/lyria-3-pro-prompts-video-background-music/" target="_blank">Sonilo: Lyria 3 Pro prompts for video background music</a></li>
+<li><a href="https://moelueker.com/blog/google-lyria-3-pro-how-to-make-ai-songs" target="_blank">Moe Lueker: Google Lyria 3 Pro how to make AI songs</a></li>
+<li><a href="https://www.tomsguide.com/ai/i-made-3-songs-with-geminis-lyria-music-ai-one-was-shockingly-good" target="_blank">Tom&#39;s Guide: Gemini Lyria music AI hands-on</a></li>
+<li><a href="https://www.reddit.com/r/aiMusic/comments/1ssfgxo/my_honest_experience_with_lyria_3_pro/" target="_blank">Reddit: user experience with Lyria 3 Pro</a></li>
+</ul>
 
 
       </google-codelab-step>
