@@ -1,3 +1,0 @@
-{"at":"2026-04-12T03:12:00Z","audience":"internal","message":"Auth p95 latency crossed alert threshold in us-east1."}
-{"at":"2026-04-12T03:40:00Z","audience":"customer","message":"We are investigating elevated login latency in us-east1."}
-{"at":"2026-04-12T06:45:00Z","audience":"customer","message":"Login latency has returned to normal. Monitoring continues."}

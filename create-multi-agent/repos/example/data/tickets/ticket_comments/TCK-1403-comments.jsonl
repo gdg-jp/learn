@@ -1,3 +1,0 @@
-{"ticket_id":"TCK-1403","created_at":"2026-05-07T07:35:00Z","author_role":"customer_admin","internal":false,"body":"Initech CRM automations are delayed by more than 30 minutes and sales handoffs are blocked."}
-{"ticket_id":"TCK-1403","created_at":"2026-05-07T07:48:00Z","author_role":"support_engineer","internal":true,"body":"Queue age high in us-west1. Need Integration Platform to check retry storm and worker saturation."}
-{"ticket_id":"TCK-1403","created_at":"2026-05-07T08:30:00Z","author_role":"integration_engineer","internal":true,"body":"Added workers and drained backlog. Event replay completed for impacted endpoints."}

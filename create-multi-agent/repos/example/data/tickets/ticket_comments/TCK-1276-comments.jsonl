@@ -1,3 +1,0 @@
-{"ticket_id":"TCK-1276","created_at":"2026-02-13T10:22:00Z","author_role":"customer_admin","internal":false,"body":"Contoso employees cannot log in with SSO after yesterday's IdP certificate update."}
-{"ticket_id":"TCK-1276","created_at":"2026-02-13T10:28:00Z","author_role":"support_engineer","internal":true,"body":"Premier tenant. SAML response signature fails before user provisioning checks. Need Identity Platform review."}
-{"ticket_id":"TCK-1276","created_at":"2026-02-13T10:41:00Z","author_role":"identity_engineer","internal":true,"body":"Cache refreshed. New fingerprint verified. Ask customer to retry with a fresh browser session."}
