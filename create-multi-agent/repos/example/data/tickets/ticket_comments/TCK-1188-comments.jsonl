@@ -1,0 +1,2 @@
+{"ticket_id":"TCK-1188","created_at":"2025-12-21T11:20:00Z","author_role":"customer_finance","internal":false,"body":"The invoice is higher than our contract value. We added seats last month but cannot map the line items."}
+{"ticket_id":"TCK-1188","created_at":"2025-12-21T12:05:00Z","author_role":"billing_ops","internal":true,"body":"Seat expansion generated prorated true-up charges. Exported seat audit from billing admin."}

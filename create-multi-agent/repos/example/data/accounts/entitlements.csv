@@ -1,0 +1,10 @@
+customer_id,feature,entitled,notes
+CUST-001,SAML SSO,true,Primary IdP is Okta
+CUST-001,SCIM provisioning,true,Enabled for all employees
+CUST-001,Priority incident updates,true,Premier benefit
+CUST-002,Flexible seat true-up,true,Monthly invoice reflects prior-month seat changes
+CUST-002,Advanced billing exports,false,Available on Enterprise
+CUST-003,CRM webhooks,true,Salesforce CRM integration
+CUST-003,High-throughput webhook queue,true,Premier add-on
+CUST-004,SAML SSO,true,Azure AD integration
+CUST-005,API rate limit boost,false,Standard limits apply

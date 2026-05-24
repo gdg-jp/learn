@@ -1,0 +1,3 @@
+{"ticket_id":"TCK-1042","created_at":"2025-11-18T09:45:00Z","author_role":"customer_admin","internal":false,"body":"All users are redirected back to the login page after SSO. We rotated the Okta certificate yesterday."}
+{"ticket_id":"TCK-1042","created_at":"2025-11-18T09:58:00Z","author_role":"support_engineer","internal":true,"body":"SAML trace shows signature validation failed. Thumbprint does not match tenant SSO config."}
+{"ticket_id":"TCK-1042","created_at":"2025-11-18T10:15:00Z","author_role":"identity_engineer","internal":true,"body":"Forced metadata refresh for tenant and confirmed login with test user."}

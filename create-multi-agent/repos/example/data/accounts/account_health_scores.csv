@@ -1,0 +1,6 @@
+customer_id,health_score,usage_trend,risk_signals,notes
+CUST-001,91,Stable,None,Executive sponsor engaged
+CUST-002,74,Increasing seats,Recent invoice confusion,Finance team requested clearer billing exports
+CUST-003,82,High integration volume,Webhook latency complaints,CRM workflow depends on near-real-time delivery
+CUST-004,88,Stable,Regulated industry,Requires careful privacy wording
+CUST-005,69,Low adoption,Open enablement request,No active incident impact

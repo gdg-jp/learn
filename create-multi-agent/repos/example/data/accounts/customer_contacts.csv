@@ -1,0 +1,6 @@
+customer_id,name,role,email,phone,emergency
+CUST-001,Alex Morgan,Admin,alex.morgan@contoso.example,+1-555-0101,true
+CUST-001,Priya Shah,Identity Lead,priya.shah@contoso.example,+1-555-0102,false
+CUST-002,Terry Young,Finance Admin,terry.young@globex.example,+1-555-0201,false
+CUST-003,Samir Lee,Integration Owner,samir.lee@initech.example,+1-555-0301,true
+CUST-003,Evelyn Park,CRM Operations,evelyn.park@initech.example,+1-555-0302,false

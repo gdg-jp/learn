@@ -1,0 +1,3 @@
+{"incident_id":"INC-2026-0507-SAML-METADATA","published_at":"2026-05-24T01:05:00Z","message":"We are investigating delayed SAML metadata propagation for some tenants after IdP certificate changes."}
+{"incident_id":"INC-2026-0507-SAML-METADATA","published_at":"2026-05-24T02:20:00Z","message":"The issue is mitigated for most tenants. We continue monitoring metadata propagation."}
+{"incident_id":"INC-2026-0521-WEBHOOK-LATENCY","published_at":"2026-05-24T01:45:00Z","message":"We are investigating delayed webhook delivery in us-west1."}

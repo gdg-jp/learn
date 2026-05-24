@@ -1,0 +1,24 @@
+[
+  {
+    "incident_id": "INC-2026-0507-SAML-METADATA",
+    "status": "monitoring",
+    "started_at": "2026-05-24T00:45:00Z",
+    "affected_services": ["authentication", "saml-sso"],
+    "affected_regions": ["us-east1", "us-central1"],
+    "severity": "SEV2",
+    "customer_summary": "Some SAML SSO tenants may see delayed recognition of recently rotated IdP certificates.",
+    "internal_summary": "Metadata refresh workers are lagging for a subset of tenants after queue retry pressure.",
+    "tags": ["sso", "saml", "idp-certificate", "metadata-cache"]
+  },
+  {
+    "incident_id": "INC-2026-0521-WEBHOOK-LATENCY",
+    "status": "investigating",
+    "started_at": "2026-05-24T01:15:00Z",
+    "affected_services": ["integrations", "webhooks"],
+    "affected_regions": ["us-west1"],
+    "severity": "SEV2",
+    "customer_summary": "Some webhook deliveries in us-west1 are delayed while the team investigates queue latency.",
+    "internal_summary": "CRM webhook queue age above threshold, likely retry storm from downstream 429s.",
+    "tags": ["webhook", "crm", "queue-latency", "delay"]
+  }
+]

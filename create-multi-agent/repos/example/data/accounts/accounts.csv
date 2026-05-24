@@ -1,0 +1,6 @@
+customer_id,customer_name,industry,region,segment,csm
+CUST-001,Contoso,Financial Services,us-east1,Enterprise,Maya Tanaka
+CUST-002,Globex,Manufacturing,us-central1,Mid-Market,Jon Bell
+CUST-003,Initech,Software,us-west1,Enterprise,Sofia Reyes
+CUST-004,Umbrella Health,Healthcare,eu-west1,Enterprise,Noah Kim
+CUST-005,Northwind Traders,Retail,us-east1,Mid-Market,Aiko Patel
