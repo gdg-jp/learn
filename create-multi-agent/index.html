@@ -1,0 +1,1969 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>ADK x A2A x Agent Runtime で作るマルチエージェント AI</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="libs/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+<meta id="claat-local-ogp-og-title" property="og:title" content="ADK x A2A x Agent Runtime で作るマルチエージェント AI">
+<meta id="claat-local-ogp-twitter-title" name="twitter:title" content="ADK x A2A x Agent Runtime で作るマルチエージェント AI">
+<meta id="claat-local-ogp-og-description" property="og:description" content="ADK 2.0、A2A、Agent Runtime で作るマルチエージェント AI ハンズオン">
+<meta id="claat-local-ogp-twitter-description" name="twitter:description" content="ADK 2.0、A2A、Agent Runtime で作るマルチエージェント AI ハンズオン">
+<meta id="claat-local-ogp-twitter-card" name="twitter:card" content="summary_large_image">
+<meta id="claat-local-ogp-og-image" property="og:image" content="https://edu.gdgoc-osaka.jp/create-multi-agent/img/582b9fa44cbafcab.png">
+<meta id="claat-local-ogp-twitter-image" name="twitter:image" content="https://edu.gdgoc-osaka.jp/create-multi-agent/img/582b9fa44cbafcab.png">
+<link id="claat-local-favicon" rel="icon" type="image/png" href="../assets/favicon.png">
+<style id="claat-local-preprocessor-style">
+  google-codelab-step .instructions .claat-code-block {
+    position: relative;
+    margin: 16px 0;
+    background: #f1f3f4;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre {
+    margin: 0;
+    padding: 18px 88px 18px 18px;
+    color: #37474f;
+    background: #f1f3f4;
+    border-radius: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code {
+    color: inherit;
+    background: transparent;
+    padding: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-toolbar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  google-codelab-step .instructions .claat-code-button {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #202124;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  google-codelab-step .instructions .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-button:focus-visible {
+    background: rgba(60, 64, 67, 0.12);
+    outline: none;
+  }
+
+  google-codelab-step .instructions .claat-code-button .material-icons {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .pln,
+  google-codelab-step .instructions .claat-code-block pre .pun {
+    color: #37474f;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .kwd,
+  google-codelab-step .instructions .claat-code-block pre .typ,
+  google-codelab-step .instructions .claat-code-block pre .tag {
+    color: #9334e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .str,
+  google-codelab-step .instructions .claat-code-block pre .atv {
+    color: #188038;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .com {
+    color: #5f6368;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .atn,
+  google-codelab-step .instructions .claat-code-block pre .lit,
+  google-codelab-step .instructions .claat-code-block pre .dec {
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {
+    color: #f8f9fa;
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:focus-visible {
+    background: rgba(248, 249, 250, 0.16);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .str,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .atv {
+    color: #34a853;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .kwd {
+    color: #f538a0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .com {
+    color: #bdc1c6;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .typ,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .tag {
+    color: #24c1e0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .lit,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .dec {
+    color: #4285f4;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pln,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pun {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code.claat-diff-code {
+    display: block;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line {
+    display: block;
+    min-height: 1.4em;
+    margin: 0 -18px;
+    padding: 0 18px;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-marker {
+    display: inline-block;
+    width: 1ch;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add {
+    background: #dff7e8;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {
+    background: #fce8e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {
+    background: #e8f0fe;
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add .claat-diff-marker {
+    color: #137333;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete .claat-diff-marker {
+    color: #d93025;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-add {
+    background: rgba(52, 168, 83, 0.24);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-delete {
+    background: rgba(234, 67, 53, 0.28);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-hunk {
+    background: rgba(66, 133, 244, 0.25);
+    color: #8ab4f8;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
+    border: 1px solid #ea8600;
+    border-left-width: 4px;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {
+    border: 1px solid #d93025;
+    border-left-width: 4px;
+    border-color: #d93025;
+    background: #fce8e6;
+    color: #212124;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
+    border: 1px solid #137333;
+    border-left-width: 4px;
+  }
+
+  @media (max-width: 640px) {
+    google-codelab-step .instructions .claat-code-block pre {
+      padding: 56px 14px 16px;
+    }
+
+    google-codelab-step .instructions .claat-code-block .claat-diff-line {
+      margin: 0 -14px;
+      padding: 0 14px;
+    }
+  }
+</style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  codelab-ga4id=""
+                  id="create-multi-agent"
+                  title="ADK x A2A x Agent Runtime で作るマルチエージェント AI"
+                  environment="web"
+                  feedback-link="https://github.com/googlecodelabs/your-first-pwapp/issues">
+    
+      <google-codelab-step label="はじめに" duration="5">
+        <p class="image-container"><img alt="OGP" src="img/582b9fa44cbafcab.png"></p>
+<p>このコードラボでは、架空の採用管理 SaaS「HireNest ATS」のサポート問い合わせを題材に、専門エージェントが協調して調査するマルチエージェント AI を作ります。</p>
+<h2 is-upgraded>このコードラボで作るもの</h2>
+<p>完成すると、Support Coordinator Agent が問い合わせを受け取り、Ticket History Agent、Knowledge Base Agent、Account Context Agent、Incident Status Agent、Diagnostics Agent、Escalation Policy Agent に調査を依頼します。各専門エージェントは A2A サービスとして動き、Coordinator は調査結果を統合して Support Case Resolution Package を返します。</p>
+<h2 is-upgraded>このコードラボで学ぶこと</h2>
+<ul>
+<li>ADK 2.0 の graph-based Workflow を使ってエージェントの制御フローを構築する方法</li>
+<li>Python 関数を tool として ADK Agent に接続する方法</li>
+<li>A2A Agent Card を公開し、<code>RemoteA2aAgent</code> で別エージェントを呼び出す方法</li>
+<li><code>output_schema</code> で triage 結果を構造化する方法</li>
+<li><code>RequestInput</code> で Human-in-the-loop の clarification ルートを作る方法</li>
+<li>Agent Runtime に参加者 ID 付きのエージェントをデプロイする方法</li>
+<li>自分がデプロイした Agent Runtime リソースだけを削除する方法</li>
+</ul>
+<h2 is-upgraded>必要なもの</h2>
+<ul>
+<li>Google Cloud Shell</li>
+<li>ワークショップ運営が指定する Google Cloud project ID</li>
+<li>IAM 登録済みの Google アカウント</li>
+<li>connpass ID</li>
+</ul>
+<h2 is-upgraded>前提知識</h2>
+<ul>
+<li>Python の基本的な読み書き</li>
+<li>ターミナルでコマンドを実行する基本操作</li>
+<li>LLM と tool calling の基本的な理解</li>
+</ul>
+<h2 is-upgraded>このコードラボで扱わないこと</h2>
+<ul>
+<li>実顧客データや本番運用向けのセキュリティ設計</li>
+<li>Discord webhook などの外部通知の本番設定</li>
+<li>Gemini Enterprise Agent Search のコーパス作成</li>
+<li>Agent Gateway、Memory Bank、評価基盤の本格運用</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="セットアップ" duration="15">
+        <p>このステップでは、Cloud Shell で配布コードを開き、依存関係と <code>.env</code> を準備します。セットアップはこのステップにまとめます。</p>
+<h2 is-upgraded>Cloud Shell を開く</h2>
+<p>Google Cloud Console で、ワークショップ運営が指定した Google Cloud project を選択します。画面右上の Cloud Shell アイコンを押して Cloud Shell を起動します。</p>
+<p>Cloud Shell が開いたら、project が正しいことを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud config get-value project
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">your-workshop-project-id
+</code></pre>
+</div>
+<p>違う project が表示された場合は、運営が指定した project ID に切り替えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud config set project YOUR_WORKSHOP_PROJECT_ID
+</code></pre>
+</div>
+<h2 is-upgraded>配布コードを開く</h2>
+<p>ワークショップで案内されたリポジトリを Cloud Shell に clone します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">git clone WORKSHOP_REPOSITORY_URL
+cd education/create-multi-agent/repos/template
+</code></pre>
+</div>
+<p>すでに配布コードを Cloud Shell に展開済みの場合は、<code>template</code> ディレクトリへ移動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">cd create-multi-agent/repos/template
+</code></pre>
+</div>
+<h2 is-upgraded>setup script を実行する</h2>
+<p><code>scripts/setup.sh</code> は connpass ID を聞き、<code>.env</code> と <code>scripts/.state</code> を作成し、<code>uv sync --extra dev</code> を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">./scripts/setup.sh
+</code></pre>
+</div>
+<p>プロンプトが表示されたら、自分の connpass ID を入力します。</p>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">connpass ID: alice_123
+Setup complete for [alice_123].
+</code></pre>
+</div>
+<p><code>scripts/.state</code> には参加者 ID が保存されます。Agent Runtime へデプロイするとき、この ID が Agent 名の prefix になります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[alice_123] Support Coordinator Agent
+[alice_123] Ticket History Agent
+</code></pre>
+</div>
+<h2 is-upgraded>.env を確認する</h2>
+<p><code>.env</code> が次の形になっていることを確認します。<code>GOOGLE_CLOUD_PROJECT</code> は運営が指定した project ID にします。</p>
+<p><code>.env</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">ADK_MODEL=gemini-2.5-flash
+HIRENEST_PARTICIPANT_ID=alice_123
+
+TICKET_HISTORY_A2A_URL=http://localhost:8101
+KNOWLEDGE_BASE_A2A_URL=http://localhost:8102
+ACCOUNT_CONTEXT_A2A_URL=http://localhost:8103
+INCIDENT_STATUS_A2A_URL=http://localhost:8104
+ESCALATION_POLICY_A2A_URL=http://localhost:8105
+DIAGNOSTICS_A2A_URL=http://localhost:8107
+
+GOOGLE_API_KEY=
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=YOUR_WORKSHOP_PROJECT_ID
+GOOGLE_CLOUD_LOCATION=us-central1
+HIRENEST_TRACE_TO_CLOUD=false
+
+HIRENEST_AGENT_SEARCH_SERVING_CONFIG=
+
+HIRENEST_DISCORD_DRY_RUN=false
+HIRENEST_DISCORD_WEBHOOK_URL=
+
+HIRENEST_DATA_DIR=
+</code></pre>
+</div>
+<aside class="special"><p><strong>補足:</strong> このハンズオンでは、参加者全員が運営の用意した同じ Google Cloud project を使います。<code>.env</code> に credential や project ID を書く前提で進めます。</p></aside>
+<h2 is-upgraded>ADK を import できることを確認する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+import google.adk
+print(&#34;ADK is ready&#34;)
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">ADK is ready
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Agent Development Kit 2.0 の概要" duration="8">
+        <p>このステップでは、今回使う ADK 2.0 の考え方を確認します。ADK 2.0 では、Agent、Tool、Python 関数、Human input、別 Workflow を graph の node として組み合わせられます。</p>
+<h2 is-upgraded>Graph-based Workflow</h2>
+<p class="image-container"><img alt="ADK 2.0 の graph-based Workflow の設計図" src="img/fe99758d83ba71a3.svg"></p>
+<p>ADK 2.0 の中心は Workflow Runtime です。<code>Workflow(name=..., edges=[...])</code> で graph を定義し、<code>START</code> から node をつなぎます。node には ADK Agent、Python 関数、JoinNode、別 Workflow を置けます。</p>
+<p>今回の Coordinator では、最初に triage を行い、情報が足りない場合は clarification に進みます。情報が足りている場合は専門エージェントへ並列調査を依頼します。</p>
+<h2 is-upgraded>Route と Human-in-the-loop</h2>
+<p class="image-container"><img alt="ADK 2.0 の route 分岐の図" src="img/ccc2074697ad23ef.svg"></p>
+<p>ADK の graph route では、関数 node が <code>Event(route=...)</code> を返し、次の edge で route と node を対応付けます。このコードラボでは <code>ready_for_investigation=false</code> のときに <code>retry</code> route を返し、<code>RequestInput</code> で人間に追加情報を依頼します。</p>
+<h2 is-upgraded>Parallel と JoinNode</h2>
+<p class="image-container"><img alt="ADK 2.0 の JoinNode による fan-out / fan-in の図" src="img/7eb3e926c8aa1268.svg"></p>
+<p>複数の <code>START</code> edge を定義すると、複数 node が並列に開始されます。<code>JoinNode</code> は upstream node の出力を待ち、複数の調査結果を 1 つの入力として次の node に渡します。</p>
+<p>このコードラボでは、次の形の graph を作ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Triage / Planning
+  |- retry -&gt; Human clarification -&gt; Triage / Planning
+  `- default -&gt; Parallel Investigation -&gt; Synthesis -&gt; Escalation -&gt; Final Package
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="A2A の概要" duration="8">
+        <p>このステップでは、A2A が何を標準化するのかを確認します。</p>
+<p class="image-container"><img alt="A2A で client と remote agent が通信する仕組み" src="img/7852e5d2e75fac10.png"></p>
+<h2 is-upgraded>A2A が扱うもの</h2>
+<p>A2A は、エージェント同士が互いの内部実装を公開せずに、発見、通信、タスク委譲、成果物交換を行うためのプロトコルです。ADK、LangGraph、CrewAI、独自実装など、異なる実装のエージェントをつなぐ相互運用レイヤーとして使えます。</p>
+<p>このコードラボでは、各専門エージェントを A2A Server として起動します。Coordinator は A2A Client として、<code>RemoteA2aAgent</code> から専門エージェントの Agent Card を読み、調査タスクを依頼します。</p>
+<h2 is-upgraded>Agent Card</h2>
+<p>Agent Card は、エージェントの名前、説明、endpoint、capabilities、skills などを表す JSON metadata です。ローカル起動した Ticket History Agent の Agent Card は、次の URL で確認できます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">http://localhost:8101/.well-known/agent-card.json
+</code></pre>
+</div>
+<p>この URL は後のステップで実際に確認します。</p>
+<aside class="special"><p><strong>補足:</strong> 古い記事やサンプルでは <code>/.well-known/agent.json</code> が出てくることがあります。今回のコードでは <code>/.well-known/agent-card.json</code> を使います。</p></aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Gemini Enterprise Agent Platform の概要" duration="8">
+        <p>このステップでは、Agent Runtime へデプロイする理由を確認します。</p>
+<p class="image-container"><img alt="Gemini Enterprise Agent Platform の構成要素" src="img/b4270b659b1d3103.png"></p>
+<h2 is-upgraded>Agent Runtime</h2>
+<p>Gemini Enterprise Agent Platform は、エージェントの作成、デプロイ、状態管理、評価、監視、ガバナンス、他エージェント連携を扱う企業向けのエージェント基盤です。このコードラボでは、その中の Agent Runtime を使って ADK / A2A エージェントを Google Cloud 上にデプロイします。</p>
+<p>今回のハンズオンでは、参加者全員が同じ Google Cloud project にデプロイします。そのため、デプロイ script は connpass ID を display name の prefix に入れます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[alice_123] Support Coordinator Agent
+[alice_123] Ticket History Agent
+</code></pre>
+</div>
+<p>この prefix により、他の参加者のエージェントと名前が衝突しにくくなり、cleanup script で自分のエージェントだけを削除できます。</p>
+<h2 is-upgraded>このリポジトリでの役割分担</h2>
+<p><code>repos/template</code> には、完成形のうち一部だけが <code>TODO</code> として残っています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">src/hirenest_support/tickets.py          チケット検索 tool
+agents/ticket_history/agent.py           Ticket History Agent
+agents/coordinator/schemas.py            structured output schema
+agents/coordinator/steps.py              Human-in-the-loop route
+agents/coordinator/agent.py              Coordinator Workflow
+</code></pre>
+</div>
+<p>その他の専門エージェント、データ、ポリシー判定、通信文の安全チェック、デプロイ script は配布済みです。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="チケット検索 tool を実装する" duration="12">
+        <p>このステップでは、過去のサポートチケットを検索する tool 関数を実装します。まずは単純なキーワード一致で実装し、tool の品質がエージェントの回答に影響することを後で確認できるようにします。</p>
+<h2 is-upgraded>tickets.py を編集する</h2>
+<p><code>src/hirenest_support/tickets.py</code> を開きます。<code>search_ticket_history()</code> と <code>_terms()</code> を次のように実装します。</p>
+<p><code>src/hirenest_support/tickets.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="py"> from __future__ import annotations
+
++import re
+ from typing import Any
+
+ from hirenest_support.loaders import load_jsonl
+ from hirenest_support.paths import DATA_DIR
+
+
+ def search_ticket_history(query: str, limit: int = 4) -&gt; list[dict[str, Any]]:
+-    # TODO
+-    return []
++    query_terms = _terms(query)
++    scored: list[tuple[int, dict[str, Any]]] = []
++
++    for record in _load_ticket_records():
++        record_text = &#34; &#34;.join(
++            [
++                str(record.get(&#34;ticket_id&#34;, &#34;&#34;)),
++                str(record.get(&#34;customer_id&#34;, &#34;&#34;)),
++                str(record.get(&#34;category&#34;, &#34;&#34;)),
++                str(record.get(&#34;severity&#34;, &#34;&#34;)),
++                str(record.get(&#34;subject&#34;, &#34;&#34;)),
++                str(record.get(&#34;summary&#34;, &#34;&#34;)),
++                str(record.get(&#34;cause&#34;, &#34;&#34;)),
++                str(record.get(&#34;resolution&#34;, &#34;&#34;)),
++                &#34; &#34;.join(record.get(&#34;tags&#34;, [])),
++            ]
++        )
++        score = len(query_terms &amp; _terms(record_text))
++        if score &gt; 0:
++            scored.append((score, record))
++
++    ranked = sorted(scored, key=lambda item: item[0], reverse=True)[:limit]
++    return [_enrich_ticket(record, score) for score, record in ranked]
++
++
++def _terms(text: str) -&gt; set[str]:
++    return set(re.findall(r&#34;[a-z0-9]+&#34;, text.lower()))
+</code></pre>
+</div>
+<p>この実装は、問い合わせ文とチケット本文の共通単語数でチケットを順位付けします。まだ顧客 ID やカテゴリ推定は使いませんが、tool として動作する最小の検索を作れます。</p>
+<h2 is-upgraded>チケット検索をテストする</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev pytest tests/test_search_and_redaction.py::test_ticket_search_prioritizes_customer_and_category
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">tests/test_search_and_redaction.py .  [100%]
+</code></pre>
+</div>
+<p>エラーが出る場合は、<code>import re</code> を追加したか、<code>_terms()</code> を <code>search_ticket_history()</code> より下に追加したかを確認します。</p>
+<h2 is-upgraded>tool の出力を確認する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+from hirenest_support.tickets import search_ticket_history
+
+tickets = search_ticket_history(
+    &#34;Apex Robotics interview invitation email not delivered to all candidates&#34;,
+    limit=2,
+)
+for ticket in tickets:
+    print(ticket[&#34;ticket_id&#34;], ticket[&#34;category&#34;], ticket[&#34;match_score&#34;])
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">TCK-4101 candidate_communication 10
+</code></pre>
+</div>
+<p>2 行目以降の ticket ID や score は、同点のチケットにより変わることがあります。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Ticket History Agent を実装する" duration="12">
+        <p>このステップでは、前のステップで作った <code>search_ticket_history()</code> を ADK Agent の tool として接続します。</p>
+<h2 is-upgraded>agent.py を編集する</h2>
+<p><code>agents/ticket_history/agent.py</code> を開きます。<code>root_agent</code> の <code>instruction</code> と <code>tools</code> を次のように変更します。</p>
+<p><code>agents/ticket_history/agent.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="py"> root_agent = Agent(
+     name=&#34;ticket_history_agent&#34;,
+     model=model_name(),
+     description=&#34;Searches HireNest historical support tickets and escalation cases.&#34;,
+-    instruction=&#34;TODO&#34;,
+-    tools=[],  # TODO
++    instruction=(
++        &#34;You are the Ticket History Agent for HireNest ATS support. &#34;
++        &#34;Use search_similar_tickets to find relevant historical tickets. &#34;
++        &#34;After identifying the most relevant ticket IDs, use retrieve_ticket_thread &#34;
++        &#34;for the top one or two tickets. Return similar tickets, similarities, &#34;
++        &#34;differences, past causes, resolutions, useful internal comments, &#34;
++        &#34;and any remaining missing evidence. Do not decide severity or write &#34;
++        &#34;the final customer response.&#34;
++    ),
++    tools=[search_similar_tickets, retrieve_ticket_thread],
+ )
+</code></pre>
+</div>
+<p>この Agent は、問い合わせ文を受け取り、過去チケット検索とチケット詳細取得を tool として使います。エスカレーション判定や最終返信文の作成は、別のエージェントに任せます。</p>
+<h2 is-upgraded>Agent を import できることを確認する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+from agents.ticket_history.agent import root_agent
+
+print(root_agent.name)
+print([tool.__name__ for tool in root_agent.tools])
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">ticket_history_agent
+[&#39;search_similar_tickets&#39;, &#39;retrieve_ticket_thread&#39;]
+</code></pre>
+</div>
+<h2 is-upgraded>A2A Agent Card を確認する</h2>
+<p>Ticket History Agent を A2A サービスとして一時的に起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">PYTHONPATH=src uv run uvicorn agents.ticket_history.agent:app \
+  --host 0.0.0.0 \
+  --port 8101 \
+  &gt; /tmp/ticket-history.log 2&gt;&amp;1 &amp;
+export TICKET_HISTORY_PID=$!
+sleep 5
+</code></pre>
+</div>
+<p>Agent Card を取得します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -s http://localhost:8101/.well-known/agent-card.json | python -m json.tool | head -n 20
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;capabilities&#34;: {
+    &#34;streaming&#34;: false
+  },
+  &#34;defaultInputModes&#34;: [&#34;text/plain&#34;],
+  &#34;defaultOutputModes&#34;: [&#34;text/plain&#34;],
+  &#34;description&#34;: &#34;Searches HireNest historical support tickets and escalation cases.&#34;,
+  &#34;name&#34;: &#34;ticket_history_agent&#34;
+}
+</code></pre>
+</div>
+<p>確認できたら、起動したプロセスを止めます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">kill &#34;$TICKET_HISTORY_PID&#34;
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Structured output を追加する" duration="10">
+        <p>このステップでは、Triage / Planning Agent の出力を <code>InvestigationPlan</code> として構造化します。prompt は配布済みなので、ここでは Pydantic model を作ります。</p>
+<h2 is-upgraded>schemas.py を編集する</h2>
+<p><code>agents/coordinator/schemas.py</code> を次の内容で上書きします。</p>
+<p><code>agents/coordinator/schemas.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">from __future__ import annotations
+
+from pydantic import BaseModel, Field
+
+
+class SpecialistDirective(BaseModel):
+    agent_name: str = Field(description=&#34;Specialist agent this directive is for.&#34;)
+    focus: str = Field(description=&#34;What this specialist should investigate.&#34;)
+    priority: str = Field(description=&#34;high, medium, or low.&#34;)
+
+
+class InvestigationPlan(BaseModel):
+    case_category: str = Field(description=&#34;The best current case category.&#34;)
+    urgency: str = Field(description=&#34;Initial urgency or severity estimate.&#34;)
+    business_impact: str = Field(description=&#34;Known or inferred business impact.&#34;)
+    ready_for_investigation: bool = Field(
+        description=&#34;Whether enough information exists to run parallel investigation.&#34;
+    )
+    clarification_questions: list[str] = Field(
+        description=&#34;Questions to ask before investigation if important information is missing.&#34;
+    )
+    initial_hypotheses: list[str] = Field(description=&#34;Current working hypotheses.&#34;)
+    specialist_directives: list[SpecialistDirective] = Field(
+        description=&#34;Directives for Account Context, Ticket History, Incident Status, &#34;
+        &#34;Knowledge Base, and Diagnostics.&#34;
+    )
+</code></pre>
+</div>
+<p>この schema は <code>agents/coordinator/nodes.py</code> の <code>triage_planning_agent</code> で <code>output_schema=InvestigationPlan</code> として使われます。</p>
+<h2 is-upgraded>schema を確認する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+from agents.coordinator.schemas import InvestigationPlan, SpecialistDirective
+
+plan = InvestigationPlan(
+    case_category=&#34;candidate_communication&#34;,
+    urgency=&#34;high&#34;,
+    business_impact=&#34;candidate-facing interview invitations are blocked&#34;,
+    ready_for_investigation=True,
+    clarification_questions=[],
+    initial_hypotheses=[&#34;Invitation template or delivery pipeline issue&#34;],
+    specialist_directives=[
+        SpecialistDirective(
+            agent_name=&#34;ticket_history_agent&#34;,
+            focus=&#34;Find similar invitation delivery incidents&#34;,
+            priority=&#34;high&#34;,
+        )
+    ],
+)
+print(plan.model_dump()[&#34;specialist_directives&#34;][0][&#34;agent_name&#34;])
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">ticket_history_agent
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Human-in-the-loop ルートを実装する" duration="12">
+        <p>このステップでは、情報不足の問い合わせに対して、Coordinator が人間に clarification を求める route を実装します。</p>
+<h2 is-upgraded>steps.py を編集する</h2>
+<p><code>agents/coordinator/steps.py</code> の 3 つの <code>TODO</code> 関数を次の内容に置き換えます。</p>
+<p><code>agents/coordinator/steps.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">def route_investigation_plan(ctx: Context, node_input: InvestigationPlan):
+    ctx.state[STATE_INVESTIGATION_PLAN] = node_input.model_dump()
+    if not node_input.ready_for_investigation:
+        questions = [
+            question.strip()
+            for question in node_input.clarification_questions
+            if question.strip()
+        ]
+        ctx.state[STATE_CLARIFICATION_QUESTIONS] = questions
+        ctx.state[STATE_CLARIFICATION_REQUEST] = _format_clarification_request(questions)
+        yield Event(route=ROUTE_RETRY)
+        return
+
+    yield Event(output=node_input, route=DEFAULT_ROUTE)
+
+
+def request_retry_clarification(ctx: Context, node_input: Any):
+    questions = ctx.state.get(STATE_CLARIFICATION_QUESTIONS, [])
+    message = ctx.state.get(STATE_CLARIFICATION_REQUEST)
+    if not message:
+        message = _format_clarification_request([_stringify(node_input)] if node_input else [])
+
+    yield RequestInput(
+        message=message,
+        payload={
+            &#34;investigation_plan&#34;: ctx.state.get(STATE_INVESTIGATION_PLAN),
+            &#34;clarification_questions&#34;: questions,
+        },
+        response_schema=str,
+    )
+
+
+def build_retry_planning_input(ctx: Context, node_input: Any) -&gt; str:
+    clarification_questions = ctx.state.get(STATE_CLARIFICATION_QUESTIONS, [])
+    return &#34;\n\n&#34;.join(
+        [
+            &#34;Customer inquiry and session context:&#34;,
+            &#34;\n\n&#34;.join(_session_user_messages(ctx)),
+            &#34;Previous triage / investigation plan:&#34;,
+            _stringify(ctx.state.get(STATE_INVESTIGATION_PLAN, &#34;&#34;)),
+            &#34;Clarification questions asked:&#34;,
+            &#34;\n&#34;.join(f&#34;- {question}&#34; for question in clarification_questions),
+            &#34;Human clarification response:&#34;,
+            _stringify(node_input),
+            &#34;Update the InvestigationPlan using the clarification response.&#34;,
+        ]
+    )
+</code></pre>
+</div>
+<p><code>route_investigation_plan()</code> は、調査できる場合は <code>DEFAULT_ROUTE</code>、情報が足りない場合は <code>retry</code> route を返します。<code>request_retry_clarification()</code> は <code>RequestInput</code> を発行し、workflow を一時停止して人間の入力を待ちます。</p>
+<h2 is-upgraded>Human-in-the-loop のテストを実行する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev pytest tests/test_agent_imports.py::test_coordinator_retry_route_requests_human_input
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">tests/test_agent_imports.py .  [100%]
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Coordinator から専門エージェントを呼び出す" duration="10">
+        <p>このステップでは、配布済みの <code>RemoteA2aAgent</code> 定義を確認し、Coordinator が接続する専門エージェントの A2A endpoint を起動します。</p>
+<h2 is-upgraded>RemoteA2aAgent 定義を確認する</h2>
+<p><code>agents/coordinator/nodes.py</code> には、専門エージェントが <code>RemoteA2aAgent</code> として定義されています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">ticket_history_agent = RemoteA2aAgent(
+    name=&#34;ticket_history_agent&#34;,
+    agent_card=specialist_card_url(&#34;TICKET_HISTORY_A2A_URL&#34;, &#34;http://localhost:8101&#34;),
+    httpx_client=_remote_a2a_httpx_client,
+    description=&#34;Finds similar support tickets and historical resolutions.&#34;,
+    use_legacy=False,
+)
+</code></pre>
+</div>
+<p><code>specialist_card_url()</code> は <code>.env</code> の URL を読みます。ローカル開発では <code>http://localhost:8101/.well-known/agent-card.json</code> を参照し、Agent Runtime デプロイ後は runtime の A2A card URL を参照します。</p>
+<h2 is-upgraded>専門エージェントを起動して確認する</h2>
+<p>配布済みの専門エージェントも含めて、すべての specialist を起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run-specialists &gt; /tmp/hirenest-specialists.log 2&gt;&amp;1 &amp;
+export SPECIALISTS_PID=$!
+sleep 8
+</code></pre>
+</div>
+<p>Agent Card を 2 つ確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -s http://localhost:8101/.well-known/agent-card.json | python -m json.tool | grep &#39;&#34;name&#34;&#39;
+curl -s http://localhost:8102/.well-known/agent-card.json | python -m json.tool | grep &#39;&#34;name&#34;&#39;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">    &#34;name&#34;: &#34;ticket_history_agent&#34;,
+    &#34;name&#34;: &#34;knowledge_base_agent&#34;,
+</code></pre>
+</div>
+<p>確認できたら、専門エージェントを止めます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">kill &#34;$SPECIALISTS_PID&#34;
+</code></pre>
+</div>
+<p><code>Address already in use</code> が出る場合は、前に起動した <code>uvicorn</code> が残っています。<code>pkill -f "uvicorn agents"</code> を実行してから、もう一度起動します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="並列調査 Workflow を完成させる" duration="15">
+        <p>このステップでは、Coordinator の graph を完成させます。Triage / Planning の後に、retry route または並列調査 workflow へ進む構成にします。</p>
+<h2 is-upgraded>agent.py を上書きする</h2>
+<p><code>agents/coordinator/agent.py</code> を次の内容で上書きします。</p>
+<p><code>agents/coordinator/agent.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">from __future__ import annotations
+
+from google.adk import Workflow
+from google.adk.workflow import DEFAULT_ROUTE
+
+from agents._common import build_a2a_app
+from agents.coordinator.constants import ROUTE_RETRY
+from agents.coordinator.nodes import (
+    account_context_agent,
+    diagnostics_agent,
+    escalation_policy_agent,
+    final_package_agent,
+    incident_status_agent,
+    knowledge_base_agent,
+    parallel_investigation_join,
+    synthesis_hypothesis_agent,
+    ticket_history_agent,
+    triage_planning_agent,
+)
+from agents.coordinator.steps import (
+    build_escalation_policy_input,
+    build_final_package_input,
+    build_retry_planning_input,
+    build_synthesis_input,
+    request_retry_clarification,
+    route_investigation_plan,
+)
+
+support_resolution_workflow = Workflow(
+    name=&#34;support_case_resolution_workflow&#34;,
+    description=&#34;Runs parallel investigation through final package generation.&#34;,
+    edges=[
+        (&#34;START&#34;, account_context_agent, parallel_investigation_join),
+        (&#34;START&#34;, ticket_history_agent, parallel_investigation_join),
+        (&#34;START&#34;, incident_status_agent, parallel_investigation_join),
+        (&#34;START&#34;, knowledge_base_agent, parallel_investigation_join),
+        (&#34;START&#34;, diagnostics_agent, parallel_investigation_join),
+        (
+            parallel_investigation_join,
+            build_synthesis_input,
+            synthesis_hypothesis_agent,
+            build_escalation_policy_input,
+            escalation_policy_agent,
+            build_final_package_input,
+            final_package_agent,
+        ),
+    ],
+)
+
+root_agent = Workflow(
+    name=&#34;support_coordinator_agent&#34;,
+    description=&#34;Runs the generic Support Case Resolution Workflow over specialist A2A agents.&#34;,
+    edges=[
+        (&#34;START&#34;, triage_planning_agent, route_investigation_plan),
+        (
+            route_investigation_plan,
+            {
+                ROUTE_RETRY: request_retry_clarification,
+                DEFAULT_ROUTE: support_resolution_workflow,
+            },
+        ),
+        (request_retry_clarification, build_retry_planning_input, triage_planning_agent),
+    ],
+)
+
+app = build_a2a_app(root_agent, default_port=8100)
+</code></pre>
+</div>
+<p>この graph では、5 つの調査系専門エージェントが並列に動きます。<code>JoinNode</code> の後で synthesis を行い、Escalation Policy Agent と Final Package Agent へ順番に渡します。</p>
+<h2 is-upgraded>Workflow の構造をテストする</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev pytest tests/test_agent_imports.py::test_adk_agent_entrypoints_import_when_dependencies_exist
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">tests/test_agent_imports.py .  [100%]
+</code></pre>
+</div>
+<h2 is-upgraded>ここまでのテストをまとめて実行する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev pytest tests/test_search_and_redaction.py tests/test_agent_imports.py
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">tests/test_search_and_redaction.py ......  [ 54%]
+tests/test_agent_imports.py .....          [100%]
+</code></pre>
+</div>
+<p>警告が出ても、<code>passed</code> になっていればこのステップは成功です。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="ローカルで完成したマルチエージェントを実行する" duration="15">
+        <p>このステップでは、コード全体のテストを通し、Cloud Shell 上の ADK Web で完成したマルチエージェントを動かします。</p>
+<h2 is-upgraded>全テストを実行する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make test
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">22 passed
+</code></pre>
+</div>
+<h2 is-upgraded>Specialist、Coordinator、ADK Web を起動する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Specialists, coordinator, and ADK Web are starting.
+Specialist A2A agents are running on ports 8101-8105 and 8107.
+</code></pre>
+</div>
+<p>このコマンドは起動したままにします。Cloud Shell の Web Preview から port <code>8000</code> を開きます。</p>
+<p class="image-container"><img alt="ADK Web でエージェントの出力を確認する画面例" src="img/c159623ad45f37cf.png"></p>
+<h2 is-upgraded>明確な問い合わせを送る</h2>
+<p>ADK Web で <code>support_coordinator_agent</code> を選び、次の問い合わせを送ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Apex Robotics reports that interview invitation emails are not delivered to all candidates
+for a manufacturing hiring event. They are a Premier customer, and recruiting operations
+are blocked. Check prior cases, known incidents, SLA, first response, and escalation plan.
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<ul>
+<li>Ticket History、Knowledge Base、Account Context、Incident Status、Diagnostics の調査結果が統合される</li>
+<li>Escalation Policy Check に <code>SEV2</code> や <code>Messaging Platform</code> が含まれる</li>
+<li>Customer Communication Draft と Internal Next Steps が出力される</li>
+</ul>
+<h2 is-upgraded>情報不足の問い合わせを送る</h2>
+<p>次に、情報不足の問い合わせを送ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Candidates are not getting emails. Can you check what is going on?
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">I need a little more information before running the support investigation:
+- Which customer or tenant is affected?
+- Which email workflow is affected?
+</code></pre>
+</div>
+<p>質問が表示されたら、次のように回答します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">The affected customer is Apex Robotics. The workflow is interview invitation email delivery.
+All candidates for requisition REQ-7842 are affected, and the first failures started today
+at 09:20 UTC. This is a Premier customer.
+</code></pre>
+</div>
+<p>回答後、Coordinator は triage をやり直し、並列調査へ進みます。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Agent Runtime にデプロイする" duration="15">
+        <p>このステップでは、完成したエージェントを Agent Runtime にデプロイします。デプロイは <code>scripts/deploy_all.sh</code> がまとめて実行します。</p>
+<p class="image-container"><img alt="Agent Runtime を含むエージェント実行アーキテクチャ" src="img/d8eb74a6d8a055f9.png"></p>
+<h2 is-upgraded>Google Cloud 認証を確認する</h2>
+<p>Cloud Shell で認証と project を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud auth list
+gcloud config get-value project
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">ACTIVE  ACCOUNT
+*       your-account@example.com
+
+your-workshop-project-id
+</code></pre>
+</div>
+<p>必要に応じて Application Default Credentials も設定します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud auth application-default login
+</code></pre>
+</div>
+<aside class="special"><p><strong>補足:</strong> API の有効化と IAM 登録は、ワークショップ運営が事前に行います。権限エラーが出た場合は、表示されたエラー文を運営に共有してください。</p></aside>
+<h2 is-upgraded>deploy_all.sh を実行する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">./scripts/deploy_all.sh
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">HireNest Agent Runtime — Parallel Deploy
+[info] Participant: [alice_123]
+[ ok ] Deployed [alice_123] Ticket History Agent
+[ ok ] Deployed [alice_123] Support Coordinator Agent
+</code></pre>
+</div>
+<p>デプロイは数分かかります。途中で <code>Reasoning Engine</code> と表示されることがありますが、これは Agent Runtime の API / SDK 名に残っている互換名です。</p>
+<h2 is-upgraded>Runtime A2A URL を確認する</h2>
+<p>デプロイが終わったら、Coordinator が使う runtime の A2A card URL を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">grep &#39;_A2A_URL=&#39; .agent-runtime-temp/deploy.env
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">TICKET_HISTORY_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+KNOWLEDGE_BASE_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+ACCOUNT_CONTEXT_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+INCIDENT_STATUS_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+ESCALATION_POLICY_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+DIAGNOSTICS_A2A_URL=https://us-central1-aiplatform.googleapis.com/...
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Agent Runtime 上のエージェントを確認する" duration="10">
+        <p>このステップでは、runtime にデプロイされた A2A Agent Card を確認します。</p>
+<h2 is-upgraded>deploy.env を読み込む</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">set -a
+. .agent-runtime-temp/deploy.env
+set +a
+</code></pre>
+</div>
+<h2 is-upgraded>runtime の Agent Card を取得する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -s \
+  -H &#34;Authorization: Bearer $(gcloud auth print-access-token)&#34; \
+  &#34;$TICKET_HISTORY_A2A_URL&#34; \
+  | python -m json.tool | head -n 20
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;capabilities&#34;: {
+    &#34;streaming&#34;: false
+  },
+  &#34;name&#34;: &#34;ticket_history_agent&#34;
+}
+</code></pre>
+</div>
+<p>ローカルの <code>localhost:8101</code> ではなく、Agent Runtime の URL から Agent Card が取得できていれば成功です。</p>
+<h2 is-upgraded>自分の display name を確認する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">cat scripts/.state
+ls .agent-runtime-temp/*.engine_id | head
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">HIRENEST_PARTICIPANT_ID=alice_123
+.agent-runtime-temp/alice_123_support_coordinator_agent.engine_id
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: チケット検索 tool を改善する" duration="10">
+        <p>このステップは任意です。単純なキーワード一致を、顧客 ID とカテゴリを使う検索に改善します。</p>
+<h2 is-upgraded>改善の観点</h2>
+<p>今の <code>search_ticket_history()</code> は、単語の重なりだけで順位付けしています。そのため、同じ顧客の別カテゴリや、別顧客の同カテゴリが上位に混ざることがあります。</p>
+<p>改善版では、配布済みの helper を使います。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">from hirenest_support.intake import parse_case
+from hirenest_support.text import score_text, text_from_record
+</code></pre>
+</div>
+<p>改善の方針は次です。</p>
+<ul>
+<li><code>parse_case()</code> で顧客とカテゴリを推定する</li>
+<li><code>text_from_record()</code> で ticket record を検索用テキストにする</li>
+<li><code>score_text()</code> で query と record の類似度を計算する</li>
+<li>顧客 ID が一致したら加点する</li>
+<li>カテゴリが一致したら加点する</li>
+</ul>
+<h2 is-upgraded>完成形との差分を確認する</h2>
+<p>完成形は <code>repos/example/src/hirenest_support/tickets.py</code> にあります。差分を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">diff -u src/hirenest_support/tickets.py ../example/src/hirenest_support/tickets.py | sed -n &#39;1,120p&#39;
+</code></pre>
+</div>
+<p>この改善により、Ticket History Agent はより関連性の高い過去事例を参照しやすくなります。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: AgentRAG ループを追加する" duration="10">
+        <p>このステップは任意です。検索結果が足りない場合に、エージェント自身が query を改善して再検索する流れを追加します。</p>
+<h2 is-upgraded>配布済み helper を確認する</h2>
+<p><code>src/hirenest_support/agent_rag.py</code> には、検索結果の十分性を判定する helper と、再検索 query を作る helper が用意されています。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">sed -n &#39;1,150p&#39; src/hirenest_support/agent_rag.py
+</code></pre>
+</div>
+<p>Ticket History Agent に追加する tool は次です。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-py" class="language-py">from hirenest_support.agent_rag import assess_retrieval_coverage, refine_retrieval_query
+</code></pre>
+</div>
+<p>完成形は <code>repos/example/agents/ticket_history/agent.py</code> にあります。AgentRAG 版では、<code>search_similar_tickets()</code> の後に evidence を評価し、不十分なら refined query で検索し直します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: Discord 通知を有効化する" duration="8">
+        <p>このステップは任意です。Escalation Policy Agent は配布済みで、Discord 通知 tool も実装済みです。webhook URL を設定すると、SEV2 以上のケースで通知できます。</p>
+<h2 is-upgraded>webhook URL を設定する</h2>
+<p><code>.env</code> に Discord webhook URL を設定します。</p>
+<p><code>.env</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">HIRENEST_DISCORD_DRY_RUN=false
+HIRENEST_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+</code></pre>
+</div>
+<p>設定後、Escalation Policy Agent のテストを実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv run --extra dev pytest tests/test_accounts_and_policy.py::test_discord_escalation_tool_uses_webhook_url_only
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">tests/test_accounts_and_policy.py .  [100%]
+</code></pre>
+</div>
+<aside class="warning"><p><strong>Warning:</strong> webhook URL を設定すると、実際の Discord チャンネルへ通知されます。共有チャンネルを使う場合は、運営の指示に従ってください。</p></aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 他参加者の A2A エージェントを呼び出す" duration="10">
+        <p>このステップは任意です。ほかの参加者が公開した specialist の A2A card URL を <code>.env</code> に設定すると、自分の Coordinator から別参加者の専門エージェントを呼び出せます。</p>
+<h2 is-upgraded>A2A URL を差し替える</h2>
+<p>たとえば、別参加者の Ticket History Agent を使う場合は、<code>.env</code> の <code>TICKET_HISTORY_A2A_URL</code> を差し替えます。</p>
+<p><code>.env</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">TICKET_HISTORY_A2A_URL=https://us-central1-aiplatform.googleapis.com/v1beta1/projects/...
+</code></pre>
+</div>
+<p>Coordinator を再起動して、同じ問い合わせを投げます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run-coordinator
+</code></pre>
+</div>
+<p>自分の tool 実装と他参加者の tool 実装で、過去チケットの見つけ方や最終回答がどう変わるかを比較します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="おめでとうございます！" duration="5">
+        <p>このコードラボでは、ADK 2.0、A2A、Agent Runtime を使って、サポート問い合わせを調査するマルチエージェント AI を作りました。</p>
+<h2 is-upgraded>学んだこと</h2>
+<ul>
+<li>ADK 2.0 の graph-based Workflow を使ってエージェントの制御フローを構築しました</li>
+<li>Python 関数を tool として ADK Agent に接続しました</li>
+<li>A2A Agent Card を公開し、<code>RemoteA2aAgent</code> で別エージェントを呼び出しました</li>
+<li><code>output_schema</code> で triage 結果を構造化しました</li>
+<li><code>RequestInput</code> で Human-in-the-loop の clarification ルートを作りました</li>
+<li>Agent Runtime に参加者 ID 付きのエージェントをデプロイしました</li>
+<li>自分がデプロイした Agent Runtime リソースだけを削除する方法を確認しました</li>
+</ul>
+<h2 is-upgraded>クリーンアップ</h2>
+<p>課金を防ぐため、Agent Runtime に作成した自分のエージェントを削除します。まず dry-run で削除対象を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">./scripts/cleanup.sh --dry-run
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">HireNest Agent Runtime — Cleanup
+[info] Participant: [alice_123]
+[info] Dry run — no deletions performed.
+</code></pre>
+</div>
+<p>削除対象が自分の connpass ID prefix のエージェントだけであることを確認してから、削除を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">./scripts/cleanup.sh
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[ ok ] Deleted [alice_123] Support Coordinator Agent
+[ ok ] Deleted [alice_123] Ticket History Agent
+</code></pre>
+</div>
+<h2 is-upgraded>次のステップ</h2>
+<ul>
+<li><a href="https://adk.dev/2.0/" target="_blank">ADK 2.0 documentation</a></li>
+<li><a href="https://adk.dev/graphs/" target="_blank">Graph-based agent workflows</a></li>
+<li><a href="https://a2a-protocol.org/latest/specification/" target="_blank">A2A Protocol specification</a></li>
+<li><a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/overview" target="_blank">Gemini Enterprise Agent Platform overview</a></li>
+<li><a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime" target="_blank">Agent Runtime overview</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="libs/native-shim.js"></script>
+  <script src="libs/custom-elements.min.js"></script>
+  <script src="libs/prettify.js"></script>
+  <script src="libs/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+<script id="claat-local-preprocessor-script">
+(function () {
+  function setTheme(block, theme) {
+    var isDark = theme === 'dark';
+    var toggle = block.querySelector('.claat-toggle-code-theme');
+    block.dataset.codeTheme = isDark ? 'dark' : 'light';
+    if (!toggle) return;
+    toggle.setAttribute('aria-label', isDark ? 'Use light code theme' : 'Use dark code theme');
+    toggle.setAttribute('title', isDark ? 'Use light code theme' : 'Use dark code theme');
+    var icon = toggle.querySelector('.material-icons');
+    if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
+  function diffCopyText(source) {
+    return source.replace(/\n$/, '').split('\n').reduce(function (lines, line) {
+      if (/^@@/.test(line) || /^(\+\+\+|---)/.test(line)) return lines;
+      var marker = line.charAt(0);
+      if (marker === '-') return lines;
+      if (marker === '+' || marker === ' ') {
+        var body = line.slice(1);
+        if (marker === '+' && /^ [^\s]/.test(body)) body = body.slice(1);
+        lines.push(body);
+        return lines;
+      }
+      lines.push(line);
+      return lines;
+    }, []).join('\n');
+  }
+
+  function codeTextForCopy(code) {
+    if (!code) return '';
+    if (code.dataset && (code.dataset.claatDiff === 'true' || code.classList.contains('language-diff'))) {
+      return diffCopyText(code.dataset.claatDiffSource || code.textContent);
+    }
+    return code.innerText;
+  }
+
+  function escapeHtml(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function prettyLine(value, language) {
+    var escaped = escapeHtml(value);
+    if (!language || typeof window.prettyPrintOne !== 'function') return escaped;
+    try {
+      return window.prettyPrintOne(escaped, language);
+    } catch (error) {
+      return escaped;
+    }
+  }
+
+  function diffLineHtml(line, language) {
+    if (/^@@/.test(line)) {
+      return '<span class="claat-diff-line claat-diff-line-hunk">' + escapeHtml(line) + '</span>';
+    }
+
+    var marker = line.charAt(0);
+    var isFileHeader = /^(\+\+\+|---)/.test(line);
+    var className = 'claat-diff-line';
+    if (!isFileHeader && marker === '+') className += ' claat-diff-line-add';
+    if (!isFileHeader && marker === '-') className += ' claat-diff-line-delete';
+    if (isFileHeader) className += ' claat-diff-line-hunk';
+
+    if (marker === '+' || marker === '-' || marker === ' ') {
+      return (
+        '<span class="' + className + '">' +
+        '<span class="claat-diff-marker">' + escapeHtml(marker) + '</span>' +
+        prettyLine(line.slice(1), language) +
+        '</span>'
+      );
+    }
+
+    return '<span class="' + className + '">' + prettyLine(line, language) + '</span>';
+  }
+
+  function enhanceDiffCodeBlocks() {
+    document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {
+      if (code.dataset.claatDiffEnhanced === 'true') return;
+      var language = code.dataset.claatDiffLanguage || '';
+      var source = code.textContent.replace(/\n$/, '');
+      code.dataset.claatDiffSource = source;
+      code.classList.add('claat-diff-code');
+      code.innerHTML = source.split('\n').map(function (line) {
+        return diffLineHtml(line, language);
+      }).join('');
+      code.dataset.claatDiffEnhanced = 'true';
+    });
+  }
+
+  document.addEventListener('click', function (event) {
+    var copyButton = event.target.closest('.claat-copy-code');
+    var themeButton = event.target.closest('.claat-toggle-code-theme');
+    if (!copyButton && !themeButton) return;
+
+    var block = event.target.closest('.claat-code-block');
+    if (!block) return;
+
+    if (copyButton) {
+      var code = block.querySelector('pre > code') || block.querySelector('pre');
+      if (!code) return;
+      copyText(codeTextForCopy(code)).then(function () {
+        var icon = copyButton.querySelector('.material-icons');
+        if (!icon) return;
+        icon.textContent = 'done';
+        window.setTimeout(function () {
+          icon.textContent = 'content_copy';
+        }, 1200);
+      });
+    }
+
+    if (themeButton) {
+      setTheme(block, block.dataset.codeTheme === 'dark' ? 'light' : 'dark');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.claat-code-block').forEach(function (block) {
+      setTheme(block, block.dataset.codeTheme || 'light');
+    });
+    enhanceDiffCodeBlocks();
+  });
+}());
+</script>
+</body>
+</html>

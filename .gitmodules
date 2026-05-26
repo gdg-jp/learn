@@ -10,3 +10,9 @@
 [submodule "flutter-workshop/template-cloudshell"]
 	path = flutter-workshop/template-cloudshell
 	url = https://github.com/gdsc-osaka/flutter-workshop-cloudshell.git
+[submodule "create-multi-agent/repos/example"]
+	path = create-multi-agent/repos/example
+	url = https://github.com/gdsc-osaka/customer-support-agent-example
+[submodule "create-multi-agent/repos/template"]
+	path = create-multi-agent/repos/template
+	url = https://github.com/gdsc-osaka/customer-support-agent.git

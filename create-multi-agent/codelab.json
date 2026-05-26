@@ -1,0 +1,25 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2026-05-27T03:13:46+09:00",
+  "id": "create-multi-agent",
+  "duration": 198,
+  "title": "ADK x A2A x Agent Runtime で作るマルチエージェント AI",
+  "summary": "ADK 2.0、A2A、Agent Runtime で作るマルチエージェント AI ハンズオン",
+  "source": "create-multi-agent/claat.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "ai",
+    "cloud"
+  ],
+  "tags": [
+    "web"
+  ],
+  "feedback": "https://github.com/googlecodelabs/your-first-pwapp/issues",
+  "url": "create-multi-agent"
+}
