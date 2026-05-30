@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">A2A の全体像</title>
+  <desc id="desc">Coordinator Agent がローカル sub-agent と A2A protocol 経由の remote agent を使い分ける概念図</desc>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#4285F4"/>
+    </marker>
+    <marker id="arrow-dark" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#5F6368"/>
+    </marker>
+    <style>
+      text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+      .title { font-size: 34px; font-weight: 700; }
+      .label { font-size: 24px; font-weight: 700; }
+      .body { font-size: 18px; font-weight: 500; }
+      .small { font-size: 15px; fill: #5F6368; }
+      .blue-small { font-size: 15px; fill: #E8F0FE; }
+      .mono { font-family: "Roboto Mono", monospace; font-size: 15px; fill: #5F6368; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="40" y="34" width="1200" height="652" rx="36" fill="#F1F3F4"/>
+  <text x="80" y="94" class="title">A2A の全体像</text>
+  <text x="80" y="126" class="small">内部の分割は local sub-agent、独立サービスとの連携は A2A protocol で扱う</text>
+
+  <rect x="82" y="168" width="390" height="440" rx="28" fill="#FFFFFF"/>
+  <circle cx="136" cy="226" r="34" fill="#E8F0FE"/>
+  <rect x="116" y="210" width="40" height="32" rx="12" fill="#4285F4"/>
+  <circle cx="128" cy="226" r="4" fill="#FFFFFF"/>
+  <circle cx="144" cy="226" r="4" fill="#FFFFFF"/>
+  <path d="M124 248 Q136 258 148 248" stroke="#4285F4" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <text x="188" y="222" class="label">Coordinator Agent</text>
+  <text x="188" y="254" class="small">ADK Graph Workflow</text>
+
+  <rect x="118" y="312" width="318" height="214" rx="24" fill="#F8F9FA" stroke="#DADCE0"/>
+  <text x="150" y="350" class="body">同じプロセス内</text>
+  <text x="150" y="374" class="small">高速・密結合・内部責務分割</text>
+  <circle cx="186" cy="442" r="34" fill="#D2E3FC"/>
+  <circle cx="278" cy="412" r="34" fill="#D2E3FC"/>
+  <circle cx="358" cy="464" r="34" fill="#D2E3FC"/>
+  <g fill="#4285F4">
+    <rect x="167" y="428" width="38" height="28" rx="11"/>
+    <rect x="259" y="398" width="38" height="28" rx="11"/>
+    <rect x="339" y="450" width="38" height="28" rx="11"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="178" cy="442" r="3.5"/><circle cx="194" cy="442" r="3.5"/>
+    <circle cx="270" cy="412" r="3.5"/><circle cx="286" cy="412" r="3.5"/>
+    <circle cx="350" cy="464" r="3.5"/><circle cx="366" cy="464" r="3.5"/>
+  </g>
+  <path d="M217 432 L247 421" stroke="#BDC1C6" stroke-width="3" stroke-dasharray="7 8"/>
+  <path d="M308 426 L333 442" stroke="#BDC1C6" stroke-width="3" stroke-dasharray="7 8"/>
+  <path d="M220 452 L326 462" stroke="#BDC1C6" stroke-width="3" stroke-dasharray="7 8"/>
+  <text x="196" y="512" class="small">local sub-agents</text>
+
+  <rect x="544" y="184" width="170" height="390" rx="28" fill="#4285F4"/>
+  <text x="629" y="334" class="label" fill="#FFFFFF" text-anchor="middle">A2A</text>
+  <text x="629" y="366" class="body" fill="#FFFFFF" text-anchor="middle">Protocol</text>
+  <text x="629" y="424" class="blue-small" text-anchor="middle">Agent Card</text>
+  <text x="629" y="448" class="blue-small" text-anchor="middle">Message / Task</text>
+  <text x="629" y="472" class="blue-small" text-anchor="middle">Artifact</text>
+
+  <path d="M472 392 H532" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <text x="486" y="376" class="small">remote 呼び出し</text>
+
+  <rect x="784" y="164" width="390" height="130" rx="24" fill="#FFFFFF"/>
+  <rect x="784" y="328" width="390" height="130" rx="24" fill="#FFFFFF"/>
+  <rect x="784" y="492" width="390" height="130" rx="24" fill="#FFFFFF"/>
+
+  <circle cx="844" cy="229" r="34" fill="#E6F4EA"/>
+  <circle cx="844" cy="393" r="34" fill="#FEF7E0"/>
+  <circle cx="844" cy="557" r="34" fill="#FCE8E6"/>
+  <g fill="#34A853">
+    <rect x="824" y="213" width="40" height="32" rx="12"/>
+  </g>
+  <g fill="#FBBC04">
+    <rect x="824" y="377" width="40" height="32" rx="12"/>
+  </g>
+  <g fill="#EA4335">
+    <rect x="824" y="541" width="40" height="32" rx="12"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="836" cy="229" r="4"/><circle cx="852" cy="229" r="4"/>
+    <circle cx="836" cy="393" r="4"/><circle cx="852" cy="393" r="4"/>
+    <circle cx="836" cy="557" r="4"/><circle cx="852" cy="557" r="4"/>
+  </g>
+
+  <text x="902" y="218" class="label">Remote Agent</text>
+  <text x="902" y="250" class="small">別チーム・別言語・別 runtime</text>
+  <text x="902" y="382" class="label">Specialist Agent</text>
+  <text x="902" y="414" class="small">能力と入出力を Agent Card で公開</text>
+  <text x="902" y="546" class="label">External Agent</text>
+  <text x="902" y="578" class="small">認証境界を越えてタスクを委譲</text>
+
+  <path d="M714 250 H770" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path d="M714 393 H770" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path d="M714 536 H770" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+
+  <rect x="820" y="66" width="282" height="58" rx="29" fill="#E8F0FE"/>
+  <text x="961" y="101" class="body" text-anchor="middle">発見: Agent Card / Registry</text>
+  <path d="M955 125 V151" stroke="#5F6368" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrow-dark)"/>
+</svg>

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">A2A を使う場合と使わない場合の比較</title>
+  <desc id="desc">カスタマーサービス agent と商品カタログ agent の接続方法を、A2A なしと A2A ありで比較する図</desc>
+  <defs>
+    <marker id="arrow-dark" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#5F6368"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#4285F4"/>
+    </marker>
+    <style>
+      text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+      .title { font-size: 34px; font-weight: 700; }
+      .panel-title { font-size: 28px; font-weight: 700; }
+      .label { font-size: 21px; font-weight: 700; }
+      .small { font-size: 16px; fill: #5F6368; }
+      .tiny { font-size: 14px; fill: #5F6368; }
+      .on-blue { font-size: 14px; fill: #E8F0FE; }
+      .badge { font-size: 16px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="38" y="34" width="1204" height="652" rx="36" fill="#F1F3F4"/>
+  <text x="80" y="94" class="title">カスタマーサービス agent と商品カタログ agent</text>
+  <text x="80" y="126" class="small">A2A を使うと、個別 API の接着ではなく標準 contract として remote agent を呼び出せる</text>
+
+  <rect x="74" y="166" width="540" height="464" rx="30" fill="#FFFFFF"/>
+  <rect x="666" y="166" width="540" height="464" rx="30" fill="#FFFFFF"/>
+
+  <text x="112" y="220" class="panel-title">A2A を使わない場合</text>
+  <text x="704" y="220" class="panel-title">A2A を使う場合</text>
+
+  <rect x="116" y="286" width="174" height="104" rx="22" fill="#E8F0FE"/>
+  <circle cx="203" cy="313" r="18" fill="#4285F4"/>
+  <circle cx="197" cy="310" r="3" fill="#FFFFFF"/>
+  <circle cx="209" cy="310" r="3" fill="#FFFFFF"/>
+  <text x="203" y="350" class="label" text-anchor="middle">Customer</text>
+  <text x="203" y="376" class="label" text-anchor="middle">Service Agent</text>
+
+  <rect x="392" y="286" width="176" height="104" rx="22" fill="#FCE8E6"/>
+  <circle cx="480" cy="313" r="18" fill="#EA4335"/>
+  <path d="M473 313 H487 M480 306 V320" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <text x="480" y="350" class="label" text-anchor="middle">Product</text>
+  <text x="480" y="376" class="label" text-anchor="middle">Catalog</text>
+
+  <path d="M292 338 H380" stroke="#5F6368" stroke-width="3" stroke-dasharray="8 8" marker-end="url(#arrow-dark)"/>
+  <text x="336" y="314" class="tiny" text-anchor="middle">個別 API</text>
+  <text x="336" y="366" class="tiny" text-anchor="middle">独自形式</text>
+
+  <rect x="120" y="454" width="432" height="116" rx="20" fill="#F8F9FA" stroke="#DADCE0"/>
+  <text x="154" y="492" class="small">接続ごとに合わせ込みが必要</text>
+  <text x="154" y="522" class="small">別チーム・別 framework では契約が曖昧になりやすい</text>
+  <text x="154" y="552" class="small">タスク状態や成果物交換も個別実装になりやすい</text>
+
+  <rect x="708" y="286" width="176" height="104" rx="22" fill="#E8F0FE"/>
+  <circle cx="796" cy="313" r="18" fill="#4285F4"/>
+  <circle cx="790" cy="310" r="3" fill="#FFFFFF"/>
+  <circle cx="802" cy="310" r="3" fill="#FFFFFF"/>
+  <text x="796" y="350" class="label" text-anchor="middle">Customer</text>
+  <text x="796" y="376" class="label" text-anchor="middle">Service Agent</text>
+
+  <rect x="1004" y="286" width="174" height="104" rx="22" fill="#E6F4EA"/>
+  <circle cx="1091" cy="313" r="18" fill="#34A853"/>
+  <path d="M1083 313 H1099" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <text x="1091" y="350" class="label" text-anchor="middle">Product</text>
+  <text x="1091" y="376" class="label" text-anchor="middle">Catalog Agent</text>
+
+  <rect x="904" y="292" width="78" height="92" rx="18" fill="#4285F4"/>
+  <text x="943" y="326" class="badge" text-anchor="middle" fill="#FFFFFF">A2A</text>
+  <text x="943" y="350" class="on-blue" text-anchor="middle">protocol</text>
+  <path d="M886 338 H892" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path d="M982 338 H992" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+
+  <rect x="876" y="242" width="176" height="42" rx="21" fill="#E8F0FE"/>
+  <text x="964" y="268" class="tiny" text-anchor="middle">Agent Card で発見</text>
+  <path d="M1038 284 C1016 258 986 254 968 284" stroke="#4285F4" stroke-width="3" stroke-dasharray="7 7" fill="none"/>
+
+  <rect x="712" y="454" width="432" height="116" rx="20" fill="#F8F9FA" stroke="#DADCE0"/>
+  <text x="746" y="492" class="small">endpoint、skills、入出力、認証要件を標準化</text>
+  <text x="746" y="522" class="small">ADK では RemoteA2aAgent として扱える</text>
+  <text x="746" y="552" class="small">Message、Task、Artifact の単位で進捗と成果物を扱える</text>
+</svg>

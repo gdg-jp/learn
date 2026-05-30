@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">ADK graph-based workflow patterns</title>
+  <desc id="desc">Four workflow control patterns in one diagram: sequential flow, branching, loop, and parallel fan-out/join.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#3C4043"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#4285F4"/>
+    </marker>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#202124" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .font { font-family: "Google Sans", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", Arial, sans-serif; }
+      .mono { font-family: "Roboto Mono", "SFMono-Regular", Menlo, monospace; }
+      .title { font-size: 42px; font-weight: 700; fill: #202124; }
+      .subtitle { font-size: 24px; font-weight: 400; fill: #5F6368; }
+      .panel-title { font-size: 30px; font-weight: 700; fill: #202124; }
+      .panel-note { font-size: 19px; font-weight: 500; fill: #5F6368; }
+      .label { font-size: 22px; font-weight: 700; fill: #202124; }
+      .small { font-size: 18px; font-weight: 600; fill: #5F6368; }
+      .chip-text { font-size: 20px; font-weight: 700; fill: #5F6368; }
+      .node { fill: #FFFFFF; stroke: #DADCE0; stroke-width: 2; }
+      .node-soft { fill: #F8F9FA; stroke: #DADCE0; stroke-width: 2; }
+      .route { stroke: #3C4043; stroke-width: 4; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .route-blue { stroke: #4285F4; stroke-width: 5; fill: none; marker-end: url(#arrow-blue); stroke-linecap: round; stroke-linejoin: round; }
+      .route-dashed { stroke: #5F6368; stroke-width: 4; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 10 12; }
+      .legend-dashed { stroke: #5F6368; stroke-width: 4; fill: none; stroke-linecap: round; stroke-dasharray: 10 12; }
+      .connector { stroke: #BDC1C6; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#FFFFFF"/>
+  <rect x="52" y="48" width="1496" height="804" rx="44" fill="#F1F3F4"/>
+
+  <g class="font">
+    <text x="104" y="126" class="title">Graph-based Workflow</text>
+    <text x="104" y="168" class="subtitle">直列、分岐、繰り返し、並列を node と edge で明示する</text>
+
+    <g transform="translate(102 220)" filter="url(#soft-shadow)">
+      <rect width="670" height="250" rx="30" fill="#FFFFFF"/>
+      <rect x="28" y="28" width="72" height="42" rx="21" fill="#E8F0FE"/>
+      <text x="46" y="57" class="chip-text">1</text>
+      <text x="118" y="58" class="panel-title">直列フロー</text>
+      <text x="118" y="90" class="panel-note">決まった順番で node を実行</text>
+
+      <rect x="52" y="134" width="108" height="58" rx="29" fill="#4285F4"/>
+      <text x="78" y="171" class="label" fill="#FFFFFF">START</text>
+
+      <rect x="224" y="124" width="128" height="78" rx="18" class="node"/>
+      <circle cx="258" cy="163" r="18" fill="#E8F0FE"/>
+      <path d="M258 152 v22 M247 163 h22" stroke="#4285F4" stroke-width="4" stroke-linecap="round"/>
+      <text x="288" y="170" class="label">A</text>
+
+      <rect x="414" y="124" width="128" height="78" rx="18" class="node"/>
+      <circle cx="448" cy="163" r="18" fill="#E8F0FE"/>
+      <path d="M438 163 h20 M448 153 v20" stroke="#4285F4" stroke-width="4" stroke-linecap="round"/>
+      <text x="478" y="170" class="label">B</text>
+
+      <rect x="628" y="134" width="42" height="58" rx="21" fill="#E8EAED"/>
+      <path d="M641 163 l8 8 l16 -21" stroke="#34A853" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <path d="M160 163 H218" class="route-blue"/>
+      <path d="M352 163 H408" class="route-blue"/>
+      <path d="M542 163 H622" class="route-blue"/>
+    </g>
+
+    <g transform="translate(828 220)" filter="url(#soft-shadow)">
+      <rect width="670" height="250" rx="30" fill="#FFFFFF"/>
+      <rect x="28" y="28" width="72" height="42" rx="21" fill="#E8F0FE"/>
+      <text x="46" y="57" class="chip-text">2</text>
+      <text x="118" y="58" class="panel-title">分岐</text>
+      <text x="118" y="90" class="panel-note">route の値で次の経路を選ぶ</text>
+
+      <rect x="54" y="128" width="126" height="70" rx="18" class="node"/>
+      <path d="M95 147 l27 16 l-27 16 z" fill="#4285F4"/>
+      <text x="126" y="170" class="label">Router</text>
+
+      <rect x="286" y="106" width="128" height="54" rx="16" fill="#FEF7E0" stroke="#FDD663" stroke-width="2"/>
+      <text x="323" y="141" class="label">clarify</text>
+
+      <rect x="286" y="178" width="128" height="54" rx="16" fill="#E6F4EA" stroke="#CEEAD6" stroke-width="2"/>
+      <text x="319" y="213" class="label">default</text>
+
+      <rect x="520" y="128" width="96" height="70" rx="35" fill="#4285F4"/>
+      <text x="546" y="170" class="label" fill="#FFFFFF">Next</text>
+
+      <path d="M180 163 C222 163 236 133 280 133" class="route"/>
+      <path d="M180 163 C222 163 236 205 280 205" class="route"/>
+      <path d="M414 133 C456 133 464 163 514 163" class="route"/>
+      <path d="M414 205 C456 205 464 163 514 163" class="route"/>
+      <text x="217" y="124" class="small mono">clarify</text>
+      <text x="215" y="229" class="small mono">default</text>
+    </g>
+
+    <g transform="translate(102 522)" filter="url(#soft-shadow)">
+      <rect width="670" height="250" rx="30" fill="#FFFFFF"/>
+      <rect x="28" y="28" width="72" height="42" rx="21" fill="#E8F0FE"/>
+      <text x="46" y="57" class="chip-text">3</text>
+      <text x="118" y="58" class="panel-title">繰り返し</text>
+      <text x="118" y="90" class="panel-note">条件を満たすまで戻って再実行</text>
+
+      <rect x="58" y="128" width="122" height="70" rx="18" class="node"/>
+      <circle cx="93" cy="163" r="18" fill="#E8F0FE"/>
+      <path d="M84 163 h18 M93 154 v18" stroke="#4285F4" stroke-width="4" stroke-linecap="round"/>
+      <text x="122" y="170" class="label">Input</text>
+
+      <rect x="266" y="122" width="136" height="82" rx="20" fill="#FEF7E0" stroke="#FDD663" stroke-width="2"/>
+      <path d="M315 146 l22 17 l-22 17 l-22 -17 z" fill="#FBBC04"/>
+      <text x="342" y="170" class="label">Check</text>
+
+      <rect x="500" y="128" width="108" height="70" rx="35" fill="#34A853"/>
+      <text x="534" y="170" class="label" fill="#FFFFFF">OK</text>
+
+      <path d="M180 163 H260" class="route"/>
+      <path d="M402 163 H494" class="route-blue"/>
+      <text x="430" y="150" class="small">OK</text>
+
+      <path d="M334 204 C334 238 88 238 88 204" class="route-dashed"/>
+      <text x="218" y="231" class="small">不足なら戻る</text>
+    </g>
+
+    <g transform="translate(828 522)" filter="url(#soft-shadow)">
+      <rect width="670" height="250" rx="30" fill="#FFFFFF"/>
+      <rect x="28" y="28" width="72" height="42" rx="21" fill="#E8F0FE"/>
+      <text x="46" y="57" class="chip-text">4</text>
+      <text x="118" y="58" class="panel-title">並列</text>
+      <text x="118" y="90" class="panel-note">fan out して JoinNode で合流</text>
+
+      <rect x="54" y="128" width="112" height="70" rx="35" fill="#4285F4"/>
+      <text x="86" y="170" class="label" fill="#FFFFFF">Fan</text>
+
+      <rect x="258" y="94" width="126" height="48" rx="16" class="node-soft"/>
+      <text x="289" y="126" class="label">Task 1</text>
+      <rect x="258" y="146" width="126" height="48" rx="16" class="node-soft"/>
+      <text x="289" y="178" class="label">Task 2</text>
+      <rect x="258" y="198" width="126" height="48" rx="16" class="node-soft"/>
+      <text x="289" y="230" class="label">Task 3</text>
+
+      <rect x="500" y="128" width="112" height="70" rx="18" class="node"/>
+      <circle cx="535" cy="163" r="18" fill="#E8F0FE"/>
+      <path d="M526 157 h18 M526 169 h18" stroke="#4285F4" stroke-width="4" stroke-linecap="round"/>
+      <text x="562" y="170" class="label">Join</text>
+
+      <path d="M166 163 C206 163 214 118 252 118" class="route"/>
+      <path d="M166 163 H252" class="route"/>
+      <path d="M166 163 C206 163 214 222 252 222" class="route"/>
+
+      <path d="M384 118 C428 118 448 163 494 163" class="route"/>
+      <path d="M384 170 H494" class="route"/>
+      <path d="M384 222 C428 222 448 163 494 163" class="route"/>
+    </g>
+
+    <g transform="translate(104 802)">
+      <rect x="0" y="0" width="1392" height="2" fill="#DADCE0"/>
+      <circle cx="24" cy="38" r="12" fill="#4285F4"/>
+      <text x="46" y="45" class="small">青い矢印: 通常の実行経路</text>
+      <line x1="300" y1="38" x2="356" y2="38" class="legend-dashed"/>
+      <text x="376" y="45" class="small">破線: 条件に応じた戻り経路</text>
+      <rect x="690" y="18" width="90" height="38" rx="19" fill="#FFFFFF" stroke="#DADCE0" stroke-width="2"/>
+      <text x="711" y="45" class="small mono">Event</text>
+      <text x="796" y="45" class="small">node は Event で output / route / state を渡す</text>
+    </g>
+  </g>
+</svg>

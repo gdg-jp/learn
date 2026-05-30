@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">A2A の仕組み</title>
+  <desc id="desc">A2A Client が Agent Card を取得し、認証要件を確認し、Message を送り、Task の進捗と Artifact を受け取る流れ</desc>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#4285F4"/>
+    </marker>
+    <marker id="arrow-dark" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#5F6368"/>
+    </marker>
+    <style>
+      text { font-family: "Google Sans", "Noto Sans JP", Arial, sans-serif; fill: #202124; }
+      .title { font-size: 34px; font-weight: 700; }
+      .label { font-size: 23px; font-weight: 700; }
+      .small { font-size: 16px; fill: #5F6368; }
+      .step { font-size: 18px; font-weight: 700; fill: #FFFFFF; }
+      .mono { font-family: "Roboto Mono", monospace; font-size: 15px; fill: #5F6368; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="40" y="34" width="1200" height="652" rx="36" fill="#F1F3F4"/>
+  <text x="80" y="94" class="title">A2A の仕組み</text>
+  <text x="80" y="126" class="small">発見、認証、依頼、進捗、成果物を同じ protocol model で扱う</text>
+
+  <rect x="82" y="196" width="214" height="326" rx="30" fill="#FFFFFF"/>
+  <circle cx="189" cy="268" r="38" fill="#E8F0FE"/>
+  <rect x="166" y="250" width="46" height="36" rx="13" fill="#4285F4"/>
+  <circle cx="180" cy="268" r="4" fill="#FFFFFF"/>
+  <circle cx="198" cy="268" r="4" fill="#FFFFFF"/>
+  <text x="189" y="350" class="label" text-anchor="middle">A2A Client</text>
+  <text x="189" y="382" class="small" text-anchor="middle">Coordinator</text>
+  <text x="189" y="410" class="mono" text-anchor="middle">RemoteA2aAgent</text>
+
+  <rect x="984" y="196" width="214" height="326" rx="30" fill="#FFFFFF"/>
+  <circle cx="1091" cy="268" r="38" fill="#E6F4EA"/>
+  <rect x="1068" y="250" width="46" height="36" rx="13" fill="#34A853"/>
+  <circle cx="1082" cy="268" r="4" fill="#FFFFFF"/>
+  <circle cx="1100" cy="268" r="4" fill="#FFFFFF"/>
+  <text x="1091" y="350" class="label" text-anchor="middle">A2A Server</text>
+  <text x="1091" y="382" class="small" text-anchor="middle">Remote specialist</text>
+  <text x="1091" y="410" class="mono" text-anchor="middle">agent-card.json</text>
+
+  <g>
+    <rect x="356" y="176" width="568" height="62" rx="20" fill="#FFFFFF"/>
+    <circle cx="390" cy="207" r="17" fill="#4285F4"/>
+    <text x="390" y="214" class="step" text-anchor="middle">1</text>
+    <text x="424" y="202" class="label">Agent Card を取得</text>
+    <text x="424" y="224" class="small">endpoint、capabilities、skills、入出力、認証要件を読む</text>
+  </g>
+  <g>
+    <rect x="356" y="270" width="568" height="62" rx="20" fill="#FFFFFF"/>
+    <circle cx="390" cy="301" r="17" fill="#4285F4"/>
+    <text x="390" y="308" class="step" text-anchor="middle">2</text>
+    <text x="424" y="296" class="label">認証と接続条件を確認</text>
+    <text x="424" y="318" class="small">API key、OAuth、OIDC、mTLS、IAM などを header 等で扱う</text>
+  </g>
+  <g>
+    <rect x="356" y="364" width="568" height="62" rx="20" fill="#FFFFFF"/>
+    <circle cx="390" cy="395" r="17" fill="#4285F4"/>
+    <text x="390" y="402" class="step" text-anchor="middle">3</text>
+    <text x="424" y="390" class="label">Message を送って Task を開始</text>
+    <text x="424" y="412" class="small">テキスト、ファイル、URL、構造化データを Part として渡せる</text>
+  </g>
+  <g>
+    <rect x="356" y="458" width="568" height="62" rx="20" fill="#FFFFFF"/>
+    <circle cx="390" cy="489" r="17" fill="#4285F4"/>
+    <text x="390" y="496" class="step" text-anchor="middle">4</text>
+    <text x="424" y="484" class="label">Task の状態を追跡</text>
+    <text x="424" y="506" class="small">working、input-required、auth-required、completed など</text>
+  </g>
+  <g>
+    <rect x="356" y="552" width="568" height="62" rx="20" fill="#FFFFFF"/>
+    <circle cx="390" cy="583" r="17" fill="#4285F4"/>
+    <text x="390" y="590" class="step" text-anchor="middle">5</text>
+    <text x="424" y="578" class="label">Artifact と応答を受け取る</text>
+    <text x="424" y="600" class="small">文書、画像、構造化結果などを成果物として返す</text>
+  </g>
+
+  <path d="M296 207 H342" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path d="M924 207 H970" stroke="#4285F4" stroke-width="4" marker-end="url(#arrow-blue)"/>
+  <path d="M970 395 H936" stroke="#5F6368" stroke-width="3" marker-end="url(#arrow-dark)"/>
+  <path d="M344 583 H310" stroke="#5F6368" stroke-width="3" marker-end="url(#arrow-dark)"/>
+  <path d="M640 238 V258" stroke="#5F6368" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrow-dark)"/>
+  <path d="M640 332 V352" stroke="#5F6368" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrow-dark)"/>
+  <path d="M640 426 V446" stroke="#5F6368" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrow-dark)"/>
+  <path d="M640 520 V540" stroke="#5F6368" stroke-width="3" stroke-dasharray="7 7" marker-end="url(#arrow-dark)"/>
+
+  <rect x="92" y="558" width="194" height="58" rx="18" fill="#E8F0FE"/>
+  <text x="189" y="582" class="small" text-anchor="middle">ADK では詳細を</text>
+  <text x="189" y="604" class="small" text-anchor="middle">client-side proxy が抽象化</text>
+
+  <rect x="994" y="558" width="194" height="58" rx="18" fill="#E6F4EA"/>
+  <text x="1091" y="582" class="small" text-anchor="middle">内部実装は隠蔽</text>
+  <text x="1091" y="604" class="small" text-anchor="middle">能力と成果物だけを公開</text>
+</svg>
