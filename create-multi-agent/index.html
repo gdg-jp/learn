@@ -1094,7 +1094,10 @@ agents/experience/agent.py               体験価値評価 specialist
 <pre><code language="language-bash" class="language-bash">make run
 </code></pre>
 </div>
-<p>ブラウザで <code>http://localhost:8000</code> を開き、<code>dynamic_travel_planning_agent</code> に次の依頼を送ります。</p>
+<h2 is-upgraded>Cloud Shell でポート 8080 をプレビューする</h2>
+<p>Cloud Shell Editor の右上にある <strong>ウェブでプレビュー</strong> を押し、<strong>ポート 8080 でプレビュー</strong> を選択します。新しいタブで ADK Web が開いたら、<code>dynamic_travel_planning_agent</code> に次の依頼を送ります。</p>
+<p class="image-container"><img alt="Cloud Shell Editor でポート 8080 をプレビューするメニュー" src="img/a095de960c352ae3.png"></p>
+<aside class="special"><p><strong>補足:</strong> ローカル環境で実行している場合は、ブラウザで <code>http://localhost:8080</code> を開きます。</p></aside>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1372,6 +1375,55 @@ agents/experience/agent.py               体験価値評価 specialist
 </div>
 <aside class="special"><p><strong>Tips:</strong> Graph-based workflow で固定本数の edge を用意するのではなく、Dynamic workflow の Python コードで <code>asyncio.gather(*tasks)</code> を使うことで、候補数に応じて並列数を可変にできます。</p></aside>
 <p><code>build_research_input</code> と <code>build_research_report_input</code> は、<code>TravelRequest</code>、<code>TravelOption</code>、調査メモをテキストにして次の Agent に渡す helper として実装します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python">--- a/agents/coordinator/candidates.py
++++ b/agents/coordinator/candidates.py
+@@
+ def collect_research_reports(ctx: Context, node_input: Any) -&gt; dict[str, dict[str, Any]]:
+     reports: dict[str, dict[str, Any]] = {}
+     values = node_input.values() if isinstance(node_input, dict) else node_input
+@@
+     ctx.state[STATE_RESEARCH_REPORTS] = reports
+     return reports
++
++
++def build_research_input(request: Any, option: Any) -&gt; str:
++    return &#34;\n\n&#34;.join(
++        [
++            &#34;TravelRequest:&#34;,
++            text(request),
++            &#34;TravelOption:&#34;,
++            text(option),
++            &#34;Google Search Grounding / google_search を使って、最新のアクセス、費用感、&#34;
++            &#34;宿泊エリア、観光地、食事、リスク、季節性を調査してください。&#34;
++            &#34; option_id は必ず維持してください。&#34;,
++        ]
++    )
++
++
++def build_research_report_input(request: Any, option: Any, research_memo: Any) -&gt; str:
++    return &#34;\n\n&#34;.join(
++        [
++            &#34;TravelRequest:&#34;,
++            text(request),
++            &#34;TravelOption:&#34;,
++            text(option),
++            &#34;Research memo produced by research_agent with google_search:&#34;,
++            text(research_memo),
++            &#34;上記だけを根拠に ResearchReport を返してください。&#34;,
++        ]
++    )
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>build_research_input</code> は検索 Agent に渡す候補ごとの調査依頼、<code>build_research_report_input</code> は検索メモを formatter が構造化しやすい入力にします。どちらも <code>text(...)</code> を通して dict や Pydantic model を読みやすい文字列へ変換します。</p>
 <h2 is-upgraded>candidate_workflow を agent.py に追加する</h2>
 <p><code>agents/coordinator/agent.py</code> に候補生成 Workflow を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -3019,9 +3071,10 @@ Specialist A2A agents are running on ports 8101-8103.
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-text" class="language-text">http://localhost:8000
+<pre><code language="language-text" class="language-text">http://localhost:8080
 </code></pre>
 </div>
+<p>Cloud Shell では、Cloud Shell Editor の <strong>ウェブでプレビュー</strong> から <strong>ポート 8080 でプレビュー</strong> を選択します。</p>
 <p><code>dynamic_travel_planning_agent</code> を選択します。</p>
 <h2 is-upgraded>明確な依頼を送る</h2>
 <p><code>QUERY.md</code> の Clear Request を送ります。</p>
@@ -4206,10 +4259,10 @@ def personalization_instruction() -&gt; str:
 +.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web web-memory clean
 @@
  web:
-  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8080
 +
 +web-memory:
-+	TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. $(UV_RUN) adk web agents --port 8000 --memory_service_uri=&#34;$(MEMORY_SERVICE_URI)&#34;
++	TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. $(UV_RUN) adk web agents --port 8080 --memory_service_uri=&#34;$(MEMORY_SERVICE_URI)&#34;
 
  clean:
 </code></pre>
@@ -4258,7 +4311,7 @@ def personalization_instruction() -&gt; str:
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-text" class="language-text">INFO:     Uvicorn running on http://127.0.0.1:8000
+<pre><code language="language-text" class="language-text">INFO:     Uvicorn running on http://127.0.0.1:8080
 </code></pre>
 </div>
 <p>Agent Runtime の Memory Bank を使う場合は、Agent Runtime の ID を指定します。</p>
@@ -4471,7 +4524,7 @@ PY
 +.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web eval-create eval-add-scenarios eval-run clean
 @@
  web:
-  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8080
 +
 +eval-create:
 +	PYTHONPATH=. $(UV_RUN) adk eval_set create agents/coordinator $(EVAL_SET_ID)

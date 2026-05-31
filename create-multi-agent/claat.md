@@ -1102,6 +1102,48 @@ Duration: 0:25:00
 
 `build_research_input` と `build_research_report_input` は、`TravelRequest`、`TravelOption`、調査メモをテキストにして次の Agent に渡す helper として実装します。
 
+```diff python
+--- a/agents/coordinator/candidates.py
++++ b/agents/coordinator/candidates.py
+@@
+ def collect_research_reports(ctx: Context, node_input: Any) -> dict[str, dict[str, Any]]:
+     reports: dict[str, dict[str, Any]] = {}
+     values = node_input.values() if isinstance(node_input, dict) else node_input
+@@
+     ctx.state[STATE_RESEARCH_REPORTS] = reports
+     return reports
++
++
++def build_research_input(request: Any, option: Any) -> str:
++    return "\n\n".join(
++        [
++            "TravelRequest:",
++            text(request),
++            "TravelOption:",
++            text(option),
++            "Google Search Grounding / google_search を使って、最新のアクセス、費用感、"
++            "宿泊エリア、観光地、食事、リスク、季節性を調査してください。"
++            " option_id は必ず維持してください。",
++        ]
++    )
++
++
++def build_research_report_input(request: Any, option: Any, research_memo: Any) -> str:
++    return "\n\n".join(
++        [
++            "TravelRequest:",
++            text(request),
++            "TravelOption:",
++            text(option),
++            "Research memo produced by research_agent with google_search:",
++            text(research_memo),
++            "上記だけを根拠に ResearchReport を返してください。",
++        ]
++    )
+```
+
+> **Tips:** `build_research_input` は検索 Agent に渡す候補ごとの調査依頼、`build_research_report_input` は検索メモを formatter が構造化しやすい入力にします。どちらも `text(...)` を通して dict や Pydantic model を読みやすい文字列へ変換します。
+
 ### candidate_workflow を agent.py に追加する
 
 `agents/coordinator/agent.py` に候補生成 Workflow を追加します。
