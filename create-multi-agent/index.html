@@ -249,7 +249,7 @@
                   title="ADK x A2A x Agent Runtime で作るマルチエージェント AI"
                   environment="web"
                   feedback-link="https://github.com/googlecodelabs/your-first-pwapp/issues">
-    
+
       <google-codelab-step label="はじめに" duration="5">
         <p class="image-container"><img alt="OGP" src="img/4cf15ac1d49e007a.png"></p>
 <p>このコードラボでは、ADK 2.1 の Graph Workflow と A2A specialist agents を使って、旅行計画 AI エージェントを作ります。</p>
@@ -268,15 +268,12 @@
 <h2 is-upgraded>必要なもの</h2>
 <ul>
 <li>Google Cloud Shell</li>
-<li>ワークショップ運営が指定する Google Cloud project ID</li>
-<li>IAM 登録済みの Google アカウント</li>
-<li>connpass ID</li>
+<li>Google アカウント</li>
 </ul>
 <h2 is-upgraded>前提知識</h2>
 <ul>
 <li>Python の基本的な読み書き</li>
 <li>ターミナルでコマンドを実行する基本操作</li>
-<li>LLM と tool calling の基本的な理解</li>
 </ul>
 <h2 is-upgraded>このコードラボで扱わないこと</h2>
 <ul>
@@ -288,7 +285,7 @@
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="旅行計画エージェントのアーキテクチャを確認する" duration="10">
         <p>このステップでは、これから実装する旅行計画エージェントの全体像を確認します。最終成果物は <code>gdsc-osaka/create-multi-agent-example</code>、初期状態は <code>gdsc-osaka/create-multi-agent</code> です。</p>
 <h2 is-upgraded>Coordinator Workflow の流れを確認する</h2>
@@ -348,7 +345,7 @@
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="セットアップ" duration="15">
         <p>このステップでは、Cloud Shell で初期コードを開き、依存関係と環境変数を準備します。</p>
 <h2 is-upgraded>Google Cloud Shell を開く</h2>
@@ -383,7 +380,7 @@
   </button>
 </div>
 <pre><code language="language-text" class="language-text">connpass ID: alice_123
-Google Cloud project ID: your-workshop-project-id
+Google Cloud project ID: create-multi-agent
 Setup complete for [alice_123].
 </code></pre>
 </div>
@@ -405,14 +402,13 @@ RISK_A2A_URL=http://localhost:8102
 EXPERIENCE_A2A_URL=http://localhost:8103
 
 GOOGLE_API_KEY=
-GOOGLE_GENAI_USE_VERTEXAI=true
-GOOGLE_CLOUD_PROJECT=YOUR_WORKSHOP_PROJECT_ID
+GOOGLE_CLOUD_PROJECT=create-multi-agent
 GOOGLE_CLOUD_LOCATION=us-central1
 
 TRAVEL_AGENT_TRACE_TO_CLOUD=false
 </code></pre>
 </div>
-<p>Google Cloud の Vertex AI を使う場合は <code>GOOGLE_GENAI_USE_VERTEXAI=true</code> のまま進めます。Google AI Studio の API key を使う場合は <code>GOOGLE_API_KEY</code> を設定し、<code>GOOGLE_GENAI_USE_VERTEXAI=false</code> にします。</p>
+<p>モデル呼び出しには Google AI Studio の API key を使います。<code>GOOGLE_API_KEY</code> に自分の API key を設定してください。<code>GOOGLE_CLOUD_PROJECT</code> と <code>GOOGLE_CLOUD_LOCATION</code> は Agent Runtime へのデプロイで使います。</p>
 <p><strong>Warning: </strong><code>.env</code> に書いた API key や project 固有の値は commit しないでください。このハンズオンでは <code>.env.example</code> だけを共有します。</p>
 <h2 is-upgraded>ADK を import できることを確認する</h2>
 <p>ターミナルを開いて下記を実行します。</p>
@@ -460,7 +456,7 @@ PY
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Agent Development Kit 2.0 の概要" duration="12">
         <p>このステップでは、今回使う ADK の考え方を確認します。このコードラボでは ADK 2.1 を使いますが、2.0 で導入された graph-based Workflow、dynamic workflow、collaborative workflow、human input、session / state / memory の考え方が土台になります。</p>
 <h2 is-upgraded>グラフベースのワークフロー</h2>
@@ -619,7 +615,7 @@ root_agent = Workflow(
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="A2A の概要" duration="10">
         <p>このステップでは、A2A が何を標準化し、どのような場面で local sub-agent ではなく A2A agent として分けるべきかを確認します。</p>
 <h2 is-upgraded>A2A とは</h2>
@@ -705,7 +701,7 @@ root_agent = Workflow(
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Gemini Enterprise Agent Platform の概要" duration="8">
         <p>このステップでは、ここまで作ってきた ADK / A2A エージェントを、なぜ Agent Runtime にデプロイするのかを確認します。</p>
 <h2 is-upgraded>Gemini Enterprise Agent Platform とは</h2>
@@ -751,7 +747,7 @@ agents/experience/agent.py               体験価値評価 specialist
 <p>Agent Runtime にデプロイした A2A agent は、Runtime の A2A URL から Agent Card と task endpoint にアクセスできます。これにより、ローカルで確認した「coordinator が specialist を呼び出す」構成を、Google Cloud 上のエンドポイント同士の連携として扱えます。</p>
 <h3 is-upgraded>Sessions と Memory Bank</h3>
 <p>Sessions は、1つの会話やタスクの中で発生する状態、イベント履歴、途中結果を管理するための機能です。Memory Bank は、複数セッションをまたいでユーザーの嗜好や過去文脈を保持する長期記憶の機能です。</p>
-<p>このコードラボでは Sessions や Memory Bank を直接実装しませんが、Agent Runtime に載せることで、将来的に会話状態や長期記憶を扱う構成へ拡張しやすくなります。</p>
+<p>このコードラボ本編では Sessions や Memory Bank を直接実装しませんが、Agent Runtime に載せることで、将来的に会話状態や長期記憶を扱う構成へ拡張しやすくなります。Extra 課題では Memory Bank を使ったパーソナライズも扱います。</p>
 <h3 is-upgraded>このコードラボでのデプロイ順序</h3>
 <p>Coordinator は specialist agents の A2A URL を必要とします。そのため、デプロイ script は specialist agents を先にデプロイし、取得した A2A URL を coordinator の環境変数に注入してから coordinator をデプロイします。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -789,7 +785,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Clarify Agent を実装する" duration="20">
         <p>このステップでは、ユーザー入力を <code>TravelRequest</code> に構造化し、不足情報がある場合だけ追加質問する最小 Workflow を作ります。</p>
 <h2 is-upgraded>clarify_models.py を作成する</h2>
@@ -1080,7 +1076,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Strategist と Research の Fan-out / Fan-in を実装する" duration="25">
         <p>このステップでは、旅行候補を作る <code>strategist_agent</code> と、候補ごとに <code>google_search</code> で調査する fan-out / fan-in を実装します。</p>
 <h2 is-upgraded>candidates_models.py を作成する</h2>
@@ -1463,7 +1459,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Specialist Agents を A2A サービスとして実装する" duration="20">
         <p>このステップでは、3 つの評価専門 Agent を A2A サービスとして実装します。coordinator からは直接 import せず、Agent Card 経由で呼び出します。</p>
 <h2 is-upgraded>comfort_agent を作成する</h2>
@@ -1653,7 +1649,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Multi-Agent Evaluation を実装する" duration="25">
         <p>このステップでは、coordinator から A2A specialist を呼び出し、快適性、リスク、体験価値、費用を統合して上位 3 案を作ります。</p>
 <h2 is-upgraded>evaluation_models.py を作成する</h2>
@@ -2005,7 +2001,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="User Selection と Replan 分岐を実装する" duration="20">
         <p>このステップでは、評価結果の上位 3 案をユーザーに提示し、選択された案で進む route と、条件を変えて再提案する route を作ります。</p>
 <h2 is-upgraded>planner_models.py を作成する</h2>
@@ -2349,7 +2345,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Planner で詳細旅程を生成する" duration="20">
         <p>このステップでは、ユーザーが選んだ 1 候補だけを使って詳細旅程 Markdown を作ります。</p>
 <h2 is-upgraded>SelectedOptionContext を追加する</h2>
@@ -2686,7 +2682,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Illustrator で旅しおり画像を生成する" duration="15">
         <p>このステップでは、planner が作った旅程 Markdown から画像生成 prompt を作り、旅しおり画像を生成します。</p>
 <h2 is-upgraded>illustrator.py を作成する</h2>
@@ -2903,7 +2899,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="ローカルで完成したマルチエージェントを実行する" duration="15">
         <p>このステップでは、完成したコードをローカルで一通り動かします。</p>
 <h2 is-upgraded>全テストを実行する</h2>
@@ -3079,7 +3075,7 @@ itinerary_markdown
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="Agent Runtime にデプロイする" duration="20">
         <p>このステップでは、specialist 3 体と coordinator を Agent Runtime にデプロイします。</p>
 <h2 is-upgraded>Google Cloud 認証を確認する</h2>
@@ -3120,7 +3116,7 @@ itinerary_markdown
   </button>
 </div>
 <pre><code language="language-text" class="language-text">[core]
-project = your-workshop-project-id
+project = create-multi-agent
 </code></pre>
 </div>
 <p><code>.env</code> も同じ project を指していることを確認します。</p>
@@ -3146,7 +3142,7 @@ project = your-workshop-project-id
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-text" class="language-text">GOOGLE_CLOUD_PROJECT=your-workshop-project-id
+<pre><code language="language-text" class="language-text">GOOGLE_CLOUD_PROJECT=create-multi-agent
 </code></pre>
 </div>
 <h2 is-upgraded>deploy_all.sh を実行する</h2>
@@ -3247,7 +3243,7 @@ travel_coordinator_agent.engine_id
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="トラブルシューティング" duration="10">
         <p>このステップでは、実装中によく起きる問題を確認します。</p>
 <h2 is-upgraded>google_search と structured output が両立しない場合</h2>
@@ -3364,7 +3360,7 @@ research_report = reports[selected_option_id]
 
 
       </google-codelab-step>
-    
+
       <google-codelab-step label="おめでとうございます！" duration="5">
         <p>このコードラボでは、ADK 2.1、A2A、Agent Runtime を使って、旅行計画を作成するマルチエージェント AI を作りました。</p>
 <h2 is-upgraded>学んだこと</h2>
@@ -3444,7 +3440,1347 @@ research_report = reports[selected_option_id]
 
 
       </google-codelab-step>
-    
+
+      <google-codelab-step label="Extra: 画像生成プロンプトを改善する" duration="25">
+        <p>ここからは Extra 課題です。各 Extra は、本編を最後まで実装した <code>template/</code> の続きから適用できます。まず 1 つだけ選び、時間があれば複数を組み合わせてください。</p>
+<p>このステップでは、旅しおり画像の prompt を改善します。画像生成そのもののコードは本編で作成済みなので、ここでは <code>illustrator_prompt_writer</code> の指示と prompt format を強くします。</p>
+<aside class="warning"><p><strong>Warning:</strong> Extra 課題では API key、メールアドレス、Google Cloud project などの個人情報を扱うことがあります。値は <code>.env</code> に入れ、commit しないでください。</p></aside>
+<h2 is-upgraded>改善する観点を決める</h2>
+<p>本編の prompt は「旅程を画像にする」ための最小構成です。Extra では、次の 4 つを明示します。</p>
+<ul>
+<li>旅程の主要情報を優先順位つきで配置する</li>
+<li>小さすぎるテキストや詰め込みすぎを避ける</li>
+<li>表紙、地図、チェックリストのどれに近い構図かを選ばせる</li>
+<li>旅程に含まれない観光地、季節、交通手段を描かない</li>
+</ul>
+<p>画像生成 prompt は、見た目だけでなく「旅程の誤読を減らす」ための interface です。旅行先が違って見える、季節が違って見える、読めない文字が多い、という結果は失敗として扱います。</p>
+<h2 is-upgraded>illustrator_prompts.py を更新する</h2>
+<p><code>agents/coordinator/illustrator_prompts.py</code> の <code>IMAGE_PROMPT_FORMAT</code> を差し替えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> IMAGE_PROMPT_FORMAT = &#34;&#34;&#34;
+ {
+   &#34;task&#34;: &#34;generate_image&#34;,
+   &#34;image_type&#34;: &#34;travel_itinerary_cover&#34;,
+   &#34;canvas&#34;: {
+-    &#34;aspect_ratio&#34;: &#34;9:16&#34;,
++    &#34;aspect_ratio&#34;: &#34;9:16&#34;,
++    &#34;safe_area&#34;: &#34;keep all text at least 8% away from every edge&#34;,
++    &#34;readability&#34;: &#34;large readable Japanese text only; avoid dense paragraphs&#34;
+   },
++  &#34;composition_type&#34;: &#34;choose one: cover, illustrated map, or checklist poster&#34;,
++  &#34;priority_order&#34;: [
++    &#34;destination and trip length&#34;,
++    &#34;top 3 itinerary highlights&#34;,
++    &#34;transportation mode&#34;,
++    &#34;important caution or rainy-day note&#34;
++  ],
+   &#34;text_elements&#34;: [
+     {
+-      &#34;text&#34;: &#34;AI時代の仕事術&#34;,
+-      &#34;position&#34;: &#34;center-left&#34;,
+-      &#34;font_style&#34;: &lt;the_most_appropriate_font_for_each_test_element&gt;,
+-      &#34;size&#34;: &#34;very large&#34;,
+-      &#34;color&#34;: &#34;white&#34;,
++      &#34;text&#34;: &#34;&lt;destination and duration&gt;&#34;,
++      &#34;position&#34;: &#34;top or center&#34;,
++      &#34;font_style&#34;: &#34;&lt;choose a readable Japanese display font style&gt;&#34;,
++      &#34;size&#34;: &#34;largest&#34;,
++      &#34;color&#34;: &#34;&lt;high contrast color&gt;&#34;
++    },
++    {
++      &#34;text&#34;: &#34;&lt;up to 3 short highlight labels&gt;&#34;,
++      &#34;position&#34;: &#34;near matching visual elements&#34;,
++      &#34;font_style&#34;: &#34;&lt;readable sans-serif style&gt;&#34;,
++      &#34;size&#34;: &#34;large&#34;,
++      &#34;color&#34;: &#34;&lt;high contrast color&gt;&#34;
+     }
+   ],
+   &#34;visual_elements&#34;: [
+     {
+-      &#34;subject&#34;: &#34;a focused Japanese office worker using a laptop&#34;,
+-      &#34;position&#34;: &#34;right side&#34;,
+-      &#34;style&#34;: &#34;clean commercial illustration&#34;
++      &#34;subject&#34;: &#34;&lt;landmarks, food, transport, and mood based only on the itinerary&gt;&#34;,
++      &#34;position&#34;: &#34;balanced foreground and background&#34;,
++      &#34;style&#34;: &#34;flat 2D cel-shaded anime illustration, hand-drawn line art, crisp black outlines&#34;
+     }
+   ],
+   &#34;composition&#34;: {
+     &#34;hierarchy&#34;: &#34;main_title must be the largest and most readable element&#34;,
+-    &#34;safe_area&#34;: &#34;keep all text away from edges by 8%&#34;,
+-    &#34;background&#34;: &#34;dark blue gradient with subtle tech patterns&#34;
++    &#34;spacing&#34;: &#34;leave generous empty space around each text block&#34;,
++    &#34;background&#34;: &#34;destination-specific scenery from the itinerary&#34;
++  },
++  &#34;negative_instructions&#34;: [
++    &#34;do not add destinations, seasons, transport, prices, or events not present in the itinerary&#34;,
++    &#34;do not use tiny unreadable text&#34;,
++    &#34;do not create photorealistic people or 3D renderings&#34;,
++    &#34;do not crop important landmarks or text&#34;
++  ]
+ }
+ &#34;&#34;&#34;
+</code></pre>
+</div>
+<p>prompt format は「この形で出力してほしい」という見本です。実際の旅程に合わせて <code>&lt;destination and duration&gt;</code> などの placeholder を埋めるように、次の Agent instruction も更新します。</p>
+<h2 is-upgraded>illustrator.py の instruction を更新する</h2>
+<p><code>agents/coordinator/illustrator.py</code> の <code>illustrator_prompt_agent</code> に、読みやすさと事実性の制約を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> illustrator_prompt_agent = Agent(
+     name=&#34;illustrator_prompt_writer&#34;,
+     model=ILLUSTRATOR_PROMPT_AGENT_MODEL,
+     description=&#34;plannerの旅程markdownから表紙画像生成用promptを作る。&#34;,
+     instruction=(
+         &#34;入力: 旅行旅程\n&#34;
+         &#34;出力: 1枚の旅行しおり画像を生成するための英語のprompt\n&#34;
+         &#34;- 画像生成プロンプト以外を出力するのは禁止です\n&#34;
+         &#34;- 旅程ごとに最適なしおり画像は異なります\n&#34;
+-        &#34;- 入力された旅程情報を全て配置してください. 省略は禁止です.\n&#34;
+-        &#34;- この画像を見るだけで旅程と全く同じ旅行ができることが目標です\n&#34;
++        &#34;- 入力された旅程のうち、destination, duration, top highlights, transport, caution を優先してください\n&#34;
++        &#34;- 小さな文字で全情報を詰め込むのは禁止です。読める短いラベルに要約してください\n&#34;
++        &#34;- 入力にない観光地、季節、交通手段、料金、イベントを追加してはいけません\n&#34;
++        &#34;- cover, illustrated map, checklist poster のうち旅程に最も合う構図を選んでください\n&#34;
+         &#34;- text element ごとに適したフォントと太さを選んでください\n&#34;
+         &#34;- デフォルトのフォントは避けてください\n&#34;
+         &#34;- 常に同じフォントを使うのも避けてください\n&#34;
+</code></pre>
+</div>
+<p>この変更で、prompt writer は旅程全体を無理に画像へ詰め込まず、画像として読める情報量へ圧縮します。</p>
+<h2 is-upgraded>画像を比較する</h2>
+<p>ADK Web を起動し、同じ旅行条件で変更前後を比較します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run
+</code></pre>
+</div>
+<p>ADK Web で次の入力を送ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">東京から1泊2日で、公共交通で行ける静かな温泉地に行きたいです。予算は3万円以内です。混雑は避けたいです。
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<ul>
+<li>画像の大きな文字で目的地と日数が読める</li>
+<li>主要スポットが 3 つ程度に整理されている</li>
+<li>旅程にない季節、観光地、交通手段が描かれていない</li>
+<li>注意点や雨天代替が短いラベルで表現されている</li>
+</ul>
+<h2 is-upgraded>うまくいかない場合</h2>
+<p>画像が文字だらけになる場合は、<code>text_elements</code> の数を 2 つまでに制限します。目的地やスポットが違う場合は、<code>negative_instructions</code> に「do not add」を増やすより、prompt writer の入力に <code>SelectedOptionContext</code> のどのフィールドを使うかを明示します。</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extra: Memory Bank でパーソナライズする" duration="35">
+        <p>このステップでは、過去の旅行嗜好を Memory から読み出して、候補生成と旅程作成に反映します。本編では <code>session.state</code> に現在の会話だけの中間結果を保存しました。Memory は session をまたいで検索できる長期的な情報に使います。</p>
+<h2 is-upgraded>追加する構成を確認する</h2>
+<p>この Extra では、Memory を必須依存にはしません。環境変数 <code>TRAVEL_AGENT_USE_MEMORY=true</code> のときだけ Memory tool を有効にします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">TRAVEL_AGENT_USE_MEMORY=false
+  -&gt; 本編と同じ動き
+
+TRAVEL_AGENT_USE_MEMORY=true
+  -&gt; clarify / strategist / planner が Memory を参照
+</code></pre>
+</div>
+<p>Memory の内容は、今回の明示的な希望より弱い補助情報として扱います。たとえば Memory に「車移動は避けたい」とあっても、今回ユーザーが「今回は車でもよい」と言った場合は今回の入力を優先します。</p>
+<h2 is-upgraded>memory.py を作成する</h2>
+<p><code>agents/coordinator/memory.py</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-python" class="language-python">from __future__ import annotations
+
+from agents._common import env_bool
+
+
+def personalization_tools():
+    &#34;&#34;&#34;Return memory tools only when the optional Memory extra is enabled.&#34;&#34;&#34;
+    if not env_bool(&#34;TRAVEL_AGENT_USE_MEMORY&#34;):
+        return []
+
+    from google.adk.tools.preload_memory_tool import PreloadMemoryTool
+
+    return [PreloadMemoryTool()]
+
+
+def personalization_instruction() -&gt; str:
+    if not env_bool(&#34;TRAVEL_AGENT_USE_MEMORY&#34;):
+        return &#34;&#34;
+
+    return (
+        &#34;Memory に過去の旅行嗜好や制約がある場合は、今回の明示的な希望を優先しつつ、&#34;
+        &#34;候補生成、確認質問、旅程作成の補助情報として使ってください。&#34;
+        &#34;Memory の内容だけを根拠に、ユーザーが今回言っていない制約を断定しないでください。&#34;
+    )
+</code></pre>
+</div>
+<p>この helper により、Memory を使わない通常実行では tool も instruction も追加されません。</p>
+<h2 is-upgraded>clarify_agent に Memory を接続する</h2>
+<p><code>agents/coordinator/clarify.py</code> を更新します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from google.adk.workflow import DEFAULT_ROUTE
+
+ from agents.coordinator.clarify_models import TravelRequest
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.utils import text
+@@
+ clarify_agent = Agent(
+     name=&#34;clarify&#34;,
+     model=CLARIFY_AGENT_MODEL,
+     description=&#34;旅行希望を構造化し、不足情報を抽出する。&#34;,
+     output_schema=TravelRequest,
+     instruction=(
+         &#34;ユーザーの旅行希望を TravelRequest に構造化してください。&#34;
+         &#34;期間、出発地、予算、交通手段、同行者、旅行嗜好、制約を抽出します。&#34;
++        + personalization_instruction()
++        + &#34;origin, duration, budget, transport など旅程品質に重大な影響がある情報が&#34;
+-        &#34;origin, duration, budget, transport など旅程品質に重大な影響がある情報が&#34;
+         &#34;不明な場合のみ unknowns に入れてください。&#34;
+         &#34;推測で補える軽微な項目は unknowns に入れすぎないでください。&#34;
+     ),
++    tools=personalization_tools(),
+     mode=&#34;single_turn&#34;,
+ )
+</code></pre>
+</div>
+<p>clarification では、Memory を不足情報の推測に使いすぎないことが重要です。Memory は質問を減らすための補助であり、今回の必須条件を勝手に確定するためのものではありません。</p>
+<h2 is-upgraded>strategist_agent に Memory を接続する</h2>
+<p><code>agents/coordinator/candidates.py</code> を更新します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from agents.coordinator.candidates_models import ResearchReport, TravelOption, TravelOptions
+ from agents.coordinator.clarify import STATE_TRAVEL_REQUEST
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.utils import dump, text
+@@
+ strategist_agent = Agent(
+     name=&#34;strategist&#34;,
+     model=STRATEGIST_AGENT_MODEL,
+     description=&#34;旅行方針と候補地を6案作る。&#34;,
+     output_schema=TravelOptions,
+     instruction=(
+         &#34;TravelRequest をもとに、旅行候補を6案作ってください。&#34;
++        + personalization_instruction()
++        + &#34;詳細旅程ではなく、旅行方針、候補地、調査観点を作ります。&#34;
+-        &#34;詳細旅程ではなく、旅行方針、候補地、調査観点を作ります。&#34;
+         &#34;option_id は option_1, option_2 のように安定した値にしてください。&#34;
+     ),
++    tools=personalization_tools(),
+     mode=&#34;single_turn&#34;,
+ )
+</code></pre>
+</div>
+<p>候補生成では、Memory にある「好きな旅行の傾向」を候補の方向づけに使います。過去に「朝は遅めがよい」と分かっている場合、朝早い移動が必要な候補は評価を下げる、という使い方ができます。</p>
+<h2 is-upgraded>planner_agent に Memory を接続する</h2>
+<p><code>agents/coordinator/planner.py</code> を更新します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from agents.coordinator.evaluation_models import (
+     EvaluationReport,
+     EvaluationReports,
+ )
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.planner_models import (
+@@
+ planner_agent = Agent(
+     name=&#34;planner&#34;,
+     model=PLANNER_AGENT_MODEL,
+     description=&#34;選ばれた候補だけを使って詳細な旅程をmarkdownで作る。&#34;,
+     instruction=(
+         &#34;入力: 選択された旅行候補\n&#34;
+         &#34;出力: 詳細旅程のmarkdown&#34;
++        + personalization_instruction()
++        + &#34;読みやすさを優先し、見出し、箇条書き、時間帯ごとの流れを自然に使います。&#34;
+-        &#34;読みやすさを優先し、見出し、箇条書き、時間帯ごとの流れを自然に使います。&#34;
+         &#34;日程には移動、食事、宿泊、雨天代替、注意点を含めてください。&#34;
+         &#34;入力にない情報は断定せず「要確認」と書いてください。&#34;
+     ),
++    tools=personalization_tools(),
+     mode=&#34;single_turn&#34;,
+ )
+</code></pre>
+</div>
+<p>planner では、Memory を日程の細部に使います。たとえば「朝は遅め」「歩きすぎを避けたい」「カフェ休憩が好き」といった好みを、時間帯や休憩の入れ方に反映できます。</p>
+<h2 is-upgraded>Makefile に Memory 起動ターゲットを追加する</h2>
+<p><code>Makefile</code> に <code>web-memory</code> を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="makefile"> UV ?= uv
+ UV_RUN := $(UV) run
+
+-.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web clean
++MEMORY_SERVICE_URI ?= memory://
++
++.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web web-memory clean
+@@
+ web:
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
++
++web-memory:
++	TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. $(UV_RUN) adk web agents --port 8000 --memory_service_uri=&#34;$(MEMORY_SERVICE_URI)&#34;
+
+ clean:
+</code></pre>
+</div>
+<p>ローカルで試す場合は <code>memory://</code> を使います。Agent Runtime の Memory Bank を使う場合は <code>agentengine://...</code> を渡します。</p>
+<h2 is-upgraded>.env.example に設定を追加する</h2>
+<p><code>.env.example</code> に Memory extra の設定を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="bash"> # Optional Cloud Trace.
+ TRAVEL_AGENT_TRACE_TO_CLOUD=false
++
++# Optional Memory extra. Use `make web-memory MEMORY_SERVICE_URI=agentengine://...`
++# for Vertex AI Memory Bank, or keep memory:// for local prototyping.
++TRAVEL_AGENT_USE_MEMORY=false
+</code></pre>
+</div>
+<h2 is-upgraded>Memory を有効にして起動する</h2>
+<p>ローカルの in-memory service で起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make web-memory
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">INFO:     Uvicorn running on http://127.0.0.1:8000
+</code></pre>
+</div>
+<p>Agent Runtime の Memory Bank を使う場合は、Agent Runtime の ID を指定します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make web-memory MEMORY_SERVICE_URI=agentengine://YOUR_AGENT_ENGINE_ID
+</code></pre>
+</div>
+<h2 is-upgraded>動作を確認する</h2>
+<p>ADK Web で、まず好みが分かる会話をします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">今後の旅行では、車移動は避けたいです。朝は遅めに出発したいです。温泉より古い町並みが好きです。
+</code></pre>
+</div>
+<p>次に、条件をあえて曖昧にして相談します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">来月、週末に短い旅行をしたいです。行き先はおまかせです。
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<ul>
+<li>公共交通で行きやすい候補が優先される</li>
+<li>朝早すぎる移動が避けられる</li>
+<li>古い町並みや散策が候補や旅程に反映される</li>
+<li>今回の入力にない制約を断定せず、必要なら確認質問をする</li>
+</ul>
+<h2 is-upgraded>うまくいかない場合</h2>
+<p>Memory が反映されない場合は、<code>TRAVEL_AGENT_USE_MEMORY=true</code> が有効になっているか確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+from agents.coordinator.clarify import clarify_agent
+from agents.coordinator.candidates import strategist_agent
+from agents.coordinator.planner import planner_agent
+print(len(clarify_agent.tools), len(strategist_agent.tools), len(planner_agent.tools))
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">1 1 1
+</code></pre>
+</div>
+<p><code>0 0 0</code> の場合は、環境変数が読み込まれていません。<code>make web-memory</code> から起動してください。</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extra: Evaluation と User Simulation を追加する" duration="35">
+        <p>このステップでは、旅行計画エージェントを評価するための EvalSet を作ります。本編では ADK Web で手動確認しましたが、同じ入力を何度も試すだけでは品質の変化を追いにくくなります。</p>
+<p>ADK Evaluation では、保存した eval case を <code>adk eval</code> で実行します。User Simulation では、ユーザー役の LLM が複数ターンの会話を進め、clarification、候補選択、旅程生成までを含む会話を作ります。</p>
+<h2 is-upgraded>評価したいことを決める</h2>
+<p>旅行計画エージェントでは、次の観点を評価します。</p>
+<ul>
+<li>ユーザーの出発地、期間、予算、交通手段を満たしている</li>
+<li>不足情報がある場合だけ clarification している</li>
+<li>候補選択まで自然に進めている</li>
+<li>存在しない施設、料金、営業日を断定していない</li>
+<li>リスクや注意点を説明している</li>
+</ul>
+<p>この Extra では、まず 2 つの user simulation scenario から EvalSet を作ります。</p>
+<h2 is-upgraded>evals ディレクトリを作成する</h2>
+<p><code>evals/</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">mkdir -p evals
+</code></pre>
+</div>
+<p>出力がなければ成功です。</p>
+<h2 is-upgraded>travel_scenarios.json を作成する</h2>
+<p><code>evals/travel_scenarios.json</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;scenarios&#34;: [
+    {
+      &#34;starting_prompt&#34;: &#34;東京から静かな温泉地に1泊2日で行きたいです。公共交通で移動し、予算は3万円以内です。&#34;,
+      &#34;conversation_plan&#34;: &#34;候補を比較し、快適性とリスクの説明を確認する。上位候補から1つ選び、詳細旅程と旅しおり画像まで作らせる。&#34;,
+      &#34;user_persona&#34;: &#34;NOVICE&#34;
+    },
+    {
+      &#34;starting_prompt&#34;: &#34;大阪発で、写真を撮るのが楽しい週末旅行を提案して。人混みは避けたいです。&#34;,
+      &#34;conversation_plan&#34;: &#34;不足情報を聞かれたら短く答える。候補提示後に混雑リスクの根拠を質問し、納得できる候補で旅程を作らせる。&#34;,
+      &#34;user_persona&#34;: &#34;EXPERT&#34;
+    }
+  ]
+}
+</code></pre>
+</div>
+<p>1 つ目は初心者ユーザー、2 つ目は条件の意図を説明できるユーザーです。ユーザー役の性格を分けることで、clarification の出し方や候補説明の耐性を見られます。</p>
+<h2 is-upgraded>session_input.json を作成する</h2>
+<p><code>evals/session_input.json</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;app_name&#34;: &#34;dynamic_travel_planning_agent&#34;,
+  &#34;user_id&#34;: &#34;eval-user&#34;,
+  &#34;state&#34;: {}
+}
+</code></pre>
+</div>
+<p>このファイルは、eval case を作るときの初期 session を指定します。Memory extra と組み合わせる場合は、ここに user state を追加するか、Memory service 側に評価用の記憶を入れてから実行します。</p>
+<h2 is-upgraded>eval_config.json を作成する</h2>
+<p><code>evals/eval_config.json</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;criteria&#34;: {
+    &#34;hallucinations_v1&#34;: {
+      &#34;threshold&#34;: 0.5,
+      &#34;evaluate_intermediate_nl_responses&#34;: true
+    },
+    &#34;safety_v1&#34;: {
+      &#34;threshold&#34;: 0.8
+    },
+    &#34;multi_turn_task_success_v1&#34;: {
+      &#34;threshold&#34;: 0.6
+    }
+  },
+  &#34;user_simulator_config&#34;: {
+    &#34;model&#34;: &#34;gemini-flash-latest&#34;,
+    &#34;max_allowed_invocations&#34;: 20
+  }
+}
+</code></pre>
+</div>
+<p><code>evaluate_intermediate_nl_responses</code> を有効にすると、最終回答だけでなく途中の自然言語応答も hallucination の評価対象になります。</p>
+<h2 is-upgraded>Makefile に eval ターゲットを追加する</h2>
+<p><code>Makefile</code> に eval 用ターゲットを追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="makefile"> UV ?= uv
+ UV_RUN := $(UV) run
++EVAL_SET_ID ?= travel_planning_user_sim
+
+-.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web clean
++.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web eval-create eval-add-scenarios eval-run clean
+@@
+ web:
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
++
++eval-create:
++	PYTHONPATH=. $(UV_RUN) adk eval_set create agents/coordinator $(EVAL_SET_ID)
++
++eval-add-scenarios:
++	PYTHONPATH=. $(UV_RUN) adk eval_set add_eval_case agents/coordinator $(EVAL_SET_ID) --scenarios_file evals/travel_scenarios.json --session_input_file evals/session_input.json
++
++eval-run:
++	PYTHONPATH=. $(UV_RUN) adk eval agents/coordinator $(EVAL_SET_ID) --config_file_path evals/eval_config.json --print_detailed_results
+
+ clean:
+</code></pre>
+</div>
+<p>コマンドを Makefile に入れておくと、scenario や config を増やしても同じ手順で評価できます。</p>
+<h2 is-upgraded>EvalSet を作成する</h2>
+<p>EvalSet を作ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make eval-create
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Eval set travel_planning_user_sim created
+</code></pre>
+</div>
+<p>同名の EvalSet がすでにある場合は、次の <code>eval-add-scenarios</code> から進めて構いません。</p>
+<h2 is-upgraded>User Simulation から eval case を追加する</h2>
+<p>scenario を EvalSet に追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make eval-add-scenarios
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Added eval cases to travel_planning_user_sim
+</code></pre>
+</div>
+<p>このコマンドは user simulator を使うため、モデル呼び出しが発生します。<code>GOOGLE_API_KEY</code> が設定されていることを確認してください。</p>
+<h2 is-upgraded>評価を実行する</h2>
+<p>EvalSet を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make eval-run
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Eval case results
+...
+</code></pre>
+</div>
+<p>結果では、失敗した turn、失敗した criteria、実際の応答を確認します。失敗した場合は、prompt を強くする前に「入力が足りないのか」「workflow の state が渡っていないのか」「専門 agent の評価が不足しているのか」を分けて見ます。</p>
+<h2 is-upgraded>評価を増やす</h2>
+<p>慣れてきたら、<code>travel_scenarios.json</code> に scenario を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;starting_prompt&#34;: &#34;福岡発で、祖母と一緒に行ける2泊3日の旅行を考えています。歩く距離は短めがいいです。&#34;,
+  &#34;conversation_plan&#34;: &#34;移動負荷の説明を確認し、休憩が多い候補を選ぶ。旅程に無理な徒歩移動がないか質問する。&#34;,
+  &#34;user_persona&#34;: &#34;NOVICE&#34;
+}
+</code></pre>
+</div>
+<p>高齢の同行者、子ども連れ、悪天候、予算が厳しいケースなど、失敗してほしくない条件を増やすと評価の価値が上がります。</p>
+<p>詳しくは <a href="https://adk.dev/evaluate/" target="_blank">ADK Evaluation</a> と <a href="https://adk.dev/evaluate/user-sim/" target="_blank">User Simulation</a> を参照してください。</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extra: AgentMail で旅行プランをメール送信する" duration="45">
+        <p>このステップでは、完成した旅行プランと旅しおり画像の情報を AgentMail でメール送信します。本編の workflow は画像生成で終わっていました。ここでは、その後ろに optional node を追加します。</p>
+<h2 is-upgraded>追加する構成を確認する</h2>
+<p>AgentMail は MCP server として接続します。<code>AGENTMAIL_API_KEY</code> が設定されている場合だけ送信 node が動くようにします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">planner
+-&gt; illustrator_prompt_writer
+-&gt; store_illustrator_prompt
+-&gt; illustrator
+-&gt; maybe_send_itinerary_email
+</code></pre>
+</div>
+<p>送信先は <code>TRAVEL_ITINERARY_EMAIL_TO</code> で指定します。初期値は確認用の <code>traveler@example.com</code> にします。本当に送信する場合は、自分が受信できるアドレスに変えてください。</p>
+<h2 is-upgraded>pyproject.toml に mcp を追加する</h2>
+<p>AgentMail MCP server と接続するため、<code>mcp</code> package を依存関係に追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="toml"> dependencies = [
+   &#34;google-adk[a2a]==2.1.0&#34;,
+   &#34;google-cloud-aiplatform[agent_engines]==1.153.1&#34;,
+   &#34;a2a-sdk[http-server]==0.3.26&#34;,
+   &#34;pydantic==2.12.5&#34;,
+   &#34;python-dotenv==1.2.1&#34;,
+   &#34;uvicorn==0.38.0&#34;,
+   &#34;fastapi==0.136.3&#34;,
+   &#34;ag-ui-adk&gt;=0.6.5&#34;,
++  &#34;mcp&gt;=1.22.0&#34;,
+ ]
+</code></pre>
+</div>
+<p>lock file を更新します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv lock
+uv sync --extra dev
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Resolved ... packages
+Installed ...
+</code></pre>
+</div>
+<h2 is-upgraded>agentmail.py を作成する</h2>
+<p><code>agents/coordinator/agentmail.py</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-python" class="language-python">from __future__ import annotations
+
+import os
+from typing import Any
+
+from google.adk import Agent, Context
+from google.adk.workflow import node
+
+from agents.coordinator.illustrator import STATE_ILLUSTRATOR_PROMPT
+from agents.coordinator.planner import STATE_ITINERARY_MARKDOWN
+from agents.coordinator.utils import text
+
+STATE_AGENTMAIL_RESULT = &#34;agentmail_result&#34;
+
+AGENTMAIL_AGENT_MODEL = &#34;gemini-3.5-flash&#34;
+DEFAULT_ITINERARY_EMAIL_TO = &#34;traveler@example.com&#34;
+
+
+def agentmail_enabled() -&gt; bool:
+    api_key = os.getenv(&#34;AGENTMAIL_API_KEY&#34;, &#34;&#34;)
+    return bool(api_key and api_key != &#34;YOUR_AGENTMAIL_API_KEY&#34;)
+
+
+def _agentmail_tools():
+    if not agentmail_enabled():
+        return []
+
+    from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
+    from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+    from mcp import StdioServerParameters
+
+    return [
+        McpToolset(
+            connection_params=StdioConnectionParams(
+                server_params=StdioServerParameters(
+                    command=&#34;npx&#34;,
+                    args=[
+                        &#34;-y&#34;,
+                        &#34;agentmail-mcp&#34;,
+                        &#34;--tools&#34;,
+                        &#34;create_inbox,list_inboxes,send_message&#34;,
+                    ],
+                    env={
+                        &#34;AGENTMAIL_API_KEY&#34;: os.environ[&#34;AGENTMAIL_API_KEY&#34;],
+                    },
+                ),
+                timeout=30,
+            ),
+        )
+    ]
+
+
+agentmail_agent = Agent(
+    name=&#34;agentmail_sender&#34;,
+    model=AGENTMAIL_AGENT_MODEL,
+    description=&#34;旅行プランと旅しおり画像情報をメールで送る。&#34;,
+    instruction=(
+        &#34;あなたは旅行プラン送信担当です。AgentMail の MCP tool が使える場合は、&#34;
+        &#34;既存 inbox を確認し、適切な inbox がなければ作成してから send_message で送信してください。&#34;
+        &#34;件名は旅行先と日数が分かる短い日本語にしてください。&#34;
+        &#34;本文には旅行プラン Markdown、旅しおり画像生成 prompt、&#34;
+        &#34;画像生成結果への言及を含めてください。&#34;
+        &#34;送信できた場合は宛先、件名、message_id または thread_id を簡潔に返してください。&#34;
+        &#34;tool が使えない場合は送信用ドラフトだけを返し、送信済みとは書かないでください。&#34;
+    ),
+    tools=_agentmail_tools(),
+    mode=&#34;single_turn&#34;,
+)
+
+
+@node(name=&#34;maybe_send_itinerary_email&#34;, rerun_on_resume=True)
+async def maybe_send_itinerary_email(ctx: Context, node_input: Any) -&gt; Any:
+    if not agentmail_enabled():
+        return node_input
+
+    result = await ctx.run_node(agentmail_agent, build_agentmail_input(ctx, node_input))
+    ctx.state[STATE_AGENTMAIL_RESULT] = text(result)
+    return result
+
+
+def build_agentmail_input(ctx: Context, illustrator_output: Any) -&gt; str:
+    recipient = os.getenv(&#34;TRAVEL_ITINERARY_EMAIL_TO&#34;, DEFAULT_ITINERARY_EMAIL_TO)
+    return &#34;\n\n&#34;.join(
+        [
+            f&#34;送信先: {recipient}&#34;,
+            &#34;旅行プラン Markdown:&#34;,
+            text(ctx.state.get(STATE_ITINERARY_MARKDOWN)),
+            &#34;旅しおり画像生成 prompt:&#34;,
+            text(ctx.state.get(STATE_ILLUSTRATOR_PROMPT)),
+            &#34;画像生成結果:&#34;,
+            text(illustrator_output),
+        ]
+    )
+</code></pre>
+</div>
+<p><code>agentmail_enabled()</code> が <code>False</code> のときは、workflow は本編と同じように画像生成結果で終わります。API key がない環境でも壊れないようにするためです。</p>
+<h2 is-upgraded>illustrator_prompt を state に保存する</h2>
+<p>本編では <code>illustrator_prompt_writer</code> の出力をそのまま <code>illustrator</code> に渡しました。メール本文にも prompt を載せたいので、<code>agents/coordinator/illustrator.py</code> に保存 node を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from __future__ import annotations
+
+ from google.adk import Agent
++from google.adk.agents.context import Context
+
+ from agents.coordinator.illustrator_prompts import IMAGE_PROMPT_FORMAT
++from agents.coordinator.utils import text
+@@
+ illustrator_agent = Agent(
+     name=&#34;illustrator&#34;,
+     model=ILLUSTRATOR_AGENT_MODEL,
+     description=&#34;旅しおりの表紙画像を生成する。&#34;,
+     instruction=&#34;旅しおり画像を生成してください&#34;,
+     mode=&#34;single_turn&#34;,
+ )
++
++
++def store_illustrator_prompt(ctx: Context, node_input) -&gt; str:
++    prompt = text(node_input)
++    ctx.state[STATE_ILLUSTRATOR_PROMPT] = prompt
++    return prompt
+</code></pre>
+</div>
+<p><code>store_illustrator_prompt</code> は入力を変えずに返すので、後続の <code>illustrator_agent</code> にはこれまで通り prompt が渡ります。</p>
+<h2 is-upgraded>agent.py に AgentMail node を接続する</h2>
+<p><code>agents/coordinator/agent.py</code> に import と workflow node を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from agents._common import to_a2a_app
++from agents.coordinator.agentmail import maybe_send_itinerary_email
+ from agents.coordinator.candidates import (
+@@
+ from agents.coordinator.illustrator import (
+     illustrator_agent,
+     illustrator_prompt_agent,
++    store_illustrator_prompt,
+ )
+@@
+         (
+             build_planner_input,
+             planner_agent,
+             store_itinerary_markdown,
+             illustrator_prompt_agent,
++            store_illustrator_prompt,
+             illustrator_agent,
++            maybe_send_itinerary_email,
+         ),
+</code></pre>
+</div>
+<p>この順番にすると、画像生成が終わった後にメール送信が実行されます。AgentMail が無効な場合、<code>maybe_send_itinerary_email</code> は画像生成結果をそのまま返します。</p>
+<h2 is-upgraded>.env.example に設定を追加する</h2>
+<p><code>.env.example</code> に AgentMail 用の値を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="bash"> # Optional Cloud Trace.
+ TRAVEL_AGENT_TRACE_TO_CLOUD=false
++
++# Optional AgentMail extra. When set, the coordinator emails the final itinerary
++# after image generation.
++AGENTMAIL_API_KEY=
++TRAVEL_ITINERARY_EMAIL_TO=traveler@example.com
+</code></pre>
+</div>
+<p><code>.env</code> にも同じ項目を追加し、実際に受信できる送信先へ変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">AGENTMAIL_API_KEY=YOUR_AGENTMAIL_API_KEY
+TRAVEL_ITINERARY_EMAIL_TO=your-address@example.com
+</code></pre>
+</div>
+<h2 is-upgraded>AgentMail tool が読み込まれることを確認する</h2>
+<p>API key を仮に入れて、AgentMail agent が 1 つの MCP toolset を持つことを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">AGENTMAIL_API_KEY=TEST PYTHONPATH=. uv run --extra dev python - &lt;&lt;&#39;PY&#39;
+from agents.coordinator.agentmail import agentmail_agent
+print(len(agentmail_agent.tools))
+PY
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">1
+</code></pre>
+</div>
+<p><code>ImportError: No module named 'mcp'</code> が出る場合は、<code>uv lock</code> と <code>uv sync --extra dev</code> を再実行します。</p>
+<h2 is-upgraded>メール送信を試す</h2>
+<p>本当に送信する場合は、<code>.env</code> に正しい <code>AGENTMAIL_API_KEY</code> と受信できる <code>TRAVEL_ITINERARY_EMAIL_TO</code> を設定してから起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run
+</code></pre>
+</div>
+<p>ADK Web で旅行相談を最後まで進めます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">東京から1泊2日で、公共交通で行ける静かな温泉地に行きたいです。予算は3万円以内です。旅程ができたらメールで送ってください。
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<ul>
+<li>旅程 Markdown が生成される</li>
+<li>旅しおり画像が生成される</li>
+<li><code>agentmail_sender</code> が呼ばれる</li>
+<li><code>session.state["agentmail_result"]</code> に宛先、件名、message ID または thread ID が残る</li>
+<li>指定した宛先でメールを確認できる</li>
+</ul>
+<h2 is-upgraded>うまくいかない場合</h2>
+<p>メールが送られない場合は、まず <code>AGENTMAIL_API_KEY</code> が空でないか確認します。<code>YOUR_AGENTMAIL_API_KEY</code> のままだと送信 node は無効扱いになります。</p>
+<p>MCP server の起動に失敗する場合は、Cloud Shell で <code>npx</code> が使えるか確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npx -y agentmail-mcp --help
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Usage
+</code></pre>
+</div>
+<p>送信先を間違えた場合は、<code>.env</code> の <code>TRAVEL_ITINERARY_EMAIL_TO</code> を修正して再実行します。</p>
+
+
+      </google-codelab-step>
+
+      <google-codelab-step label="Extra: AG-UI でフロントエンドから呼び出す" duration="30">
+        <p>このステップでは、ADK Web ではなく AG-UI endpoint から coordinator を呼び出します。フロントエンドを後で作る場合、ADK Web 専用の UI に閉じず、HTTP endpoint として workflow を扱えるようにしておくと便利です。</p>
+<h2 is-upgraded>AG-UI endpoint の役割を確認する</h2>
+<p>AG-UI endpoint は、<code>root_agent</code> を FastAPI app として公開します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">frontend or client
+-&gt; POST /ag-ui
+-&gt; AG-UI adapter
+-&gt; ADK root_agent
+</code></pre>
+</div>
+<p>この Extra では、<code>forwardedProps.userId</code> から user ID を取り出し、<code>thread_id</code> を session ID として使います。これにより、フロントエンド側でユーザーや会話を分けやすくなります。</p>
+<h2 is-upgraded>ag_ui_app.py を作成する</h2>
+<p><code>agents/coordinator/ag_ui_app.py</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-python" class="language-python">from __future__ import annotations
+
+from typing import Any
+
+from ag_ui.core import RunAgentInput
+from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from agents.coordinator.agent import root_agent
+
+APP_NAME = root_agent.name or &#34;dynamic_travel_planning_agent&#34;
+DEFAULT_USER_ID = &#34;ag-ui-user&#34;
+
+
+def user_id_from_input(input_data: RunAgentInput) -&gt; str:
+    forwarded_props: Any = input_data.forwarded_props
+    if isinstance(forwarded_props, dict):
+        return str(
+            forwarded_props.get(&#34;userId&#34;)
+            or forwarded_props.get(&#34;user_id&#34;)
+            or DEFAULT_USER_ID
+        )
+    return DEFAULT_USER_ID
+
+
+app = FastAPI(
+    title=&#34;Dynamic Travel Planning Agent AG-UI&#34;,
+    description=&#34;AG-UI endpoint for the ADK travel planning coordinator.&#34;,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&#34;*&#34;],
+    allow_methods=[&#34;GET&#34;, &#34;POST&#34;, &#34;OPTIONS&#34;],
+    allow_headers=[&#34;*&#34;],
+)
+
+agent = ADKAgent(
+    adk_agent=root_agent,
+    app_name=APP_NAME,
+    user_id_extractor=user_id_from_input,
+    use_thread_id_as_session_id=True,
+)
+add_adk_fastapi_endpoint(app, agent, path=&#34;/ag-ui&#34;)
+
+
+@app.get(&#34;/&#34;)
+async def health() -&gt; dict[str, str]:
+    return {
+        &#34;name&#34;: APP_NAME,
+        &#34;protocol&#34;: &#34;AG-UI&#34;,
+        &#34;endpoint&#34;: &#34;/ag-ui&#34;,
+    }
+</code></pre>
+</div>
+<p><code>use_thread_id_as_session_id=True</code> にすると、同じ thread ID の会話を同じ ADK session として扱えます。</p>
+<h2 is-upgraded>Makefile の run-ag-ui を確認する</h2>
+<p><code>Makefile</code> に <code>run-ag-ui</code> がない場合は追加します。すでにある場合はこのままで構いません。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="makefile"> run-coordinator:
+  PYTHONPATH=. $(UV_RUN) uvicorn agents.coordinator.agent:app --host 0.0.0.0 --port 8100
+
++run-ag-ui:
++	PYTHONPATH=. $(UV_RUN) uvicorn agents.coordinator.ag_ui_app:app --host 0.0.0.0 --port 8200
++
+ deploy-all:
+</code></pre>
+</div>
+<h2 is-upgraded>AG-UI server を起動する</h2>
+<p>AG-UI server を起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run-ag-ui
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Uvicorn running on http://0.0.0.0:8200
+</code></pre>
+</div>
+<p>別のターミナルで health endpoint を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl http://localhost:8200/
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{&#34;name&#34;:&#34;dynamic_travel_planning_agent&#34;,&#34;protocol&#34;:&#34;AG-UI&#34;,&#34;endpoint&#34;:&#34;/ag-ui&#34;}
+</code></pre>
+</div>
+<h2 is-upgraded>userId の扱いを確認する</h2>
+<p>AG-UI client から <code>forwardedProps.userId</code> を渡すと、その値が ADK の user ID になります。フロントエンドを作る場合は、ログインユーザー ID や demo 用の固定 ID をここに入れます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{
+  &#34;threadId&#34;: &#34;travel-thread-001&#34;,
+  &#34;runId&#34;: &#34;run-001&#34;,
+  &#34;messages&#34;: [],
+  &#34;forwardedProps&#34;: {
+    &#34;userId&#34;: &#34;alice&#34;
+  }
+}
+</code></pre>
+</div>
+<p>同じ <code>threadId</code> と <code>userId</code> で送ると同じ会話として扱われます。別の <code>threadId</code> にすると、新しい旅行相談として分けられます。</p>
+<h2 is-upgraded>Memory extra と組み合わせる</h2>
+<p>Memory extra を実装済みなら、同じ <code>userId</code> の過去嗜好を使った候補生成まで試します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. uv run --extra dev uvicorn agents.coordinator.ag_ui_app:app --host 0.0.0.0 --port 8200
+</code></pre>
+</div>
+<p><strong>期待される結果:</strong></p>
+<ul>
+<li>同じ <code>userId</code> の会話で嗜好が参照される</li>
+<li>別の <code>userId</code> では別ユーザーとして扱われる</li>
+<li>clarification や候補選択の途中状態が session ごとに分かれる</li>
+</ul>
+<h2 is-upgraded>うまくいかない場合</h2>
+<p><code>ModuleNotFoundError: No module named 'ag_ui'</code> が出る場合は、依存関係が入っていません。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">uv sync --extra dev
+</code></pre>
+</div>
+<p>AG-UI client から CORS error が出る場合は、<code>allow_origins</code> を本番 frontend の origin に絞って設定します。開発中は <code>["*"]</code> で動作確認し、本番では明示的な origin に変更してください。</p>
+
+
+      </google-codelab-step>
+
   </google-codelab>
 
   <script src="libs/native-shim.js"></script>

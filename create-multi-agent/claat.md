@@ -134,14 +134,13 @@ RISK_A2A_URL=http://localhost:8102
 EXPERIENCE_A2A_URL=http://localhost:8103
 
 GOOGLE_API_KEY=
-GOOGLE_GENAI_USE_VERTEXAI=true
 GOOGLE_CLOUD_PROJECT=create-multi-agent
 GOOGLE_CLOUD_LOCATION=us-central1
 
 TRAVEL_AGENT_TRACE_TO_CLOUD=false
 ```
 
-Google Cloud の Vertex AI を使う場合は `GOOGLE_GENAI_USE_VERTEXAI=true` のまま進めます。Google AI Studio の API key を使う場合は `GOOGLE_API_KEY` を設定し、`GOOGLE_GENAI_USE_VERTEXAI=false` にします。
+モデル呼び出しには Google AI Studio の API key を使います。`GOOGLE_API_KEY` に自分の API key を設定してください。`GOOGLE_CLOUD_PROJECT` と `GOOGLE_CLOUD_LOCATION` は Agent Runtime へのデプロイで使います。
 
 > **Warning:** `.env` に書いた API key や project 固有の値は commit しないでください。このハンズオンでは `.env.example` だけを共有します。
 
@@ -506,7 +505,7 @@ Agent Runtime にデプロイした A2A agent は、Runtime の A2A URL から A
 
 Sessions は、1つの会話やタスクの中で発生する状態、イベント履歴、途中結果を管理するための機能です。Memory Bank は、複数セッションをまたいでユーザーの嗜好や過去文脈を保持する長期記憶の機能です。
 
-このコードラボでは Sessions や Memory Bank を直接実装しませんが、Agent Runtime に載せることで、将来的に会話状態や長期記憶を扱う構成へ拡張しやすくなります。
+このコードラボ本編では Sessions や Memory Bank を直接実装しませんが、Agent Runtime に載せることで、将来的に会話状態や長期記憶を扱う構成へ拡張しやすくなります。Extra 課題では Memory Bank を使ったパーソナライズも扱います。
 
 #### このコードラボでのデプロイ順序
 
@@ -2701,3 +2700,1035 @@ Travel Agent Runtime — Cleanup
 - [A2A Protocol specification](https://a2a-protocol.org/latest/specification/)
 - [Gemini Enterprise Agent Platform overview](https://docs.cloud.google.com/gemini-enterprise-agent-platform/overview)
 - [Agent Runtime overview](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime)
+
+## Extra: 画像生成プロンプトを改善する
+
+Duration: 0:25:00
+
+ここからは Extra 課題です。各 Extra は、本編を最後まで実装した `template/` の続きから適用できます。まず 1 つだけ選び、時間があれば複数を組み合わせてください。
+
+このステップでは、旅しおり画像の prompt を改善します。画像生成そのもののコードは本編で作成済みなので、ここでは `illustrator_prompt_writer` の指示と prompt format を強くします。
+
+> **Warning:** Extra 課題では API key、メールアドレス、Google Cloud project などの個人情報を扱うことがあります。値は `.env` に入れ、commit しないでください。
+
+### 改善する観点を決める
+
+本編の prompt は「旅程を画像にする」ための最小構成です。Extra では、次の 4 つを明示します。
+
+- 旅程の主要情報を優先順位つきで配置する
+- 小さすぎるテキストや詰め込みすぎを避ける
+- 表紙、地図、チェックリストのどれに近い構図かを選ばせる
+- 旅程に含まれない観光地、季節、交通手段を描かない
+
+画像生成 prompt は、見た目だけでなく「旅程の誤読を減らす」ための interface です。旅行先が違って見える、季節が違って見える、読めない文字が多い、という結果は失敗として扱います。
+
+### illustrator_prompts.py を更新する
+
+`agents/coordinator/illustrator_prompts.py` の `IMAGE_PROMPT_FORMAT` を差し替えます。
+
+```diff python
+ IMAGE_PROMPT_FORMAT = """
+ {
+   "task": "generate_image",
+   "image_type": "travel_itinerary_cover",
+   "canvas": {
+-    "aspect_ratio": "9:16",
++    "aspect_ratio": "9:16",
++    "safe_area": "keep all text at least 8% away from every edge",
++    "readability": "large readable Japanese text only; avoid dense paragraphs"
+   },
++  "composition_type": "choose one: cover, illustrated map, or checklist poster",
++  "priority_order": [
++    "destination and trip length",
++    "top 3 itinerary highlights",
++    "transportation mode",
++    "important caution or rainy-day note"
++  ],
+   "text_elements": [
+     {
+-      "text": "AI時代の仕事術",
+-      "position": "center-left",
+-      "font_style": <the_most_appropriate_font_for_each_test_element>,
+-      "size": "very large",
+-      "color": "white",
++      "text": "<destination and duration>",
++      "position": "top or center",
++      "font_style": "<choose a readable Japanese display font style>",
++      "size": "largest",
++      "color": "<high contrast color>"
++    },
++    {
++      "text": "<up to 3 short highlight labels>",
++      "position": "near matching visual elements",
++      "font_style": "<readable sans-serif style>",
++      "size": "large",
++      "color": "<high contrast color>"
+     }
+   ],
+   "visual_elements": [
+     {
+-      "subject": "a focused Japanese office worker using a laptop",
+-      "position": "right side",
+-      "style": "clean commercial illustration"
++      "subject": "<landmarks, food, transport, and mood based only on the itinerary>",
++      "position": "balanced foreground and background",
++      "style": "flat 2D cel-shaded anime illustration, hand-drawn line art, crisp black outlines"
+     }
+   ],
+   "composition": {
+     "hierarchy": "main_title must be the largest and most readable element",
+-    "safe_area": "keep all text away from edges by 8%",
+-    "background": "dark blue gradient with subtle tech patterns"
++    "spacing": "leave generous empty space around each text block",
++    "background": "destination-specific scenery from the itinerary"
++  },
++  "negative_instructions": [
++    "do not add destinations, seasons, transport, prices, or events not present in the itinerary",
++    "do not use tiny unreadable text",
++    "do not create photorealistic people or 3D renderings",
++    "do not crop important landmarks or text"
++  ]
+ }
+ """
+```
+
+prompt format は「この形で出力してほしい」という見本です。実際の旅程に合わせて `<destination and duration>` などの placeholder を埋めるように、次の Agent instruction も更新します。
+
+### illustrator.py の instruction を更新する
+
+`agents/coordinator/illustrator.py` の `illustrator_prompt_agent` に、読みやすさと事実性の制約を追加します。
+
+```diff python
+ illustrator_prompt_agent = Agent(
+     name="illustrator_prompt_writer",
+     model=ILLUSTRATOR_PROMPT_AGENT_MODEL,
+     description="plannerの旅程markdownから表紙画像生成用promptを作る。",
+     instruction=(
+         "入力: 旅行旅程\n"
+         "出力: 1枚の旅行しおり画像を生成するための英語のprompt\n"
+         "- 画像生成プロンプト以外を出力するのは禁止です\n"
+         "- 旅程ごとに最適なしおり画像は異なります\n"
+-        "- 入力された旅程情報を全て配置してください. 省略は禁止です.\n"
+-        "- この画像を見るだけで旅程と全く同じ旅行ができることが目標です\n"
++        "- 入力された旅程のうち、destination, duration, top highlights, transport, caution を優先してください\n"
++        "- 小さな文字で全情報を詰め込むのは禁止です。読める短いラベルに要約してください\n"
++        "- 入力にない観光地、季節、交通手段、料金、イベントを追加してはいけません\n"
++        "- cover, illustrated map, checklist poster のうち旅程に最も合う構図を選んでください\n"
+         "- text element ごとに適したフォントと太さを選んでください\n"
+         "- デフォルトのフォントは避けてください\n"
+         "- 常に同じフォントを使うのも避けてください\n"
+```
+
+この変更で、prompt writer は旅程全体を無理に画像へ詰め込まず、画像として読める情報量へ圧縮します。
+
+### 画像を比較する
+
+ADK Web を起動し、同じ旅行条件で変更前後を比較します。
+
+```bash
+make run
+```
+
+ADK Web で次の入力を送ります。
+
+```text
+東京から1泊2日で、公共交通で行ける静かな温泉地に行きたいです。予算は3万円以内です。混雑は避けたいです。
+```
+
+**期待される結果:**
+
+- 画像の大きな文字で目的地と日数が読める
+- 主要スポットが 3 つ程度に整理されている
+- 旅程にない季節、観光地、交通手段が描かれていない
+- 注意点や雨天代替が短いラベルで表現されている
+
+### うまくいかない場合
+
+画像が文字だらけになる場合は、`text_elements` の数を 2 つまでに制限します。目的地やスポットが違う場合は、`negative_instructions` に「do not add」を増やすより、prompt writer の入力に `SelectedOptionContext` のどのフィールドを使うかを明示します。
+
+## Extra: Memory Bank でパーソナライズする
+
+Duration: 0:35:00
+
+このステップでは、過去の旅行嗜好を Memory から読み出して、候補生成と旅程作成に反映します。本編では `session.state` に現在の会話だけの中間結果を保存しました。Memory は session をまたいで検索できる長期的な情報に使います。
+
+### 追加する構成を確認する
+
+この Extra では、Memory を必須依存にはしません。環境変数 `TRAVEL_AGENT_USE_MEMORY=true` のときだけ Memory tool を有効にします。
+
+```text
+TRAVEL_AGENT_USE_MEMORY=false
+  -> 本編と同じ動き
+
+TRAVEL_AGENT_USE_MEMORY=true
+  -> clarify / strategist / planner が Memory を参照
+```
+
+Memory の内容は、今回の明示的な希望より弱い補助情報として扱います。たとえば Memory に「車移動は避けたい」とあっても、今回ユーザーが「今回は車でもよい」と言った場合は今回の入力を優先します。
+
+### memory.py を作成する
+
+`agents/coordinator/memory.py` を作成します。
+
+```python
+from __future__ import annotations
+
+from agents._common import env_bool
+
+
+def personalization_tools():
+    """Return memory tools only when the optional Memory extra is enabled."""
+    if not env_bool("TRAVEL_AGENT_USE_MEMORY"):
+        return []
+
+    from google.adk.tools.preload_memory_tool import PreloadMemoryTool
+
+    return [PreloadMemoryTool()]
+
+
+def personalization_instruction() -> str:
+    if not env_bool("TRAVEL_AGENT_USE_MEMORY"):
+        return ""
+
+    return (
+        "Memory に過去の旅行嗜好や制約がある場合は、今回の明示的な希望を優先しつつ、"
+        "候補生成、確認質問、旅程作成の補助情報として使ってください。"
+        "Memory の内容だけを根拠に、ユーザーが今回言っていない制約を断定しないでください。"
+    )
+```
+
+この helper により、Memory を使わない通常実行では tool も instruction も追加されません。
+
+### clarify_agent に Memory を接続する
+
+`agents/coordinator/clarify.py` を更新します。
+
+```diff python
+ from google.adk.workflow import DEFAULT_ROUTE
+
+ from agents.coordinator.clarify_models import TravelRequest
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.utils import text
+@@
+ clarify_agent = Agent(
+     name="clarify",
+     model=CLARIFY_AGENT_MODEL,
+     description="旅行希望を構造化し、不足情報を抽出する。",
+     output_schema=TravelRequest,
+     instruction=(
+         "ユーザーの旅行希望を TravelRequest に構造化してください。"
+         "期間、出発地、予算、交通手段、同行者、旅行嗜好、制約を抽出します。"
++        + personalization_instruction()
++        + "origin, duration, budget, transport など旅程品質に重大な影響がある情報が"
+-        "origin, duration, budget, transport など旅程品質に重大な影響がある情報が"
+         "不明な場合のみ unknowns に入れてください。"
+         "推測で補える軽微な項目は unknowns に入れすぎないでください。"
+     ),
++    tools=personalization_tools(),
+     mode="single_turn",
+ )
+```
+
+clarification では、Memory を不足情報の推測に使いすぎないことが重要です。Memory は質問を減らすための補助であり、今回の必須条件を勝手に確定するためのものではありません。
+
+### strategist_agent に Memory を接続する
+
+`agents/coordinator/candidates.py` を更新します。
+
+```diff python
+ from agents.coordinator.candidates_models import ResearchReport, TravelOption, TravelOptions
+ from agents.coordinator.clarify import STATE_TRAVEL_REQUEST
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.utils import dump, text
+@@
+ strategist_agent = Agent(
+     name="strategist",
+     model=STRATEGIST_AGENT_MODEL,
+     description="旅行方針と候補地を6案作る。",
+     output_schema=TravelOptions,
+     instruction=(
+         "TravelRequest をもとに、旅行候補を6案作ってください。"
++        + personalization_instruction()
++        + "詳細旅程ではなく、旅行方針、候補地、調査観点を作ります。"
+-        "詳細旅程ではなく、旅行方針、候補地、調査観点を作ります。"
+         "option_id は option_1, option_2 のように安定した値にしてください。"
+     ),
++    tools=personalization_tools(),
+     mode="single_turn",
+ )
+```
+
+候補生成では、Memory にある「好きな旅行の傾向」を候補の方向づけに使います。過去に「朝は遅めがよい」と分かっている場合、朝早い移動が必要な候補は評価を下げる、という使い方ができます。
+
+### planner_agent に Memory を接続する
+
+`agents/coordinator/planner.py` を更新します。
+
+```diff python
+ from agents.coordinator.evaluation_models import (
+     EvaluationReport,
+     EvaluationReports,
+ )
++from agents.coordinator.memory import personalization_instruction, personalization_tools
+ from agents.coordinator.planner_models import (
+@@
+ planner_agent = Agent(
+     name="planner",
+     model=PLANNER_AGENT_MODEL,
+     description="選ばれた候補だけを使って詳細な旅程をmarkdownで作る。",
+     instruction=(
+         "入力: 選択された旅行候補\n"
+         "出力: 詳細旅程のmarkdown"
++        + personalization_instruction()
++        + "読みやすさを優先し、見出し、箇条書き、時間帯ごとの流れを自然に使います。"
+-        "読みやすさを優先し、見出し、箇条書き、時間帯ごとの流れを自然に使います。"
+         "日程には移動、食事、宿泊、雨天代替、注意点を含めてください。"
+         "入力にない情報は断定せず「要確認」と書いてください。"
+     ),
++    tools=personalization_tools(),
+     mode="single_turn",
+ )
+```
+
+planner では、Memory を日程の細部に使います。たとえば「朝は遅め」「歩きすぎを避けたい」「カフェ休憩が好き」といった好みを、時間帯や休憩の入れ方に反映できます。
+
+### Makefile に Memory 起動ターゲットを追加する
+
+`Makefile` に `web-memory` を追加します。
+
+```diff makefile
+ UV ?= uv
+ UV_RUN := $(UV) run
+
+-.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web clean
++MEMORY_SERVICE_URI ?= memory://
++
++.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web web-memory clean
+@@
+ web:
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
++
++web-memory:
++	TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. $(UV_RUN) adk web agents --port 8000 --memory_service_uri="$(MEMORY_SERVICE_URI)"
+
+ clean:
+```
+
+ローカルで試す場合は `memory://` を使います。Agent Runtime の Memory Bank を使う場合は `agentengine://...` を渡します。
+
+### .env.example に設定を追加する
+
+`.env.example` に Memory extra の設定を追加します。
+
+```diff bash
+ # Optional Cloud Trace.
+ TRAVEL_AGENT_TRACE_TO_CLOUD=false
++
++# Optional Memory extra. Use `make web-memory MEMORY_SERVICE_URI=agentengine://...`
++# for Vertex AI Memory Bank, or keep memory:// for local prototyping.
++TRAVEL_AGENT_USE_MEMORY=false
+```
+
+### Memory を有効にして起動する
+
+ローカルの in-memory service で起動します。
+
+```bash
+make web-memory
+```
+
+**期待される出力:**
+
+```text
+INFO:     Uvicorn running on http://127.0.0.1:8000
+```
+
+Agent Runtime の Memory Bank を使う場合は、Agent Runtime の ID を指定します。
+
+```bash
+make web-memory MEMORY_SERVICE_URI=agentengine://YOUR_AGENT_ENGINE_ID
+```
+
+### 動作を確認する
+
+ADK Web で、まず好みが分かる会話をします。
+
+```text
+今後の旅行では、車移動は避けたいです。朝は遅めに出発したいです。温泉より古い町並みが好きです。
+```
+
+次に、条件をあえて曖昧にして相談します。
+
+```text
+来月、週末に短い旅行をしたいです。行き先はおまかせです。
+```
+
+**期待される結果:**
+
+- 公共交通で行きやすい候補が優先される
+- 朝早すぎる移動が避けられる
+- 古い町並みや散策が候補や旅程に反映される
+- 今回の入力にない制約を断定せず、必要なら確認質問をする
+
+### うまくいかない場合
+
+Memory が反映されない場合は、`TRAVEL_AGENT_USE_MEMORY=true` が有効になっているか確認します。
+
+```bash
+TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. uv run --extra dev python - <<'PY'
+from agents.coordinator.clarify import clarify_agent
+from agents.coordinator.candidates import strategist_agent
+from agents.coordinator.planner import planner_agent
+print(len(clarify_agent.tools), len(strategist_agent.tools), len(planner_agent.tools))
+PY
+```
+
+**期待される出力:**
+
+```text
+1 1 1
+```
+
+`0 0 0` の場合は、環境変数が読み込まれていません。`make web-memory` から起動してください。
+
+## Extra: Evaluation と User Simulation を追加する
+
+Duration: 0:35:00
+
+このステップでは、旅行計画エージェントを評価するための EvalSet を作ります。本編では ADK Web で手動確認しましたが、同じ入力を何度も試すだけでは品質の変化を追いにくくなります。
+
+ADK Evaluation では、保存した eval case を `adk eval` で実行します。User Simulation では、ユーザー役の LLM が複数ターンの会話を進め、clarification、候補選択、旅程生成までを含む会話を作ります。
+
+### 評価したいことを決める
+
+旅行計画エージェントでは、次の観点を評価します。
+
+- ユーザーの出発地、期間、予算、交通手段を満たしている
+- 不足情報がある場合だけ clarification している
+- 候補選択まで自然に進めている
+- 存在しない施設、料金、営業日を断定していない
+- リスクや注意点を説明している
+
+この Extra では、まず 2 つの user simulation scenario から EvalSet を作ります。
+
+### evals ディレクトリを作成する
+
+`evals/` を作成します。
+
+```bash
+mkdir -p evals
+```
+
+出力がなければ成功です。
+
+### travel_scenarios.json を作成する
+
+`evals/travel_scenarios.json` を作成します。
+
+```json
+{
+  "scenarios": [
+    {
+      "starting_prompt": "東京から静かな温泉地に1泊2日で行きたいです。公共交通で移動し、予算は3万円以内です。",
+      "conversation_plan": "候補を比較し、快適性とリスクの説明を確認する。上位候補から1つ選び、詳細旅程と旅しおり画像まで作らせる。",
+      "user_persona": "NOVICE"
+    },
+    {
+      "starting_prompt": "大阪発で、写真を撮るのが楽しい週末旅行を提案して。人混みは避けたいです。",
+      "conversation_plan": "不足情報を聞かれたら短く答える。候補提示後に混雑リスクの根拠を質問し、納得できる候補で旅程を作らせる。",
+      "user_persona": "EXPERT"
+    }
+  ]
+}
+```
+
+1 つ目は初心者ユーザー、2 つ目は条件の意図を説明できるユーザーです。ユーザー役の性格を分けることで、clarification の出し方や候補説明の耐性を見られます。
+
+### session_input.json を作成する
+
+`evals/session_input.json` を作成します。
+
+```json
+{
+  "app_name": "dynamic_travel_planning_agent",
+  "user_id": "eval-user",
+  "state": {}
+}
+```
+
+このファイルは、eval case を作るときの初期 session を指定します。Memory extra と組み合わせる場合は、ここに user state を追加するか、Memory service 側に評価用の記憶を入れてから実行します。
+
+### eval_config.json を作成する
+
+`evals/eval_config.json` を作成します。
+
+```json
+{
+  "criteria": {
+    "hallucinations_v1": {
+      "threshold": 0.5,
+      "evaluate_intermediate_nl_responses": true
+    },
+    "safety_v1": {
+      "threshold": 0.8
+    },
+    "multi_turn_task_success_v1": {
+      "threshold": 0.6
+    }
+  },
+  "user_simulator_config": {
+    "model": "gemini-flash-latest",
+    "max_allowed_invocations": 20
+  }
+}
+```
+
+`evaluate_intermediate_nl_responses` を有効にすると、最終回答だけでなく途中の自然言語応答も hallucination の評価対象になります。
+
+### Makefile に eval ターゲットを追加する
+
+`Makefile` に eval 用ターゲットを追加します。
+
+```diff makefile
+ UV ?= uv
+ UV_RUN := $(UV) run
++EVAL_SET_ID ?= travel_planning_user_sim
+
+-.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web clean
++.PHONY: setup lock lint run run-specialists run-coordinator run-ag-ui deploy-all web eval-create eval-add-scenarios eval-run clean
+@@
+ web:
+  PYTHONPATH=. $(UV_RUN) adk web agents --port 8000
++
++eval-create:
++	PYTHONPATH=. $(UV_RUN) adk eval_set create agents/coordinator $(EVAL_SET_ID)
++
++eval-add-scenarios:
++	PYTHONPATH=. $(UV_RUN) adk eval_set add_eval_case agents/coordinator $(EVAL_SET_ID) --scenarios_file evals/travel_scenarios.json --session_input_file evals/session_input.json
++
++eval-run:
++	PYTHONPATH=. $(UV_RUN) adk eval agents/coordinator $(EVAL_SET_ID) --config_file_path evals/eval_config.json --print_detailed_results
+
+ clean:
+```
+
+コマンドを Makefile に入れておくと、scenario や config を増やしても同じ手順で評価できます。
+
+### EvalSet を作成する
+
+EvalSet を作ります。
+
+```bash
+make eval-create
+```
+
+**期待される出力:**
+
+```text
+Eval set travel_planning_user_sim created
+```
+
+同名の EvalSet がすでにある場合は、次の `eval-add-scenarios` から進めて構いません。
+
+### User Simulation から eval case を追加する
+
+scenario を EvalSet に追加します。
+
+```bash
+make eval-add-scenarios
+```
+
+**期待される出力:**
+
+```text
+Added eval cases to travel_planning_user_sim
+```
+
+このコマンドは user simulator を使うため、モデル呼び出しが発生します。`GOOGLE_API_KEY` が設定されていることを確認してください。
+
+### 評価を実行する
+
+EvalSet を実行します。
+
+```bash
+make eval-run
+```
+
+**期待される出力:**
+
+```text
+Eval case results
+...
+```
+
+結果では、失敗した turn、失敗した criteria、実際の応答を確認します。失敗した場合は、prompt を強くする前に「入力が足りないのか」「workflow の state が渡っていないのか」「専門 agent の評価が不足しているのか」を分けて見ます。
+
+### 評価を増やす
+
+慣れてきたら、`travel_scenarios.json` に scenario を追加します。
+
+```json
+{
+  "starting_prompt": "福岡発で、祖母と一緒に行ける2泊3日の旅行を考えています。歩く距離は短めがいいです。",
+  "conversation_plan": "移動負荷の説明を確認し、休憩が多い候補を選ぶ。旅程に無理な徒歩移動がないか質問する。",
+  "user_persona": "NOVICE"
+}
+```
+
+高齢の同行者、子ども連れ、悪天候、予算が厳しいケースなど、失敗してほしくない条件を増やすと評価の価値が上がります。
+
+詳しくは [ADK Evaluation](https://adk.dev/evaluate/) と [User Simulation](https://adk.dev/evaluate/user-sim/) を参照してください。
+
+## Extra: AgentMail で旅行プランをメール送信する
+
+Duration: 0:45:00
+
+このステップでは、完成した旅行プランと旅しおり画像の情報を AgentMail でメール送信します。本編の workflow は画像生成で終わっていました。ここでは、その後ろに optional node を追加します。
+
+### 追加する構成を確認する
+
+AgentMail は MCP server として接続します。`AGENTMAIL_API_KEY` が設定されている場合だけ送信 node が動くようにします。
+
+```text
+planner
+-> illustrator_prompt_writer
+-> store_illustrator_prompt
+-> illustrator
+-> maybe_send_itinerary_email
+```
+
+送信先は `TRAVEL_ITINERARY_EMAIL_TO` で指定します。初期値は確認用の `traveler@example.com` にします。本当に送信する場合は、自分が受信できるアドレスに変えてください。
+
+### pyproject.toml に mcp を追加する
+
+AgentMail MCP server と接続するため、`mcp` package を依存関係に追加します。
+
+```diff toml
+ dependencies = [
+   "google-adk[a2a]==2.1.0",
+   "google-cloud-aiplatform[agent_engines]==1.153.1",
+   "a2a-sdk[http-server]==0.3.26",
+   "pydantic==2.12.5",
+   "python-dotenv==1.2.1",
+   "uvicorn==0.38.0",
+   "fastapi==0.136.3",
+   "ag-ui-adk>=0.6.5",
++  "mcp>=1.22.0",
+ ]
+```
+
+lock file を更新します。
+
+```bash
+uv lock
+uv sync --extra dev
+```
+
+**期待される出力:**
+
+```text
+Resolved ... packages
+Installed ...
+```
+
+### agentmail.py を作成する
+
+`agents/coordinator/agentmail.py` を作成します。
+
+```python
+from __future__ import annotations
+
+import os
+from typing import Any
+
+from google.adk import Agent, Context
+from google.adk.workflow import node
+
+from agents.coordinator.illustrator import STATE_ILLUSTRATOR_PROMPT
+from agents.coordinator.planner import STATE_ITINERARY_MARKDOWN
+from agents.coordinator.utils import text
+
+STATE_AGENTMAIL_RESULT = "agentmail_result"
+
+AGENTMAIL_AGENT_MODEL = "gemini-3.5-flash"
+DEFAULT_ITINERARY_EMAIL_TO = "traveler@example.com"
+
+
+def agentmail_enabled() -> bool:
+    api_key = os.getenv("AGENTMAIL_API_KEY", "")
+    return bool(api_key and api_key != "YOUR_AGENTMAIL_API_KEY")
+
+
+def _agentmail_tools():
+    if not agentmail_enabled():
+        return []
+
+    from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
+    from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+    from mcp import StdioServerParameters
+
+    return [
+        McpToolset(
+            connection_params=StdioConnectionParams(
+                server_params=StdioServerParameters(
+                    command="npx",
+                    args=[
+                        "-y",
+                        "agentmail-mcp",
+                        "--tools",
+                        "create_inbox,list_inboxes,send_message",
+                    ],
+                    env={
+                        "AGENTMAIL_API_KEY": os.environ["AGENTMAIL_API_KEY"],
+                    },
+                ),
+                timeout=30,
+            ),
+        )
+    ]
+
+
+agentmail_agent = Agent(
+    name="agentmail_sender",
+    model=AGENTMAIL_AGENT_MODEL,
+    description="旅行プランと旅しおり画像情報をメールで送る。",
+    instruction=(
+        "あなたは旅行プラン送信担当です。AgentMail の MCP tool が使える場合は、"
+        "既存 inbox を確認し、適切な inbox がなければ作成してから send_message で送信してください。"
+        "件名は旅行先と日数が分かる短い日本語にしてください。"
+        "本文には旅行プラン Markdown、旅しおり画像生成 prompt、"
+        "画像生成結果への言及を含めてください。"
+        "送信できた場合は宛先、件名、message_id または thread_id を簡潔に返してください。"
+        "tool が使えない場合は送信用ドラフトだけを返し、送信済みとは書かないでください。"
+    ),
+    tools=_agentmail_tools(),
+    mode="single_turn",
+)
+
+
+@node(name="maybe_send_itinerary_email", rerun_on_resume=True)
+async def maybe_send_itinerary_email(ctx: Context, node_input: Any) -> Any:
+    if not agentmail_enabled():
+        return node_input
+
+    result = await ctx.run_node(agentmail_agent, build_agentmail_input(ctx, node_input))
+    ctx.state[STATE_AGENTMAIL_RESULT] = text(result)
+    return result
+
+
+def build_agentmail_input(ctx: Context, illustrator_output: Any) -> str:
+    recipient = os.getenv("TRAVEL_ITINERARY_EMAIL_TO", DEFAULT_ITINERARY_EMAIL_TO)
+    return "\n\n".join(
+        [
+            f"送信先: {recipient}",
+            "旅行プラン Markdown:",
+            text(ctx.state.get(STATE_ITINERARY_MARKDOWN)),
+            "旅しおり画像生成 prompt:",
+            text(ctx.state.get(STATE_ILLUSTRATOR_PROMPT)),
+            "画像生成結果:",
+            text(illustrator_output),
+        ]
+    )
+```
+
+`agentmail_enabled()` が `False` のときは、workflow は本編と同じように画像生成結果で終わります。API key がない環境でも壊れないようにするためです。
+
+### illustrator_prompt を state に保存する
+
+本編では `illustrator_prompt_writer` の出力をそのまま `illustrator` に渡しました。メール本文にも prompt を載せたいので、`agents/coordinator/illustrator.py` に保存 node を追加します。
+
+```diff python
+ from __future__ import annotations
+
+ from google.adk import Agent
++from google.adk.agents.context import Context
+
+ from agents.coordinator.illustrator_prompts import IMAGE_PROMPT_FORMAT
++from agents.coordinator.utils import text
+@@
+ illustrator_agent = Agent(
+     name="illustrator",
+     model=ILLUSTRATOR_AGENT_MODEL,
+     description="旅しおりの表紙画像を生成する。",
+     instruction="旅しおり画像を生成してください",
+     mode="single_turn",
+ )
++
++
++def store_illustrator_prompt(ctx: Context, node_input) -> str:
++    prompt = text(node_input)
++    ctx.state[STATE_ILLUSTRATOR_PROMPT] = prompt
++    return prompt
+```
+
+`store_illustrator_prompt` は入力を変えずに返すので、後続の `illustrator_agent` にはこれまで通り prompt が渡ります。
+
+### agent.py に AgentMail node を接続する
+
+`agents/coordinator/agent.py` に import と workflow node を追加します。
+
+```diff python
+ from agents._common import to_a2a_app
++from agents.coordinator.agentmail import maybe_send_itinerary_email
+ from agents.coordinator.candidates import (
+@@
+ from agents.coordinator.illustrator import (
+     illustrator_agent,
+     illustrator_prompt_agent,
++    store_illustrator_prompt,
+ )
+@@
+         (
+             build_planner_input,
+             planner_agent,
+             store_itinerary_markdown,
+             illustrator_prompt_agent,
++            store_illustrator_prompt,
+             illustrator_agent,
++            maybe_send_itinerary_email,
+         ),
+```
+
+この順番にすると、画像生成が終わった後にメール送信が実行されます。AgentMail が無効な場合、`maybe_send_itinerary_email` は画像生成結果をそのまま返します。
+
+### .env.example に設定を追加する
+
+`.env.example` に AgentMail 用の値を追加します。
+
+```diff bash
+ # Optional Cloud Trace.
+ TRAVEL_AGENT_TRACE_TO_CLOUD=false
++
++# Optional AgentMail extra. When set, the coordinator emails the final itinerary
++# after image generation.
++AGENTMAIL_API_KEY=
++TRAVEL_ITINERARY_EMAIL_TO=traveler@example.com
+```
+
+`.env` にも同じ項目を追加し、実際に受信できる送信先へ変更します。
+
+```bash
+AGENTMAIL_API_KEY=YOUR_AGENTMAIL_API_KEY
+TRAVEL_ITINERARY_EMAIL_TO=your-address@example.com
+```
+
+### AgentMail tool が読み込まれることを確認する
+
+API key を仮に入れて、AgentMail agent が 1 つの MCP toolset を持つことを確認します。
+
+```bash
+AGENTMAIL_API_KEY=TEST PYTHONPATH=. uv run --extra dev python - <<'PY'
+from agents.coordinator.agentmail import agentmail_agent
+print(len(agentmail_agent.tools))
+PY
+```
+
+**期待される出力:**
+
+```text
+1
+```
+
+`ImportError: No module named 'mcp'` が出る場合は、`uv lock` と `uv sync --extra dev` を再実行します。
+
+### メール送信を試す
+
+本当に送信する場合は、`.env` に正しい `AGENTMAIL_API_KEY` と受信できる `TRAVEL_ITINERARY_EMAIL_TO` を設定してから起動します。
+
+```bash
+make run
+```
+
+ADK Web で旅行相談を最後まで進めます。
+
+```text
+東京から1泊2日で、公共交通で行ける静かな温泉地に行きたいです。予算は3万円以内です。旅程ができたらメールで送ってください。
+```
+
+**期待される結果:**
+
+- 旅程 Markdown が生成される
+- 旅しおり画像が生成される
+- `agentmail_sender` が呼ばれる
+- `session.state["agentmail_result"]` に宛先、件名、message ID または thread ID が残る
+- 指定した宛先でメールを確認できる
+
+### うまくいかない場合
+
+メールが送られない場合は、まず `AGENTMAIL_API_KEY` が空でないか確認します。`YOUR_AGENTMAIL_API_KEY` のままだと送信 node は無効扱いになります。
+
+MCP server の起動に失敗する場合は、Cloud Shell で `npx` が使えるか確認します。
+
+```bash
+npx -y agentmail-mcp --help
+```
+
+**期待される出力:**
+
+```text
+Usage
+```
+
+送信先を間違えた場合は、`.env` の `TRAVEL_ITINERARY_EMAIL_TO` を修正して再実行します。
+
+## Extra: AG-UI でフロントエンドから呼び出す
+
+Duration: 0:30:00
+
+このステップでは、ADK Web ではなく AG-UI endpoint から coordinator を呼び出します。フロントエンドを後で作る場合、ADK Web 専用の UI に閉じず、HTTP endpoint として workflow を扱えるようにしておくと便利です。
+
+### AG-UI endpoint の役割を確認する
+
+AG-UI endpoint は、`root_agent` を FastAPI app として公開します。
+
+```text
+frontend or client
+-> POST /ag-ui
+-> AG-UI adapter
+-> ADK root_agent
+```
+
+この Extra では、`forwardedProps.userId` から user ID を取り出し、`thread_id` を session ID として使います。これにより、フロントエンド側でユーザーや会話を分けやすくなります。
+
+### ag_ui_app.py を作成する
+
+`agents/coordinator/ag_ui_app.py` を作成します。
+
+```python
+from __future__ import annotations
+
+from typing import Any
+
+from ag_ui.core import RunAgentInput
+from ag_ui_adk import ADKAgent, add_adk_fastapi_endpoint
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from agents.coordinator.agent import root_agent
+
+APP_NAME = root_agent.name or "dynamic_travel_planning_agent"
+DEFAULT_USER_ID = "ag-ui-user"
+
+
+def user_id_from_input(input_data: RunAgentInput) -> str:
+    forwarded_props: Any = input_data.forwarded_props
+    if isinstance(forwarded_props, dict):
+        return str(
+            forwarded_props.get("userId")
+            or forwarded_props.get("user_id")
+            or DEFAULT_USER_ID
+        )
+    return DEFAULT_USER_ID
+
+
+app = FastAPI(
+    title="Dynamic Travel Planning Agent AG-UI",
+    description="AG-UI endpoint for the ADK travel planning coordinator.",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+agent = ADKAgent(
+    adk_agent=root_agent,
+    app_name=APP_NAME,
+    user_id_extractor=user_id_from_input,
+    use_thread_id_as_session_id=True,
+)
+add_adk_fastapi_endpoint(app, agent, path="/ag-ui")
+
+
+@app.get("/")
+async def health() -> dict[str, str]:
+    return {
+        "name": APP_NAME,
+        "protocol": "AG-UI",
+        "endpoint": "/ag-ui",
+    }
+```
+
+`use_thread_id_as_session_id=True` にすると、同じ thread ID の会話を同じ ADK session として扱えます。
+
+### Makefile の run-ag-ui を確認する
+
+`Makefile` に `run-ag-ui` がない場合は追加します。すでにある場合はこのままで構いません。
+
+```diff makefile
+ run-coordinator:
+  PYTHONPATH=. $(UV_RUN) uvicorn agents.coordinator.agent:app --host 0.0.0.0 --port 8100
+
++run-ag-ui:
++	PYTHONPATH=. $(UV_RUN) uvicorn agents.coordinator.ag_ui_app:app --host 0.0.0.0 --port 8200
++
+ deploy-all:
+```
+
+### AG-UI server を起動する
+
+AG-UI server を起動します。
+
+```bash
+make run-ag-ui
+```
+
+**期待される出力:**
+
+```text
+Uvicorn running on http://0.0.0.0:8200
+```
+
+別のターミナルで health endpoint を確認します。
+
+```bash
+curl http://localhost:8200/
+```
+
+**期待される出力:**
+
+```json
+{"name":"dynamic_travel_planning_agent","protocol":"AG-UI","endpoint":"/ag-ui"}
+```
+
+### userId の扱いを確認する
+
+AG-UI client から `forwardedProps.userId` を渡すと、その値が ADK の user ID になります。フロントエンドを作る場合は、ログインユーザー ID や demo 用の固定 ID をここに入れます。
+
+```json
+{
+  "threadId": "travel-thread-001",
+  "runId": "run-001",
+  "messages": [],
+  "forwardedProps": {
+    "userId": "alice"
+  }
+}
+```
+
+同じ `threadId` と `userId` で送ると同じ会話として扱われます。別の `threadId` にすると、新しい旅行相談として分けられます。
+
+### Memory extra と組み合わせる
+
+Memory extra を実装済みなら、同じ `userId` の過去嗜好を使った候補生成まで試します。
+
+```bash
+TRAVEL_AGENT_USE_MEMORY=true PYTHONPATH=. uv run --extra dev uvicorn agents.coordinator.ag_ui_app:app --host 0.0.0.0 --port 8200
+```
+
+**期待される結果:**
+
+- 同じ `userId` の会話で嗜好が参照される
+- 別の `userId` では別ユーザーとして扱われる
+- clarification や候補選択の途中状態が session ごとに分かれる
+
+### うまくいかない場合
+
+`ModuleNotFoundError: No module named 'ag_ui'` が出る場合は、依存関係が入っていません。
+
+```bash
+uv sync --extra dev
+```
+
+AG-UI client から CORS error が出る場合は、`allow_origins` を本番 frontend の origin に絞って設定します。開発中は `["*"]` で動作確認し、本番では明示的な origin に変更してください。
