@@ -249,7 +249,7 @@
                   title="ADK x A2A x Agent Runtime で作るマルチエージェント AI"
                   environment="web"
                   feedback-link="https://github.com/googlecodelabs/your-first-pwapp/issues">
-
+    
       <google-codelab-step label="はじめに" duration="5">
         <p class="image-container"><img alt="OGP" src="img/4cf15ac1d49e007a.png"></p>
 <p>このコードラボでは、ADK 2.1 の Graph Workflow と A2A specialist agents を使って、旅行計画 AI エージェントを作ります。</p>
@@ -285,7 +285,7 @@
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="旅行計画エージェントのアーキテクチャを確認する" duration="10">
         <p>このステップでは、これから実装する旅行計画エージェントの全体像を確認します。最終成果物は <code>gdsc-osaka/create-multi-agent-example</code>、初期状態は <code>gdsc-osaka/create-multi-agent</code> です。</p>
 <h2 is-upgraded>Coordinator Workflow の流れを確認する</h2>
@@ -345,17 +345,31 @@
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="セットアップ" duration="15">
         <p>このステップでは、Cloud Shell で初期コードを開き、依存関係と環境変数を準備します。</p>
+<h2 is-upgraded>セットアップフォームに回答する</h2>
+<p>セットアップを始める前に、下のフォームに回答してください。回答が終わったら、このページに戻って Cloud Shell の準備へ進みます。</p>
+<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSf9hJzKLLElx1bJJio00_jDS0YFMrX56GW6UDq_CVGcI26DLQ/viewform?usp=header" target="_blank"><paper-button class="colored" raised>セットアップフォームに回答する</paper-button></a></p>
 <h2 is-upgraded>Google Cloud Shell を開く</h2>
-<p>下のボタンから Cloud Shell を開きます。リポジトリの clone と Cloud Shell Editor の起動が自動で始まります。</p>
-<p><a href="https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/gdsc-osaka/create-multi-agent.git&amp;cloudshell_workspace=.&amp;cloudshell_open_in_editor=.env&amp;show=ide%2Cterminal&amp;ephemeral=true" target="_blank"><paper-button class="colored" raised>Cloud Shell で初期コードを開く</paper-button></a></p>
+<p>下のボタンから Cloud Shell を開きます。リポジトリの clone と Cloud Shell Editor の起動が自動で始まります。最初に <code>cloudshell_tutorial.md</code> が開きます。</p>
+<p><a href="https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/gdsc-osaka/create-multi-agent.git&amp;cloudshell_workspace=.&amp;cloudshell_open_in_editor=cloudshell_tutorial.md&amp;cloudshell_tutorial=cloudshell_tutorial.md&amp;show=ide%2Cterminal&amp;ephemeral=true" target="_blank"><paper-button class="colored" raised>Cloud Shell で初期コードを開く</paper-button></a></p>
 <p>Cloud Shell が初回起動の場合は、利用規約の確認や環境作成に数分かかることがあります。</p>
 <p>完成コードは次のリポジトリにあります。詰まったときだけ参照してください。</p>
 <p><a href="https://github.com/gdsc-osaka/create-multi-agent-example" target="_blank">https://github.com/gdsc-osaka/create-multi-agent-example</a></p>
+<h2 is-upgraded>二段階認証が必要な方へ</h2>
+<p>Cloud Shell を開くときに、Google アカウントの 2 段階認証プロセスの設定を求められることがあります。表示された場合は、次の手順で 2 段階認証を有効にしてから、もう一度 Cloud Shell のボタンを開いてください。</p>
+<ol type="1">
+<li>スマートフォンを手元に用意します。</li>
+<li><a href="https://myaccount.google.com/" target="_blank">Google アカウント</a> を開き、Cloud Shell で使うアカウントでログインします。</li>
+<li>メニューから <strong>セキュリティ</strong> を開きます。</li>
+<li><strong>Google にログインする方法</strong> の中にある <strong>2 段階認証プロセス</strong> を選択します。</li>
+<li>画面の案内に従って、Google からのメッセージ、確認コードアプリ、電話番号、パスキーなどの確認方法を設定します。</li>
+<li>設定が完了したら、このコードラボに戻って <strong>Cloud Shell で初期コードを開く</strong> をもう一度押します。</li>
+</ol>
+<aside class="special"><p><strong>補足:</strong> 2 段階認証プロセスの詳しい説明は <a href="https://support.google.com/accounts/answer/185839?hl=ja" target="_blank">Google アカウント ヘルプ</a> を確認してください。学校や組織のアカウントで設定できない場合は、管理者に確認してください。</p></aside>
 <h2 is-upgraded>setup script を実行する</h2>
-<p><code>scripts/setup.sh</code> は connpass ID と Google Cloud project ID を確認し、<code>uv sync --extra dev</code> で依存関係を入れます。</p>
+<p><code>scripts/setup.sh</code> は connpass ID を確認し、Google Cloud project ID に固定値 <code>create-multi-agent</code> を設定します。続けて <code>uv sync --extra dev</code> で依存関係を入れます。</p>
 <p>ターミナルを開いて下記を実行します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -380,11 +394,10 @@
   </button>
 </div>
 <pre><code language="language-text" class="language-text">connpass ID: alice_123
-Google Cloud project ID: create-multi-agent
 Setup complete for [alice_123].
 </code></pre>
 </div>
-<p><code>uv</code> が入っていない場合は、script がインストールします。<code>uv sync</code> が完了すると <code>.venv</code> が作成されます。</p>
+<p><code>uv</code> が入っていない場合は、script がインストールします。<code>uv sync</code> が完了すると <code>.venv</code> が作成されます。<code>.env</code> はこの script の実行後に作成されます。</p>
 <h2 is-upgraded>環境変数を設定する</h2>
 <p><code>.env</code> を開き、旅行エージェント用の値になっていることを確認します。ローカル A2A specialist の URL は次の値にします。</p>
 <p><code>.env</code></p>
@@ -401,7 +414,7 @@ Setup complete for [alice_123].
 RISK_A2A_URL=http://localhost:8102
 EXPERIENCE_A2A_URL=http://localhost:8103
 
-GOOGLE_API_KEY=
+GOOGLE_API_KEY=AIzaSyCSMFnZEDI4gAz5zWwKOJ1m7HhHqBS1jdc
 GOOGLE_CLOUD_PROJECT=create-multi-agent
 GOOGLE_CLOUD_LOCATION=us-central1
 
@@ -456,7 +469,7 @@ PY
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Agent Development Kit 2.0 の概要" duration="12">
         <p>このステップでは、今回使う ADK の考え方を確認します。このコードラボでは ADK 2.1 を使いますが、2.0 で導入された graph-based Workflow、dynamic workflow、collaborative workflow、human input、session / state / memory の考え方が土台になります。</p>
 <h2 is-upgraded>グラフベースのワークフロー</h2>
@@ -615,50 +628,69 @@ root_agent = Workflow(
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="A2A の概要" duration="10">
-        <p>このステップでは、A2A が何を標準化し、どのような場面で local sub-agent ではなく A2A agent として分けるべきかを確認します。</p>
+        <p>このステップでは、A2A が何を標準化し、どのような場面で local sub-agent ではなく A2A agent として分けるべきかを確認します。A2A は「エージェントをツールのように包む」ための仕組みではなく、エージェント同士が互いの実装を隠したまま、能力を発見し、タスクを依頼し、成果物を返すための相互運用プロトコルです。</p>
 <h2 is-upgraded>A2A とは</h2>
-<p>A2A (Agent2Agent Protocol) は、複数の専門エージェントが互いに通信するための標準プロトコルです。複雑な agentic system では 1 つのエージェントだけでは足りず、検索、評価、予約、社内データ参照などを専門エージェントに分けて協調させる場面が増えます。A2A は、そのようなエージェント間の発見、通信、タスク委譲、成果物交換を標準化します。</p>
+<p>A2A (Agent2Agent Protocol) は、AI エージェント同士の通信と協調を標準化するオープンプロトコルです。複雑な agentic system では 1 つのエージェントだけでは足りず、検索、評価、予約、社内データ参照などを専門エージェントに分けて協調させる場面が増えます。A2A は、そのようなエージェント間の発見、通信、タスク委譲、成果物交換を標準化します。</p>
 <p>A2A はエージェント実装フレームワークではありません。ADK、LangGraph、CrewAI、Semantic Kernel、独自実装など、異なる言語やフレームワークで作られたエージェントをつなぐためのアプリケーションレベルの相互運用レイヤーです。相手エージェントの内部状態、メモリ、ツール実装、推論過程を共有しなくても、能力、メッセージ、タスク、成果物を通じて連携できます。</p>
-<p>詳しくは <a href="https://adk.dev/a2a/intro/" target="_blank">Introduction to A2A</a> と <a href="https://a2a-protocol.org/latest/specification/" target="_blank">A2A Protocol specification</a> を参照してください。</p>
-<p class="image-container"><img alt="A2A では内部の local sub-agent と外部の remote agent を分けて考える" src="img/1f3bfcd4337becdb.svg"></p>
+<p>詳しくは <a href="https://a2a-protocol.org/latest/topics/what-is-a2a/" target="_blank">What is A2A?</a>、<a href="https://a2a-protocol.org/latest/topics/key-concepts/" target="_blank">Core Concepts</a>、<a href="https://a2a-protocol.org/latest/topics/agent-discovery/" target="_blank">Agent Discovery</a> を参照してください。</p>
+<p class="image-container"><img alt="A2A の主要 actors: User、A2A Client、A2A Server" src="img/9d4f2fdfd49e3e82.png"></p>
+<p>A2A の基本的な登場人物は次の 3 つです。</p>
+<ul>
+<li>User: 依頼やゴールを与える人間、または自動化されたサービスです。</li>
+<li>A2A Client (Client Agent): User の代理として A2A protocol で通信を開始するアプリケーション、サービス、またはエージェントです。</li>
+<li>A2A Server (Remote Agent): HTTP endpoint として A2A protocol を公開するリモートエージェントです。Client から見ると内部のメモリ、ツール、推論過程は opaque な black-box として扱われます。</li>
+</ul>
+<h2 is-upgraded>Why Use the A2A Protocol</h2>
+<p>A2A は、複数の専門エージェントが別々のチーム、ベンダー、フレームワーク、デプロイ環境で作られていても、共通の方法で連携できるようにするための protocol です。</p>
+<h3 is-upgraded>Problems that A2A Solves</h3>
+<p>たとえば「海外旅行を計画して」と依頼された AI assistant は、航空券、ホテル、現地ツアー、為替、リスク評価など複数の専門 agent に協力してもらう必要があります。A2A がない場合、次の問題が起きやすくなります。</p>
+<ul>
+<li>Agent exposure: エージェントを単純な tool として包むと、交渉、追加確認、multi-turn のやり取り、長時間処理といった agent 本来の能力を表現しにくくなります。</li>
+<li>Custom integrations: 相手ごとに個別 API、認証、データ形式、task tracking を作る必要があり、接続先が増えるほど保守が難しくなります。</li>
+<li>Slow innovation: 新しい専門 agent を追加するたびに bespoke integration が必要になり、実験や置き換えが遅くなります。</li>
+<li>Scalability issues: agent 数と相互作用が増えるほど、点対点の接続は運用上の負荷になります。</li>
+<li>Security gaps: 個別実装が増えると、認証、認可、通信保護、監査の設計がばらつきます。</li>
+</ul>
+<p>A2A は、これらを Agent Card、Message、Task、Artifact、標準の transport / security model に分けて扱うことで、agent 同士がより安全かつ安定して協調できるようにします。</p>
+<h3 is-upgraded>A2A Example Scenario</h3>
+<p>このコードラボの旅行計画 agent では、Coordinator Agent が A2A Client になり、3 つの専門 agent を A2A Server として呼び出します。</p>
+<ul>
+<li>Comfort Agent: 移動負荷、休憩、宿泊快適性を評価します。</li>
+<li>Risk Agent: 天候、混雑、移動遅延、予算超過などのリスクを評価します。</li>
+<li>Experience Agent: 体験価値、季節性、旅程の一貫性を評価します。</li>
+</ul>
+<p>Coordinator は各 specialist の Agent Card を取得し、<code>RemoteA2aAgent</code> 経由で評価タスクを送ります。各 specialist は独立した port で起動するため、同じ Python process 内の helper ではなく、ネットワーク越しに接続される remote agent として扱います。</p>
+<p>ADK の公式ドキュメントでは、カスタマーサービス agent が別サービスの product catalog agent から商品情報を取得する例も紹介されています。A2A を使う場合、product catalog agent は A2A Server として公開され、Agent Card に endpoint、capabilities、skills、入出力形式、認証要件を記述します。カスタマーサービス agent は client-side proxy を通して、商品情報の問い合わせを remote agent への task として送れます。</p>
+<h2 is-upgraded>Core Benefits of A2A</h2>
+<p>A2A の主な利点は次のとおりです。</p>
+<ul>
+<li>Secure collaboration: HTTPS と標準的な Web security practice を前提にし、エージェントの内部実装を公開せずに連携できます。</li>
+<li>Interoperability: ベンダー、フレームワーク、言語、組織が異なる agent ecosystem をつなげます。</li>
+<li>Agent autonomy: remote agent は自分の能力、状態管理、実行方法を保ったまま task を受けられます。</li>
+<li>Reduced integration complexity: 個別連携の代わりに、Agent Card、Message、Task、Artifact という共通の契約で接続できます。</li>
+<li>Support for long-running operations: Server-Sent Events (SSE)、polling、push notification により、時間のかかる処理や非同期処理を扱えます。</li>
+</ul>
+<p class="image-container"><img alt="A2A と MCP は異なるレイヤーを補完する" src="img/7b0f6420eeca0bf7.png"></p>
+<p>A2A と MCP は競合するものではなく、異なる問題を扱います。MCP は model や agent を data、tool、external resource につなぐための protocol です。一方で A2A は、agent が agent として会話し、追加確認し、delegate し、成果物を返すための protocol です。ツール呼び出しで十分な単発処理には MCP が向き、専門 agent の自律性や multi-turn collaboration を残したい場合には A2A が向きます。</p>
 <h2 is-upgraded>A2A とローカル sub-agent の使い分け</h2>
 <p>ADK では、同じアプリケーションプロセス内で動く local sub-agent と、ネットワーク越しに別サービスとして動く remote agent (A2A) を区別します。</p>
 <p>Local sub-agent は、メインエージェントの内部モジュールやライブラリに近い存在です。同じプロセス内で実行されるため、メモリ上で高速にやり取りでき、内部状態を共有しやすく、アプリケーション内の責務分割に向いています。</p>
 <p>Remote agent (A2A) は、独立したサービスとして起動し、ネットワーク越しに標準プロトコルで通信するエージェントです。別チーム、別組織、別言語、別フレームワークで作られたエージェントを、強い契約に基づいて接続したいときに使います。</p>
-<h3 is-upgraded>A2A を使う具体例</h3>
-<p>A2A は、エージェントを「同じコードベースの部品」ではなく「独立して提供されるサービス」として扱いたいときに向いています。</p>
-<ul>
-<li>外部金融データ提供者が A2A 対応の market data agent を公開しており、自社の分析エージェントからリアルタイム株価や指標を問い合わせたい。</li>
-<li>受注、在庫、配送のように、システム全体が独立サービスに分かれていて、それぞれの専門エージェントをネットワーク越しに連携させたい。</li>
-<li>Python で作った業務エージェントから、Java や Go で実装された既存システムの専門エージェントを呼び出したい。</li>
-<li>複数チームがエージェントを提供するプラットフォームで、入出力、認証、タスク管理の契約を標準化し、互換性と安定性を保ちたい。</li>
-</ul>
 <p>このコードラボの <code>comfort_agent</code>、<code>risk_agent</code>、<code>experience_agent</code> は、coordinator と同じプロセス内の helper ではなく、別 port で起動する specialist service として扱います。そのため coordinator は A2A Client として Agent Card を読み、<code>RemoteA2aAgent</code> 経由で評価タスクを依頼します。</p>
-<h3 is-upgraded>A2A を使わない具体例（ローカル sub-agent を優先）</h3>
-<p>A2A はネットワーク、認証、シリアライズ、デプロイの境界を導入します。内部の責務分割だけが目的なら、local sub-agent や通常の関数・クラスの方が単純です。</p>
-<ul>
-<li>1 つのエージェント内で入力データを整形する <code>DataValidator</code> のような部品を分けたいだけで、独立デプロイや外部接続は不要である。</li>
-<li>高頻度・低レイテンシで動く内部処理があり、ネットワーク越しの呼び出しが性能上のボトルネックになる。</li>
-<li>sub-agent がメインエージェントの内部 state や shared memory に直接アクセスする必要があり、A2A のメッセージ交換に変換するとかえって複雑になる。</li>
-<li>再利用したい処理が小さな helper function や class で十分表現でき、独立した task lifecycle や認証境界を持たせる必要がない。</li>
-</ul>
-<h2 is-upgraded>具体例: カスタマーサービス agent と商品カタログ agent</h2>
-<p>ADK の公式ドキュメントでは、カスタマーサービス agent が別サービスの product catalog agent から商品情報を取得する例が紹介されています。</p>
-<p>A2A を使わない場合、カスタマーサービス agent は product catalog agent に問い合わせる標準的な方法を持たないかもしれません。特に、product catalog agent が別チームのサービスだったり、別フレームワークで実装されていたりすると、個別 API、認証、データ形式を都度合わせる必要があります。</p>
-<p>A2A を使う場合、product catalog agent は A2A Server として公開され、Agent Card に endpoint、capabilities、skills、入出力形式、認証要件を記述します。カスタマーサービス agent は ADK の <code>RemoteA2aAgent</code> を client-side proxy として使い、商品情報の問い合わせを「remote agent へのタスク」として送ります。ADK はネットワーク通信、データ形式、認証まわりの詳細を抽象化するため、開発者から見ると remote agent を local tool のように扱えます。</p>
-<p>この分け方により、カスタマーサービス側は顧客対応に集中し、商品カタログ側は在庫・価格・仕様情報の提供に集中できます。サービス境界、チーム境界、技術スタックの違いを保ったまま、専門エージェント同士を接続できるのが A2A の価値です。</p>
-<p class="image-container"><img alt="カスタマーサービス agent と商品カタログ agent を A2A なし、A2A ありで比較する図" src="img/e4b7292ebefdce78.svg"></p>
-<h2 is-upgraded>A2A の仕組み</h2>
-<p>A2A の通信は、主に Agent Card、Message、Task、Artifact という単位で考えます。</p>
+<p>内部の責務分割だけが目的なら、A2A は過剰です。たとえば入力データを整形する小さな validator、低レイテンシが必要な内部処理、shared memory に直接アクセスする helper は、local sub-agent や通常の関数・クラスとして実装した方が単純です。</p>
+<h2 is-upgraded>Core Concepts in A2A</h2>
+<p>A2A の通信は、主に Agent Card、Message、Part、Task、Artifact という単位で考えます。</p>
 <ul>
 <li>Agent Card: エージェントの名前、説明、提供者、endpoint、対応プロトコル、capabilities、skills、入出力 MIME type、認証要件などを表す JSON metadata です。公開エージェントでは <code>https://{agent-server-domain}/.well-known/agent-card.json</code> のような well-known URL で発見できる形が推奨されます。</li>
-<li>Message: client と remote agent の 1 turn のやり取りです。テキストだけでなく、ファイル、URL、構造化データなどを <code>Part</code> として含められます。</li>
-<li>Task: 長時間処理、multi-turn、human-in-the-loop、非同期更新を追跡するための stateful な作業単位です。<code>working</code>、<code>input-required</code>、<code>auth-required</code>、<code>completed</code>、<code>failed</code> などの状態を持ちます。</li>
-<li>Artifact: task の結果として生成される成果物です。文書、画像、構造化データなどを返せます。</li>
+<li>Message: client と remote agent の 1 turn のやり取りです。role と <code>messageId</code> を持ち、指示、追加質問、回答、状態更新などを伝えます。</li>
+<li>Part: Message や Artifact に含まれる content container です。text、file bytes、URL、structured data などを扱えるため、A2A は text-only の protocol ではありません。</li>
+<li>Task: 長時間処理、multi-turn、human-in-the-loop、非同期更新を追跡するための stateful な作業単位です。状態と task ID により、client は処理の進捗を追跡できます。</li>
+<li>Artifact: task の結果として生成される成果物です。文書、画像、構造化データなど、具体的に取り出せる deliverable を表します。</li>
 </ul>
-<p class="image-container"><img alt="A2A Client が Agent Card を取得し、認証を確認し、Message、Task、Artifact を扱う流れ" src="img/1d47cbdc17ad440d.svg"></p>
+<p>Interaction mechanism としては、通常の request/response、SSE による streaming、長時間処理や disconnected scenario のための push notification が用意されています。今回のローカル実装では、まず request/response と streaming の基本を扱います。</p>
+<h2 is-upgraded>Agent Discovery と security</h2>
 <p>このコードラボでは、ローカル起動した Comfort Agent の Agent Card を次の URL で確認します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -693,15 +725,29 @@ root_agent = Workflow(
 </div>
 <p><code>agent_card</code> には service の base URL ではなく、Agent Card の URL を渡します。<code>remote_agent_card_url()</code> は <code>.env</code> の値を読み、localhost と Agent Runtime の URL を同じ呼び出し方で扱えるようにします。</p>
 <aside class="special"><p><strong>補足:</strong> 古い記事やサンプルでは <code>/.well-known/agent.json</code> が出てくることがあります。今回のコードでは <code>/.well-known/agent-card.json</code> を使います。</p></aside>
-<h3 is-upgraded>認証</h3>
+<p>Agent Card には endpoint や skill 情報が含まれるため、公開範囲にも注意が必要です。A2A の Agent Discovery ドキュメントでは、内部向け URL や sensitive skill description を含む Agent Card に対して、次の protection mechanism を検討するよう説明しています。</p>
+<ul>
+<li>Authenticated Agent Cards: sensitive information や詳細版 card は、認証後に取得できる Extended Agent Card として分けます。</li>
+<li>Secure endpoints: <code>/.well-known/agent-card.json</code> や registry API に mTLS、network restrictions、OAuth 2.0 などの access control を設定します。</li>
+<li>Registry selective disclosure: registry が client の identity と permission に応じて返す Agent Card を変えます。</li>
+</ul>
+<p>静的な secret を Agent Card に埋め込むのではなく、out-of-band の dynamic credentials を使う設計が推奨されています。</p>
+<h2 is-upgraded>A2A Request Lifecycle</h2>
+<p>公式ドキュメントでは、A2A request lifecycle を大きく 4 段階で説明しています。</p>
+<p class="image-container"><img alt="A2A request lifecycle: discovery、authentication、sendMessage、sendMessageStream" src="img/5646134c51cf75dd.png"></p>
+<ol type="1">
+<li>Agent Discovery: Client は <code>/.well-known/agent-card.json</code> などから Agent Card を取得し、remote agent の endpoint、skills、capabilities、authentication requirements を確認します。</li>
+<li>Authentication: Agent Card の <code>securitySchemes</code> を見て、必要に応じて OAuth 2.0 / OpenID Connect などで token を取得します。</li>
+<li><code>sendMessage</code> API: Client は Agent Card の <code>url</code> に対して message を送り、server は message を処理して task response を返します。</li>
+<li><code>sendMessageStream</code> API: streaming が有効な場合、Client は task submitted、working、artifact update、completed といった incremental event を SSE stream として受け取れます。</li>
+</ol>
 <p>A2A は独自の認証方式を発明するのではなく、既存の Web security を前提にします。本番環境では HTTPS による transport security、server identity verification、client authentication、authorization を設計します。</p>
 <p>Agent Card には、API key、HTTP auth、OAuth 2.0、OpenID Connect、mTLS などの security scheme と、エージェント全体または skill ごとの security requirements を記述できます。認証情報そのものは通常 A2A payload に埋め込まず、HTTP header など protocol binding に応じた標準的な場所で渡します。</p>
-<p>Agent Card には endpoint や skill 情報が含まれるため、公開範囲にも注意が必要です。詳細な capability や内部向け endpoint は、認証後に取得する Extended Agent Card として分ける設計ができます。A2A v1.0 では Agent Card を JWS で署名する仕組みもあり、クライアントは信頼できる provider のカードかどうかを検証できます。</p>
 <p>このコードラボのローカル実行では認証なしの localhost endpoint を使います。Agent Runtime にデプロイした A2A URL をローカルから呼ぶ場合は、後のステップで <code>TRAVEL_AGENT_A2A_USE_ADC_AUTH=true</code> を設定し、Google Cloud の認証付きリクエストとして扱います。</p>
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Gemini Enterprise Agent Platform の概要" duration="8">
         <p>このステップでは、ここまで作ってきた ADK / A2A エージェントを、なぜ Agent Runtime にデプロイするのかを確認します。</p>
 <h2 is-upgraded>Gemini Enterprise Agent Platform とは</h2>
@@ -785,7 +831,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Clarify Agent を実装する" duration="20">
         <p>このステップでは、ユーザー入力を <code>TravelRequest</code> に構造化し、不足情報がある場合だけ追加質問する最小 Workflow を作ります。</p>
 <h2 is-upgraded>clarify_models.py を作成する</h2>
@@ -1076,7 +1122,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Strategist と Research の Fan-out / Fan-in を実装する" duration="25">
         <p>このステップでは、旅行候補を作る <code>strategist_agent</code> と、候補ごとに <code>google_search</code> で調査する fan-out / fan-in を実装します。</p>
 <h2 is-upgraded>candidates_models.py を作成する</h2>
@@ -1459,7 +1505,7 @@ agents/experience/agent.py               体験価値評価 specialist
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Specialist Agents を A2A サービスとして実装する" duration="20">
         <p>このステップでは、3 つの評価専門 Agent を A2A サービスとして実装します。coordinator からは直接 import せず、Agent Card 経由で呼び出します。</p>
 <h2 is-upgraded>comfort_agent を作成する</h2>
@@ -1649,7 +1695,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Multi-Agent Evaluation を実装する" duration="25">
         <p>このステップでは、coordinator から A2A specialist を呼び出し、快適性、リスク、体験価値、費用を統合して上位 3 案を作ります。</p>
 <h2 is-upgraded>evaluation_models.py を作成する</h2>
@@ -2001,7 +2047,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="User Selection と Replan 分岐を実装する" duration="20">
         <p>このステップでは、評価結果の上位 3 案をユーザーに提示し、選択された案で進む route と、条件を変えて再提案する route を作ります。</p>
 <h2 is-upgraded>planner_models.py を作成する</h2>
@@ -2345,7 +2391,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Planner で詳細旅程を生成する" duration="20">
         <p>このステップでは、ユーザーが選んだ 1 候補だけを使って詳細旅程 Markdown を作ります。</p>
 <h2 is-upgraded>SelectedOptionContext を追加する</h2>
@@ -2682,7 +2728,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Illustrator で旅しおり画像を生成する" duration="15">
         <p>このステップでは、planner が作った旅程 Markdown から画像生成 prompt を作り、旅しおり画像を生成します。</p>
 <h2 is-upgraded>illustrator.py を作成する</h2>
@@ -2899,7 +2945,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="ローカルで完成したマルチエージェントを実行する" duration="15">
         <p>このステップでは、完成したコードをローカルで一通り動かします。</p>
 <h2 is-upgraded>全テストを実行する</h2>
@@ -3075,7 +3121,7 @@ itinerary_markdown
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Agent Runtime にデプロイする" duration="20">
         <p>このステップでは、specialist 3 体と coordinator を Agent Runtime にデプロイします。</p>
 <h2 is-upgraded>Google Cloud 認証を確認する</h2>
@@ -3243,7 +3289,329 @@ travel_coordinator_agent.engine_id
 
 
       </google-codelab-step>
+    
+      <google-codelab-step label="Team Challenge: Specialist Agent を改善する" duration="35">
+        <p>このステップでは、全員が同じ coordinator を完成させたあと、specialist agent の評価品質をチームで改善します。2〜3 人チームの場合は、担当する specialist を分けます。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>担当</p>
+</td><td colspan="1" rowspan="1"><p>改善する agent</p>
+</td><td colspan="1" rowspan="1"><p>主な評価観点</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>メンバー A</p>
+</td><td colspan="1" rowspan="1"><p><code>comfort_agent</code></p>
+</td><td colspan="1" rowspan="1"><p>移動負荷、休憩、宿泊快適性、疲労しにくさ</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>メンバー B</p>
+</td><td colspan="1" rowspan="1"><p><code>risk_agent</code></p>
+</td><td colspan="1" rowspan="1"><p>天候、混雑、休業、予約困難、交通遅延</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>メンバー C</p>
+</td><td colspan="1" rowspan="1"><p><code>experience_agent</code> または新規 agent</p>
+</td><td colspan="1" rowspan="1"><p>非日常性、食、文化、景色、同行者との相性</p>
+</td></tr>
+</table>
+<p>2 人チームの場合は、1 人が <code>comfort_agent</code>、もう 1 人が <code>risk_agent</code> を担当し、<code>experience_agent</code> は余裕があれば改善します。</p>
+<h2 is-upgraded>改善方針を決める</h2>
+<p>担当する specialist について、次の 3 つを先に決めます。</p>
+<ul>
+<li>高得点にする条件</li>
+<li>低得点にする条件</li>
+<li><code>concerns</code> に必ず残す注意点</li>
+</ul>
+<p>たとえば <code>comfort_agent</code> なら、駅近、直通、送迎、休憩しやすさを高く評価し、徒歩距離、乗換の多さ、バス本数の少なさを低く評価します。</p>
+<h2 is-upgraded>specialist 用 tool を確認する</h2>
+<p>template には、specialist agent から使える補助 tool が用意されています。</p>
+<p><code>agents/specialist_tools.py</code></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-python" class="language-python">estimate_mobility_load(...)
+analyze_budget_fit(...)
+extract_trip_quality_signals(...)
+</code></pre>
+</div>
+<p>それぞれの役割は次のとおりです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>tool</p>
+</td><td colspan="1" rowspan="1"><p>使いどころ</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>estimate_mobility_load</code></p>
+</td><td colspan="1" rowspan="1"><p>出発地、目的地、交通手段、アクセスメモから移動負荷を見積もる</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>analyze_budget_fit</code></p>
+</td><td colspan="1" rowspan="1"><p>ユーザー予算と候補の概算費用を比べ、予算余裕を判定する</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>extract_trip_quality_signals</code></p>
+</td><td colspan="1" rowspan="1"><p>希望、制約、調査メモ、リスクから加点・減点の signal を取り出す</p>
+</td></tr>
+</table>
+<aside class="special"><p><strong>補足:</strong> これらの tool は外部 API を呼ばず、入力された候補情報を決定論的に整理します。最新情報の確認は <code>research_agent</code> の <code>google_search</code> に任せ、specialist 側では評価の一貫性を高める目的で使います。</p></aside>
+<h2 is-upgraded>agent に tool を追加する</h2>
+<p>担当する specialist の <code>agent.py</code> に tool を追加します。たとえば <code>comfort_agent</code> では次のようにします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> from google.adk import Agent
+ from agents._common import to_a2a_app
++from agents.specialist_tools import analyze_budget_fit, estimate_mobility_load
+ 
+ root_agent = Agent(
+     name=&#34;comfort_agent&#34;,
+     model=COMFORT_AGENT_MODEL,
+     description=&#34;旅行候補を移動負荷、休憩、宿泊快適性、疲労しにくさで評価する。&#34;,
+     instruction=(
+         &#34;あなたは comfort_agent です。初回評価では EvaluationReport を返してください。&#34;
++        &#34;評価前に estimate_mobility_load と analyze_budget_fit を使い、&#34;
++        &#34;移動負荷と予算余裕を根拠に score を決めてください。&#34;
+         &#34;候補ごとの評価は option_evaluations に option_id, score, &#34;
+         &#34;comment, concerns を入れてください。&#34;
+     ),
++    tools=[estimate_mobility_load, analyze_budget_fit],
+     mode=&#34;chat&#34;,
+ )
+</code></pre>
+</div>
+<p><code>risk_agent</code> は <code>extract_trip_quality_signals</code> と <code>analyze_budget_fit</code>、<code>experience_agent</code> は <code>extract_trip_quality_signals</code> を中心に使うと比較しやすくなります。</p>
+<h2 is-upgraded>新しい specialist を追加する</h2>
+<p>余裕があるチームは、新しい specialist を追加します。例:</p>
+<ul>
+<li><code>budget_agent</code>: 予算余裕、追加費用、価格変動リスクを評価する</li>
+<li><code>food_agent</code>: 食体験、地域性、予約しやすさ、同行者との相性を評価する</li>
+<li><code>accessibility_agent</code>: 徒歩距離、段差、乗換、休憩場所を評価する</li>
+</ul>
+<p>新規 agent を追加する場合は、次の 3 点をそろえます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">agents/&lt;name&gt;/agent.py
+agents/&lt;name&gt;/__init__.py
+.env の &lt;NAME&gt;_A2A_URL
+</code></pre>
+</div>
+<p>coordinator 側では <code>RemoteA2aAgent</code> を 1 つ追加し、<code>evaluation_agent</code> の instruction に新しい評価軸を反映します。</p>
+<h2 is-upgraded>改善結果を確認する</h2>
+<p>ADK Web で同じ入力を使い、改善前後の順位を比べます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">東京から一泊二日で、静かな田舎に行きたいです。公共交通で行けて、温泉があると嬉しいです。予算は3万円以内です。
+</code></pre>
+</div>
+<p>確認する観点:</p>
+<ul>
+<li>上位 3 案の順位が、担当 specialist の観点から説明できる</li>
+<li><code>comment</code> と <code>concerns</code> に tool の判定結果が反映されている</li>
+<li><code>preferred_option_id</code> が候補の <code>option_id</code> と一致している</li>
+<li>極端な点数ばかりになっていない</li>
+</ul>
 
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Team Challenge: Specialist Agent を差し替える" duration="25">
+        <p>このステップでは、自分が改善した specialist を Agent Runtime にデプロイし、他のメンバーの coordinator から <code>RemoteA2aAgent</code> で呼び出します。</p>
+<h2 is-upgraded>specialist をデプロイする</h2>
+<p>自分の担当 agent を含めて deploy script を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">./scripts/deploy_all.sh
+</code></pre>
+</div>
+<p>デプロイ後、<code>.agent-runtime-temp</code> に保存された deploy log から Runtime A2A URL を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">grep -R &#34;a2a&#34; .agent-runtime-temp/*.deploy.log
+</code></pre>
+</div>
+<p>URL が見つからない場合は、deploy log の末尾を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">tail -n 40 .agent-runtime-temp/comfort_agent.deploy.log
+</code></pre>
+</div>
+<h2 is-upgraded>他のメンバーの specialist に切り替える</h2>
+<p>他のメンバーが共有した Runtime A2A URL を <code>.env</code> に設定します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">COMFORT_A2A_URL=https://...
+RISK_A2A_URL=https://...
+EXPERIENCE_A2A_URL=https://...
+TRAVEL_AGENT_A2A_USE_ADC_AUTH=true
+</code></pre>
+</div>
+<p>coordinator を再起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run-coordinator
+</code></pre>
+</div>
+<p>同じ旅行希望を入力し、自分の local specialist と他メンバーの Runtime specialist で推薦順位がどう変わるか確認します。</p>
+<aside class="warning"><p><strong>Warning:</strong> Agent Runtime のリソースは課金対象です。共有された URL を使った確認が終わったら、最後のクリーンアップ手順で自分のリソースを削除してください。</p></aside>
+<h2 is-upgraded>Runtime が使えない場合</h2>
+<p>権限や時間の都合で Runtime にデプロイできない場合は、local の A2A URL を使って差し替え確認をします。同じ Cloud Shell 内で起動している場合は、次の URL を共有します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">http://localhost:8101
+http://localhost:8102
+http://localhost:8103
+</code></pre>
+</div>
+<p>別環境のメンバーと共有する場合は、講師の指示に従って Cloud Shell Web Preview や一時的な tunnel を使います。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Team Challenge: Illustrator の出力品質を改善する" duration="25">
+        <p>このステップでは、planner が作った旅程 Markdown から、より情報量があり、旅行先らしさが伝わる旅しおり画像を生成します。</p>
+<h2 is-upgraded>改善観点を決める</h2>
+<p>画像を改善するときは、次の観点から 2〜3 個を選びます。</p>
+<ul>
+<li>目的地らしさがある</li>
+<li>旅行条件が反映されている</li>
+<li>文字が読みやすい</li>
+<li>旅程の重要情報が入っている</li>
+<li>イラストとして破綻していない</li>
+<li>余白、階層、色数が整理されている</li>
+</ul>
+<h2 is-upgraded>prompt format を改善する</h2>
+<p><code>agents/coordinator/recommendation_prompts.py</code> の <code>IMAGE_PROMPT_FORMAT</code> を更新します。文字要素、背景、アイコン、禁止事項を具体化すると、結果が安定しやすくなります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-diff" class="language-diff claat-diff-code" data-claat-diff="true" data-claat-diff-language="python"> IMAGE_PROMPT_FORMAT = &#34;&#34;&#34;
+ {
+   &#34;task&#34;: &#34;generate_image&#34;,
+   &#34;image_type&#34;: &#34;travel_itinerary_cover&#34;,
+   &#34;canvas&#34;: {
+     &#34;aspect_ratio&#34;: &#34;9:16&#34;
+   },
+   &#34;text_elements&#34;: [
+     {
+-      &#34;text&#34;: &#34;AI時代の仕事術&#34;,
++      &#34;text&#34;: &#34;&lt;destination short title&gt;&#34;,
+       &#34;position&#34;: &#34;top-left&#34;,
+       &#34;font_style&#34;: &#34;bold readable Japanese display font&#34;,
+       &#34;size&#34;: &#34;large&#34;,
+       &#34;color&#34;: &#34;dark navy&#34;
+     }
+   ],
+   &#34;visual_elements&#34;: [
+     {
+-      &#34;subject&#34;: &#34;a focused Japanese office worker using a laptop&#34;,
++      &#34;subject&#34;: &#34;recognizable travel scenery based on the selected destination&#34;,
+       &#34;position&#34;: &#34;center&#34;,
+-      &#34;style&#34;: &#34;clean commercial illustration&#34;
++      &#34;style&#34;: &#34;polished editorial travel illustration with clear local details&#34;
+     }
+   ],
+   &#34;composition&#34;: {
+-    &#34;background&#34;: &#34;dark blue gradient with subtle tech patterns&#34;
++    &#34;hierarchy&#34;: &#34;destination title first, then 2-3 itinerary highlights&#34;,
++    &#34;safe_area&#34;: &#34;keep all text away from edges by 8%&#34;,
++    &#34;avoid&#34;: &#34;tiny unreadable text, generic city skyline, unrelated landmarks&#34;
+   }
+ }
+ &#34;&#34;&#34;
+</code></pre>
+</div>
+<h2 is-upgraded>画像を比較する</h2>
+<p>同じ旅行希望、同じ選択候補で、改善前後の画像を比較します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">make run
+</code></pre>
+</div>
+<p>確認する観点:</p>
+<ul>
+<li>目的地名や旅程の重要語が画像に反映されている</li>
+<li>文字が読める</li>
+<li>旅行先と関係のないモチーフが混ざっていない</li>
+<li>生成画像だけを見ても、どんな旅行か説明できる</li>
+</ul>
+<p>画像生成が利用できない環境では、<code>illustrator_prompt</code> が <code>session.state</code> に保存されていることを確認し、prompt の品質を発表対象にします。</p>
+
+
+      </google-codelab-step>
+    
       <google-codelab-step label="トラブルシューティング" duration="10">
         <p>このステップでは、実装中によく起きる問題を確認します。</p>
 <h2 is-upgraded>google_search と structured output が両立しない場合</h2>
@@ -3360,7 +3728,50 @@ research_report = reports[selected_option_id]
 
 
       </google-codelab-step>
+    
+      <google-codelab-step label="成果発表と評価" duration="15">
+        <p>最後に、チームごとの改善結果を 2 分で発表します。</p>
+<h2 is-upgraded>発表する内容</h2>
+<p>次の順番で説明します。</p>
+<ol type="1">
+<li>改善した specialist または illustrator の狙い</li>
+<li>変更した prompt、tool、評価軸</li>
+<li>改善前後で順位や画像がどう変わったか</li>
+<li>うまくいかなかった点と、次に直すならどこか</li>
+</ol>
+<h2 is-upgraded>評価観点</h2>
+<p>発表を聞く側は、次の観点でフィードバックします。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>観点</p>
+</td><td colspan="1" rowspan="1"><p>確認すること</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>評価の一貫性</p>
+</td><td colspan="1" rowspan="1"><p>同じ入力で、score と comment の理由が説明できる</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>A2A らしさ</p>
+</td><td colspan="1" rowspan="1"><p>specialist を Runtime URL で差し替えられる</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>state 設計</p>
+</td><td colspan="1" rowspan="1"><p><code>option_id</code>、<code>research_reports</code>、<code>coordinator_recommendation</code> が壊れていない</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>旅行品質</p>
+</td><td colspan="1" rowspan="1"><p>推薦がユーザー希望、制約、リスクを反映している</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>画像品質</p>
+</td><td colspan="1" rowspan="1"><p>目的地らしさ、読みやすさ、情報量が改善している</p>
+</td></tr>
+</table>
+<h2 is-upgraded>ふりかえり</h2>
+<p>最後に、次の問いをチームで話します。</p>
+<ul>
+<li>specialist を分けたことで、どの評価が改善しやすくなったか</li>
+<li>tool で決定論的に補助した方がよい判断と、LLM に任せた方がよい判断は何か</li>
+<li>新しい specialist を 1 つ追加するなら、どの責務にするか</li>
+</ul>
 
+
+      </google-codelab-step>
+    
       <google-codelab-step label="おめでとうございます！" duration="5">
         <p>このコードラボでは、ADK 2.1、A2A、Agent Runtime を使って、旅行計画を作成するマルチエージェント AI を作りました。</p>
 <h2 is-upgraded>学んだこと</h2>
@@ -3440,7 +3851,7 @@ research_report = reports[selected_option_id]
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Extra: 画像生成プロンプトを改善する" duration="25">
         <p>ここからは Extra 課題です。各 Extra は、本編を最後まで実装した <code>template/</code> の続きから適用できます。まず 1 つだけ選び、時間があれば複数を組み合わせてください。</p>
 <p>このステップでは、旅しおり画像の prompt を改善します。画像生成そのもののコードは本編で作成済みなので、ここでは <code>illustrator_prompt_writer</code> の指示と prompt format を強くします。</p>
@@ -3602,7 +4013,7 @@ research_report = reports[selected_option_id]
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Extra: Memory Bank でパーソナライズする" duration="35">
         <p>このステップでは、過去の旅行嗜好を Memory から読み出して、候補生成と旅程作成に反映します。本編では <code>session.state</code> に現在の会話だけの中間結果を保存しました。Memory は session をまたいで検索できる長期的な情報に使います。</p>
 <h2 is-upgraded>追加する構成を確認する</h2>
@@ -3928,7 +4339,7 @@ PY
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Extra: Evaluation と User Simulation を追加する" duration="35">
         <p>このステップでは、旅行計画エージェントを評価するための EvalSet を作ります。本編では ADK Web で手動確認しましたが、同じ入力を何度も試すだけでは品質の変化を追いにくくなります。</p>
 <p>ADK Evaluation では、保存した eval case を <code>adk eval</code> で実行します。User Simulation では、ユーザー役の LLM が複数ターンの会話を進め、clarification、候補選択、旅程生成までを含む会話を作ります。</p>
@@ -4178,7 +4589,7 @@ PY
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Extra: AgentMail で旅行プランをメール送信する" duration="45">
         <p>このステップでは、完成した旅行プランと旅しおり画像の情報を AgentMail でメール送信します。本編の workflow は画像生成で終わっていました。ここでは、その後ろに optional node を追加します。</p>
 <h2 is-upgraded>追加する構成を確認する</h2>
@@ -4559,7 +4970,7 @@ PY
 
 
       </google-codelab-step>
-
+    
       <google-codelab-step label="Extra: AG-UI でフロントエンドから呼び出す" duration="30">
         <p>このステップでは、ADK Web ではなく AG-UI endpoint から coordinator を呼び出します。フロントエンドを後で作る場合、ADK Web 専用の UI に閉じず、HTTP endpoint として workflow を扱えるようにしておくと便利です。</p>
 <h2 is-upgraded>AG-UI endpoint の役割を確認する</h2>
@@ -4780,7 +5191,7 @@ async def health() -&gt; dict[str, str]:
 
 
       </google-codelab-step>
-
+    
   </google-codelab>
 
   <script src="libs/native-shim.js"></script>
