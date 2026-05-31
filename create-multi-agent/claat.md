@@ -857,6 +857,8 @@ make run
 
 Cloud Shell Editor の右上にある **ウェブでプレビュー** を押し、**ポート 8080 でプレビュー** を選択します。新しいタブで ADK Web が開いたら、`dynamic_travel_planning_agent` に次の依頼を送ります。
 
+![Cloud Shell Editor でポート 8080 をプレビューするメニュー](img/screen_04_port_8080_preview.png)
+
 > **補足:** ローカル環境で実行している場合は、ブラウザで `http://localhost:8080` を開きます。
 
 ```text
