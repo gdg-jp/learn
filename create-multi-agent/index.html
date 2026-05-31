@@ -293,7 +293,7 @@
         <p>このステップでは、これから実装する旅行計画エージェントの全体像を確認します。最終成果物は <code>gdsc-osaka/create-multi-agent-example</code>、初期状態は <code>gdsc-osaka/create-multi-agent</code> です。</p>
 <h2 is-upgraded>Coordinator Workflow の流れを確認する</h2>
 <p>完成後の coordinator は、1 つの大きな LLM に全部を任せるのではなく、Graph Workflow で処理を分割します。</p>
-<p class="image-container"><img alt="Coordinator Workflow が旅行希望から旅程案と旅しおり画像を生成する流れ" src="img/6be09a4e83dd1d68.png"></p>
+<p class="image-container"><img alt="Coordinator Workflow が旅行希望から旅程案と旅しおり画像を生成する流れ" src="img/9adb75b00b1f6639.png"></p>
 <p><code>clarify_agent</code> は旅行希望を構造化し、不足情報があれば <code>RequestInput</code> でユーザーに追加質問します。条件がそろったら候補生成、候補ごとの検索リサーチ、専門エージェント評価、候補選択、詳細旅程、旅しおり画像生成へ進みます。</p>
 <p><strong>補足: </strong><code>comfort_agent</code>、<code>risk_agent</code>、<code>experience_agent</code> は coordinator と同じプロセス内の sub-agent ではありません。A2A サービスとして別 port で起動し、coordinator は Agent Card を読んで呼び出します。</p>
 <h2 is-upgraded>session.state に保存するデータを確認する</h2>
@@ -824,7 +824,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    raw_user_query: str = Field(description=&#34;元のユーザー入力。&#34;)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>BaseModel</code> は Agent の出力形式を固定し、<code>str | None</code> は文字列または未入力を許可し、<code>Field(default_factory=list)</code> は候補ごとに独立した空リストを作ります。</p>
+<aside class="special"><p><strong>Tips:</strong> BaseModel が Agent の出力形式を固定し、<code>str | None</code> が文字列または未入力を許可し、<code>Field(default_factory=list)</code> が候補ごとに独立した空リストを作ります。</p></aside>
 <p><code>unknowns</code> には、旅程品質に影響する不足情報だけを入れます。好みの細部まで不足扱いにすると、毎回 clarification が発生して先に進みにくくなります。</p>
 <h2 is-upgraded>clarify.py を作成する</h2>
 <p><code>agents/coordinator/clarify.py</code> を作成し、まず Agent と state key を定義します。</p>
@@ -877,7 +877,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>model</code> はこの Agent が使う Gemini model を指定し、<code>output_schema=TravelRequest</code> は応答を Pydantic model にそろえ、<code>mode="single_turn"</code> は会話履歴に依存しない 1 回完結の実行にします。</p>
+<aside class="special"><p><strong>Tips:</strong> model がこの Agent の Gemini model を指定し、<code>output_schema=TravelRequest</code> が応答を Pydantic model にそろえ、<code>mode="single_turn"</code> が会話履歴に依存しない 1 回完結の実行にします。</p></aside>
 <p>同じファイルに Workflow node を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -926,7 +926,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    yield Event(route=DEFAULT_ROUTE, output=node_input)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>ctx.state</code> は Workflow 内で後続 node が読む共有 state で、<code>yield Event(route=...)</code> は次に進む edge を <code>clarify</code> または <code>default</code> に分岐させます。</p>
+<aside class="special"><p><strong>Tips:</strong> ctx.state が Workflow 内で後続 node が読む共有 state で、<code>yield Event(route=...)</code> が次に進む edge を <code>clarify</code> または <code>default</code> に分岐させます。</p></aside>
 <p><code>route_after_clarification</code> は route を返す分岐 node です。重要な不足情報が残っていて、追加質問が 2 回未満なら <code>ROUTE_CLARIFY</code> に進みます。</p>
 <p>最後に、人間への質問と再構造化用の入力を作ります。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -977,7 +977,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>RequestInput</code> は Workflow を一時停止してユーザー入力を待ち、<code>build_reclarify_input</code> は元の依頼、前回の構造化結果、追加回答を 1 つの入力に戻します。</p>
+<aside class="special"><p><strong>Tips:</strong> RequestInput が Workflow を一時停止してユーザー入力を待ち、<code>build_reclarify_input</code> が元の依頼、前回の構造化結果、追加回答を 1 つの入力に戻します。</p></aside>
 <p>この node は、元の依頼と追加回答をまとめて <code>clarify_agent</code> に戻します。ユーザーが追加情報を短く返しても、元の依頼を失わずに構造化できます。</p>
 <h2 is-upgraded>agent.py を最小 Workflow に更新する</h2>
 <p><code>agents/coordinator/agent.py</code> を最小 Workflow に更新します。この時点では、条件がそろった後の処理は次ステップで追加するため、<code>candidate_workflow</code> はまだ接続しません。</p>
@@ -1031,7 +1031,7 @@ agents/experience/agent.py               体験価値評価 specialist
  app = to_a2a_app(root_agent, default_port=8100)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>Workflow(edges=[...])</code> は node の実行順をコードで定義し、route map は <code>route_after_clarification</code> が返した route 名ごとに次の node を選びます。</p>
+<aside class="special"><p><strong>Tips:</strong> Workflow(edges=[...]) が node の実行順をコードで定義し、{ ROUTE_CLARIFY: ..., DEFAULT_ROUTE: ... } が <code>route_after_clarification</code> の route 名ごとに次の node を選びます。</p></aside>
 <p><code>DEFAULT_ROUTE</code> も一時的に <code>request_clarification</code> に向けています。次のステップで候補生成 Workflow を作ったら、ここを <code>candidate_workflow</code> に置き換えます。</p>
 <h2 is-upgraded>Clarify Agent の動作を確認する</h2>
 <p>coordinator と ADK Web を起動します。</p>
@@ -1044,20 +1044,7 @@ agents/experience/agent.py               体験価値評価 specialist
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-bash" class="language-bash">make run-coordinator
-</code></pre>
-</div>
-<p>別ターミナルで ADK Web を起動します。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-bash" class="language-bash">make web
+<pre><code language="language-bash" class="language-bash">make run
 </code></pre>
 </div>
 <p>ブラウザで <code>http://localhost:8000</code> を開き、<code>dynamic_travel_planning_agent</code> に次の依頼を送ります。</p>
@@ -1142,7 +1129,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    suitability_reason: str
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>TravelOption</code> は 1 つの候補、<code>TravelOptions</code> は候補リスト、<code>ResearchReport</code> は検索後の調査結果を表し、<code>Field(min_length=3, max_length=5)</code> は出力件数の制約になります。</p>
+<aside class="special"><p><strong>Tips:</strong> TravelOption が 1 つの候補、<code>TravelOptions</code> が候補リスト、<code>ResearchReport</code> が検索後の調査結果を表し、<code>Field(min_length=3, max_length=5)</code> が出力件数の制約になります。</p></aside>
 <p><code>TravelOption.option_id</code> は後続の join、評価、ユーザー選択で同じ候補を追跡するための ID です。LLM が途中で候補名を言い換えても、<code>option_id</code> が残っていれば対応付けできます。</p>
 <h2 is-upgraded>candidates.py を作成する</h2>
 <p><code>agents/coordinator/candidates.py</code> を作成し、まず 3 つの Agent を定義します。</p>
@@ -1192,7 +1179,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>strategist_agent</code> は <code>TravelRequest</code> から候補案だけを作る役割で、<code>output_schema=TravelOptions</code> によって候補リストの JSON 形式を安定させます。</p>
+<aside class="special"><p><strong>Tips:</strong> strategist_agent が <code>TravelRequest</code> から候補案だけを作り、<code>output_schema=TravelOptions</code> によって候補リストの JSON 形式を安定させます。</p></aside>
 <p><code>google_search</code> を使う調査 Agent と、調査メモを構造化する formatter を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1247,7 +1234,11 @@ agents/experience/agent.py               体験価値評価 specialist
 +)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>research_agent</code> は <code>tools=[google_search]</code> で検索を担当し、<code>research_report_formatter</code> は検索メモを <code>ResearchReport</code> に整形するため、検索と構造化を 2 段に分けています。</p>
+<aside class="special"><p><strong>Tips:</strong> research_agent が <code>tools=[google_search]</code> で検索を担当します。<code>google_search</code> は Agent が必要に応じて Google Search に接続し、最新の Web 情報や根拠 URL を使って回答を grounded response にするための ADK tool です。<code>research_report_formatter</code> が検索メモを <code>ResearchReport</code> に整形するため、検索と構造化を 2 段に分けています。</p></aside>
+<h3 is-upgraded>How grounding with Google Search works</h3>
+<p><a href="https://adk.dev/grounding/google_search_grounding/" target="_blank">ADK の Google Search Grounding 公式ドキュメント</a> では、grounding は Agent をリアルタイムの Web 情報へ接続し、より新しく正確な回答を作るための仕組みとして説明されています。ユーザー入力にモデルの学習時点より新しい情報や時事性のある情報が必要な場合、LLM が <code>google_search</code> tool の呼び出しを判断します。</p>
+<p><code>google_search</code> tool は grounding service と連携し、Google Search Index に問い合わせます。取得した Web ページや snippet は model context に注入され、LLM はその検索結果を根拠に最終回答を生成します。返答には参照元を示す <code>groundingMetadata</code> が含まれるため、ユーザーや開発者はどの情報源に基づいた回答かを確認できます。</p>
+<p class="image-container"><img alt="Google Search grounding のデータフロー" src="img/a75f9f7415ab25db.png"></p>
 <p>続けて、state 保存と候補ごとの調査 node を実装します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1286,7 +1277,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>ctx.run_node(...)</code> は Workflow node の中から別 Agent を呼ぶ API で、<code>async def</code> にしておくと検索や formatter の待ち時間を自然に扱えます。</p>
+<aside class="special"><p><strong>Tips:</strong> ctx.run_node(...) が Workflow node の中から別 Agent を呼び、<code>async def</code> にしておくことで検索や formatter の待ち時間を自然に扱えます。</p></aside>
 <p>最後に、全候補を並列に調査して <code>research_reports</code> にまとめます。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1332,7 +1323,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    return reports
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>asyncio.gather(*tasks)</code> は候補ごとの調査を並列に実行し、<code>collect_research_reports</code> は返ってきた結果を <code>option_id</code> keyed dict に集約します。</p>
+<aside class="special"><p><strong>Tips:</strong> Graph-based workflow で固定本数の edge を用意するのではなく、Dynamic workflow の Python コードで <code>asyncio.gather(*tasks)</code> を使うことで、候補数に応じて並列数を可変にできます。</p></aside>
 <p><code>build_research_input</code> と <code>build_research_report_input</code> は、<code>TravelRequest</code>、<code>TravelOption</code>、調査メモをテキストにして次の Agent に渡す helper として実装します。</p>
 <h2 is-upgraded>candidate_workflow を agent.py に追加する</h2>
 <p><code>agents/coordinator/agent.py</code> に候補生成 Workflow を追加します。</p>
@@ -1382,7 +1373,7 @@ agents/experience/agent.py               体験価値評価 specialist
      description=&#34;Dynamic Research + Multi-Agent Evaluation 型の旅行計画AIエージェント。&#34;,
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>candidate_workflow</code> は候補生成から検索リサーチまでを 1 つの node として親 Workflow に組み込むための nested Workflow です。</p>
+<aside class="special"><p><strong>Tips:</strong> candidate_workflow を候補生成から検索リサーチまでを 1 つの node として親 Workflow に組み込むための nested Workflow として作ります。</p></aside>
 <p><code>root_agent</code> の <code>DEFAULT_ROUTE</code> を <code>candidate_workflow</code> に差し替えます。分岐の前後が分かるように、<code>edges</code> の該当箇所ごと diff にします。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1415,10 +1406,10 @@ agents/experience/agent.py               体験価値評価 specialist
  )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>DEFAULT_ROUTE</code> を差し替えることで、clarification が不要な入力だけが候補生成 Workflow に流れるようになります。</p>
+<aside class="special"><p><strong>Tips:</strong> DEFAULT_ROUTE を差し替えることで、clarification が不要な入力だけが候補生成 Workflow に流れるようになります。</p></aside>
 <p>これで、旅行条件がそろった場合は候補生成と検索リサーチへ進みます。</p>
 <h2 is-upgraded>research_reports が state に保存されることを確認する</h2>
-<p>specialist agent はまだ使わないため、coordinator と ADK Web だけを起動します。</p>
+<p>前のステップで <code>make run</code> を実行しているターミナル (黒い画面) をクリックし、Ctrl + C で閉じます。その後、再び同じコマンドを実行して再起動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1428,20 +1419,7 @@ agents/experience/agent.py               体験価値評価 specialist
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-bash" class="language-bash">make run-coordinator
-</code></pre>
-</div>
-<p>別ターミナルで:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-bash" class="language-bash">make web
+<pre><code language="language-bash" class="language-bash">make run
 </code></pre>
 </div>
 <p>ADK Web で次の依頼を送ります。</p>
@@ -1527,7 +1505,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +app = to_a2a_app(root_agent, default_port=8101)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>to_a2a_app(root_agent, default_port=8101)</code> は Agent を A2A server として公開し、<code>mode="chat"</code> は追加確認や再分析依頼を同じ会話として扱いやすくします。</p>
+<aside class="special"><p><strong>Tips:</strong> to_a2a_app(root_agent, default_port=8101) が Agent を A2A server として公開し、<code>mode="chat"</code> が追加確認や再分析依頼を同じ会話として扱いやすくします。</p></aside>
 <p><code>mode="chat"</code> にしておくと、coordinator からの追加確認や再分析依頼にも同じ会話として応答できます。</p>
 <h2 is-upgraded>risk_agent を作成する</h2>
 <p><code>agents/risk/agent.py</code> を次の内容にします。</p>
@@ -1568,7 +1546,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +app = to_a2a_app(root_agent, default_port=8102)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>risk_agent</code> も comfort と同じ A2A server 形式ですが、<code>instruction</code> の評価軸を休業、混雑、天候、遅延などのリスクに寄せています。</p>
+<aside class="special"><p><strong>Tips:</strong> risk_agent も comfort と同じ A2A server 形式にし、<code>instruction</code> の評価軸を休業、混雑、天候、遅延などのリスクに寄せています。</p></aside>
 <p>リスク評価は「悪い案を落とす」だけでなく、注意点を planner に渡すためにも使います。<code>concerns</code> に具体的な注意点を入れるようにします。</p>
 <h2 is-upgraded>experience_agent を作成する</h2>
 <p><code>agents/experience/agent.py</code> を次の内容にします。</p>
@@ -1612,7 +1590,7 @@ agents/experience/agent.py               体験価値評価 specialist
 <aside class="special"><p><strong>Tips:</strong> 3 つの specialist は同じ応答形式を使い、<code>description</code> と <code>instruction</code> だけで担当する評価観点を分けます。</p></aside>
 <p>3 つの specialist は同じ <code>EvaluationReport</code> 形式で返します。評価軸だけを変えることで、coordinator が比較しやすい入力になります。</p>
 <h2 is-upgraded>Specialist Agents の Agent Card を確認する</h2>
-<p>specialist を起動します。</p>
+<p>前のステップで <code>make run</code> を実行しているターミナル (黒い画面) をクリックし、Ctrl + C で閉じます。その後、再び同じコマンドを実行して再起動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -1622,7 +1600,7 @@ agents/experience/agent.py               体験価値評価 specialist
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-bash" class="language-bash">make run-specialists
+<pre><code language="language-bash" class="language-bash">make run
 </code></pre>
 </div>
 <p>別ターミナルで Agent Card を確認します。</p>
@@ -1671,7 +1649,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 </div>
 <h2 is-upgraded>Specialist Agents の動作を確認する</h2>
 <p>A2A サーバーとして Agent Card が返れば、coordinator から <code>RemoteA2aAgent</code> で発見できます。この時点では coordinator との接続は次ステップで実装するため、起動確認までで構いません。</p>
-<p><code>connection refused</code> が出た場合は、<code>make run-specialists</code> のターミナルにエラーが出ていないか確認します。port 8101 から 8103 を別プロセスが使っている場合は、そのプロセスを停止してから再実行します。</p>
+<p><code>connection refused</code> が出た場合は、<code>make run</code> のターミナルにエラーが出ていないか確認します。port 8101 から 8103 を別プロセスが使っている場合は、そのプロセスを停止してから再実行します。</p>
 
 
       </google-codelab-step>
@@ -1744,7 +1722,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    reports: list[EvaluationReport]
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>Field(ge=1, le=10)</code> は score の範囲を検証し、<code>@model_validator(mode="before")</code> は Pydantic の通常検証前に古い形式を新しい形式へ変換します。</p>
+<aside class="special"><p><strong>Tips:</strong> Field(ge=1, le=10) が score の範囲を検証し、<code>@model_validator(mode="before")</code> が Pydantic の通常検証前に古い形式を新しい形式へ変換します。</p></aside>
 <p><code>migrate_legacy_option_maps</code> は、LLM が古い map 形式で返した場合の保険です。通常は <code>option_evaluations</code> の list 形式で返ることを期待します。</p>
 <h2 is-upgraded>RemoteA2aAgent を定義する</h2>
 <p><code>agents/coordinator/evaluation.py</code> を作成し、specialist を <code>RemoteA2aAgent</code> として定義します。</p>
@@ -1790,7 +1768,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>RemoteA2aAgent</code> は別プロセスの Agent Card を読んで呼び出す proxy で、<code>agent_card=remote_agent_card_url(...)</code> は環境変数があれば Runtime、なければ localhost を使います。</p>
+<aside class="special"><p><strong>Tips:</strong> RemoteA2aAgent が別プロセスの Agent Card を読む proxy になり、<code>agent_card=remote_agent_card_url(...)</code> が環境変数があれば Runtime、なければ localhost を使います。</p></aside>
 <p><code>risk_agent</code> と <code>experience_agent</code> も同じ形で追加します。環境変数が未設定なら localhost の Agent Card を読みに行きます。</p>
 <h2 is-upgraded>evaluation_agent を作成する</h2>
 <p>同じ <code>evaluation.py</code> に、3 つの specialist を tool として持つ coordinator 用 Agent を追加します。</p>
@@ -1839,7 +1817,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +)
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>AgentTool(comfort_agent)</code> のように包むと、coordinator Agent は remote specialist を tool 呼び出しとして使えるようになります。</p>
+<aside class="special"><p><strong>Tips:</strong> AgentTool(comfort_agent) のように包むことで、coordinator Agent が remote specialist を tool 呼び出しとして使えるようになります。</p></aside>
 <p><code>AgentTool</code> にすることで、<code>evaluation_agent</code> は必要なタイミングで specialist を呼び出せます。specialist の内部実装は coordinator に公開されません。</p>
 <h2 is-upgraded>evaluation フェーズを candidate_workflow に追加する</h2>
 <p><code>agents/coordinator/planner_models.py</code> に、推薦結果の schema を先に作成します。</p>
@@ -1875,7 +1853,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    user_message: str
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>RankedOption</code> はユーザーに見せる 1 案の推薦情報で、<code>CoordinatorRecommendation</code> は上位 3 案、比較要約、調停理由、表示文を 1 つにまとめます。</p>
+<aside class="special"><p><strong>Tips:</strong> RankedOption がユーザーに見せる 1 案の推薦情報で、<code>CoordinatorRecommendation</code> が上位 3 案、比較要約、調停理由、表示文を 1 つにまとめます。</p></aside>
 <p><code>evaluation.py</code> に入力作成 node を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1914,7 +1892,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>build_evaluation_input</code> は structured object をそのまま渡さず、specialist と coordinator が読みやすいテキスト入力に整えてから評価 Agent に渡します。</p>
+<aside class="special"><p><strong>Tips:</strong> build_evaluation_input が structured object をそのまま渡さず、specialist と coordinator が読みやすいテキスト入力に整えてから評価 Agent に渡します。</p></aside>
 <p><code>agents/coordinator/planner.py</code> を作成し、推薦結果を state に保存する node を先に置きます。選択提示と planner 本体は後のステップで同じファイルに追加します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1945,7 +1923,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    return node_input
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>store_recommendation</code> は Agent の出力を <code>model_dump()</code> して <code>ctx.state</code> に保存し、後続の選択画面や再提案で同じ推薦結果を参照できるようにします。</p>
+<aside class="special"><p><strong>Tips:</strong> store_recommendation が Agent の出力を <code>model_dump()</code> して <code>ctx.state</code> に保存し、後続の選択画面や再提案で同じ推薦結果を参照できるようにします。</p></aside>
 <p><code>agent.py</code> の <code>candidate_workflow</code> に evaluation と <code>store_recommendation</code> を接続します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -1980,7 +1958,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>travel_research_workflow</code> の後ろに <code>build_evaluation_input -> evaluation_agent -> store_recommendation</code> を直列接続することで、調査結果がそろってから評価に進みます。</p>
+<aside class="special"><p><strong>Tips:</strong> travel_research_workflow の後ろに <code>build_evaluation_input -> evaluation_agent -> store_recommendation</code> を直列接続し、調査結果がそろってから評価に進みます。</p></aside>
 <h2 is-upgraded>coordinator_recommendation が state に保存されることを確認する</h2>
 <p>ADK Web の Inspector で、<code>evaluation_agent</code> の後に <code>coordinator_recommendation</code> が保存されることを確認します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -2010,7 +1988,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 }
 </code></pre>
 </div>
-<p>specialist を起動してから coordinator と ADK Web を起動します。</p>
+<p>前のステップで <code>make run</code> を実行しているターミナル (黒い画面) をクリックし、Ctrl + C で閉じます。その後、再び同じコマンドを実行して再起動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -2020,33 +1998,7 @@ curl http://localhost:8103/.well-known/agent-card.json
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-bash" class="language-bash">make run-specialists
-</code></pre>
-</div>
-<p>別ターミナルで:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-bash" class="language-bash">make run-coordinator
-</code></pre>
-</div>
-<p>さらに別ターミナルで:</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-bash" class="language-bash">make web
+<pre><code language="language-bash" class="language-bash">make run
 </code></pre>
 </div>
 <p>Agent Card の取得に失敗する場合は、<code>COMFORT_A2A_URL</code>、<code>RISK_A2A_URL</code>、<code>EXPERIENCE_A2A_URL</code> が localhost の port 8101 から 8103 を指しているか確認します。</p>
@@ -2099,6 +2051,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    coordinator_notes: str
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> SelectedOptionContext が planner に渡す入力の境界になり、ユーザーが選んだ候補、対応する調査結果、評価だけを 1 つにまとめます。</p></aside>
 <p>この model は、選ばれた候補に関する情報だけを 1 つにまとめます。全候補の state をそのまま planner に渡さないための境界です。</p>
 <h2 is-upgraded>planner.py に選択提示ノードを作成する</h2>
 <p>前のステップで作成した <code>agents/coordinator/planner.py</code> を開き、ユーザー選択 prompt を実装します。既存の <code>store_recommendation</code> は残します。</p>
@@ -2136,6 +2089,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  def store_recommendation(
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> ROUTE_SELECTED と <code>ROUTE_REPLAN</code> が選択後の分岐名で、<code>STATE_SELECTED_OPTION_ID</code> が planner がどの候補を使うかを後で読むための state key です。</p></aside>
 <p>ユーザーには上位 3 案と、再提案用の 4 番を提示します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2172,6 +2126,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> response_schema=str | int にしておくと、ユーザーが <code>1</code> のような番号だけを返しても文字列入力でも受けられます。</p></aside>
 <p><code>RequestInput</code> を使うため、Workflow はここで一度ユーザーの選択を待ちます。</p>
 <h2 is-upgraded>route_user_selection を実装する</h2>
 <p>同じ <code>planner.py</code> に選択結果の route 分岐を追加します。</p>
@@ -2216,6 +2171,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    yield Event(route=ROUTE_SELECTED, output=selected.option_id)
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> route_user_selection がユーザー入力を番号、<code>option_id</code>、タイトルで判定し、再提案なら <code>ROUTE_REPLAN</code>、候補選択なら <code>ROUTE_SELECTED</code> を返します。</p></aside>
 <p>ユーザーが何も明確に選ばなかった場合は 1 位の候補を選んだものとして進めます。ワークショップ中は「1」「2」「3」「4」の番号で入力すると確認しやすいです。</p>
 <h2 is-upgraded>build_replan_input を実装する</h2>
 <p>再提案 route では、現在の旅行希望、現在の推薦、ユーザーの変更希望をまとめて <code>clarify_agent</code> に戻します。</p>
@@ -2256,6 +2212,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> build_replan_input が現在の <code>TravelRequest</code>、推薦結果、変更希望をまとめ直し、再提案を最初からではなく条件更新として扱います。</p></aside>
 <p>この入力により「海が見える場所を優先」などの差分希望を、最初の旅行希望に反映できます。</p>
 <h2 is-upgraded>agent.py に選択と再提案の分岐を追加する</h2>
 <p><code>agent.py</code> の import を追加します。既存の <code>store_recommendation</code> import を、選択関連を含む import に広げます。</p>
@@ -2288,6 +2245,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +)
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> ここで planner module から route 定数と node 関数を import し、<code>agent.py</code> が選択と再提案の分岐を組み立てられるようにします。</p></aside>
 <p><code>candidate_workflow</code> を、評価結果の保存、選択提示、route 分岐まで進む形に更新します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2328,9 +2286,10 @@ curl http://localhost:8103/.well-known/agent-card.json
  )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> この段階の <code>ROUTE_SELECTED: request_user_selection</code> は仮接続で、選択 route が動くことを確認してから次ステップで planner に差し替えます。</p></aside>
 <p><code>ROUTE_SELECTED</code> の先は次ステップで planner に差し替えます。ここでは route が分かれることを確認します。</p>
 <h2 is-upgraded>上位 3 案の提示と再提案ループを確認する</h2>
-<p>specialist、coordinator、ADK Web を起動します。</p>
+<p>前のステップで <code>make run</code> を実行しているターミナル (黒い画面) をクリックし、Ctrl + C で閉じます。その後、再び同じコマンドを実行して再起動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -2423,6 +2382,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    coordinator_notes: str
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> 前ステップで追加した <code>SelectedOptionContext</code> を再掲し、planner が全候補ではなく選択済み候補だけを見る設計を確認します。</p></aside>
 <p>この model を planner への入力境界として使います。<code>research_reports</code> 全体ではなく、選ばれた <code>option_id</code> の report だけを入れます。</p>
 <h2 is-upgraded>build_planner_input を実装する</h2>
 <p><code>planner.py</code> に planner Agent を追加します。import、定数、既存 node の前後を含めて差分を適用します。</p>
@@ -2475,6 +2435,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  def store_recommendation(
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> planner_agent が <code>output_schema</code> を指定しないため自由な Markdown を返し、<code>PLANNER_AGENT_MODEL</code> を分けておくと後から planner だけ model を差し替えられます。</p></aside>
 <p><code>build_planner_input</code> は、選ばれた候補の情報だけを Markdown 風の入力にします。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2533,6 +2494,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> build_planner_input が <code>SelectedOptionContext</code> から必要項目を抜き出し、見出し付きテキストにして planner が詳細旅程を作りやすい入力にします。</p></aside>
 <p>実際の完成コードでは、同行者、交通手段、食事候補、天候メモ、specialist 評価も含めます。ここで重要なのは、<code>build_selected_option_context</code> を通して候補を 1 つに絞ってから planner に渡すことです。</p>
 <h2 is-upgraded>store_itinerary_markdown を実装する</h2>
 <p><code>planner.py</code> に planner 出力の保存 node を追加します。</p>
@@ -2563,6 +2525,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    return markdown
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> store_itinerary_markdown が planner の出力を文字列化して <code>itinerary_markdown</code> に保存し、次の illustrator が同じ旅程を参照できるようにします。</p></aside>
 <p><code>build_selected_option_context</code> では、<code>selected_option_id</code> に一致する <code>TravelOption</code>、<code>ResearchReport</code>、<code>EvaluationReport</code> だけを取り出し、<code>STATE_SELECTED_OPTION_CONTEXT</code> に保存します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2622,6 +2585,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +    return context
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> model_validate(...) が state の dict を Pydantic model に戻し、<code>next(...)</code> と <code>reports[selected_option_id]</code> で選ばれた候補だけを取り出します。</p></aside>
 <p>完成コードでは <code>parse_evaluation_reports</code> を使って specialist 評価も <code>evaluations</code> に入れます。</p>
 <h2 is-upgraded>planner フェーズを agent.py に追加する</h2>
 <p><code>agent.py</code> の import に planner 関連を追加します。</p>
@@ -2650,6 +2614,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> import に <code>planner_agent</code>、<code>build_planner_input</code>、<code>store_itinerary_markdown</code> を追加すると、選択 route の先で旅程生成まで接続できます。</p></aside>
 <p><code>candidate_workflow</code> の route を更新します。<code>ROUTE_SELECTED</code> の行と planner 接続の周辺を含めて差分にします。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2681,6 +2646,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> ROUTE_SELECTED の行を <code>build_planner_input</code> に差し替え、続く edge で <code>planner_agent</code> と保存 node を直列に実行します。</p></aside>
 <p>これで、ユーザーが 1 から 3 を選ぶと planner に進み、4 を選ぶと再提案に戻ります。</p>
 <h2 is-upgraded>itinerary_markdown が state に保存されることを確認する</h2>
 <p><code>make run</code> で全プロセスを起動し、候補選択まで進めます。</p>
@@ -2764,6 +2730,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +&#34;&#34;&#34;
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> IMAGE_PROMPT_FORMAT を画像生成 prompt の型紙として使い、縦長比率、文字要素、絵の主題を毎回同じ構造で指定します。</p></aside>
 <p><code>agents/coordinator/illustrator.py</code> を作成します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2789,6 +2756,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +ILLUSTRATOR_AGENT_MODEL = &#34;gemini-3-pro-image&#34;
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> ILLUSTRATOR_PROMPT_AGENT_MODEL を旅程から画像 prompt を書く model、<code>ILLUSTRATOR_AGENT_MODEL</code> を実際に画像を生成する model として分けています。</p></aside>
 <p>prompt 作成 Agent と画像生成 Agent を分けます。画像生成 model に長い旅程を直接渡すより、先に画像向け prompt に変換するほうが制御しやすくなります。</p>
 <h2 is-upgraded>illustrator_prompt_agent を作成する</h2>
 <p>同じ <code>illustrator.py</code> に prompt 作成 Agent を追加します。</p>
@@ -2829,6 +2797,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +)
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> illustrator_prompt_agent が Markdown 旅程を画像生成向けの英語 prompt に変換し、<code>IMAGE_PROMPT_FORMAT</code> を instruction に埋め込んで出力の形を誘導します。</p></aside>
 <p>旅しおり画像は、旅程を読まなくても概要が伝わることを目標にします。prompt には目的地、日数、主要スポット、移動、注意点を入れます。</p>
 <h2 is-upgraded>illustrator_agent を作成する</h2>
 <p>画像生成 Agent を追加します。</p>
@@ -2862,6 +2831,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 +)
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> illustrator_agent を入力 prompt を画像にするだけの薄い Agent にし、旅程情報の整理は前段の prompt writer に寄せます。</p></aside>
 <p>この Agent は prompt を画像に変換するだけです。旅程の解釈や情報の取捨選択は <code>illustrator_prompt_agent</code> 側で行います。</p>
 <h2 is-upgraded>illustrator フェーズを agent.py に追加する</h2>
 <p><code>agent.py</code> に import を追加します。</p>
@@ -2884,6 +2854,7 @@ curl http://localhost:8103/.well-known/agent-card.json
      ROUTE_SELECTED,
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> illustrator_agent と <code>illustrator_prompt_agent</code> を <code>agent.py</code> から import し、planner の後段で使える node として登録します。</p></aside>
 <p>planner の後ろに illustrator を接続します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2909,6 +2880,7 @@ curl http://localhost:8103/.well-known/agent-card.json
  )
 </code></pre>
 </div>
+<aside class="special"><p><strong>Tips:</strong> store_itinerary_markdown -&gt; illustrator_prompt_agent -&gt; illustrator_agent の順に並べ、旅程保存、画像 prompt 作成、画像生成を 1 本の route で続けます。</p></aside>
 <p><code>store_itinerary_markdown</code> の戻り値がそのまま <code>illustrator_prompt_agent</code> に渡ります。</p>
 <h2 is-upgraded>旅しおり画像が生成されることを確認する</h2>
 <p><code>make run</code> で起動し、候補を選択します。</p>
@@ -2963,7 +2935,7 @@ curl http://localhost:8103/.well-known/agent-card.json
 </div>
 <p>ruff が import error を報告する場合は、ファイル名と import 名が一致しているか確認します。たとえば <code>planner.py</code> を作った場合は、<code>agent.py</code> と <code>evaluation.py</code> も <code>agents.coordinator.planner</code>、<code>agents.coordinator.planner_models</code> を import します。</p>
 <h2 is-upgraded>Specialist、Coordinator、ADK Web を起動する</h2>
-<p>全プロセスをまとめて起動します。</p>
+<p><code>make run</code> を実行しているターミナル (黒い画面) をクリックし、Ctrl + C で閉じます。その後、再び同じコマンドを実行して再起動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
