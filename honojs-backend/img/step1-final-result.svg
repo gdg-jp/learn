@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Hono.js backend bulletin board final result</title>
+  <desc id="desc">Google login screen, Hono API server, PostgreSQL database, and a bulletin board UI connected together.</desc>
+  <rect width="1280" height="720" fill="#f8fafd"/>
+  <rect x="86" y="82" width="1108" height="556" rx="28" fill="#ffffff" stroke="#d7e3f3" stroke-width="3"/>
+  <text x="130" y="144" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#202124">Hono.js 掲示板 API</text>
+  <text x="130" y="184" font-family="Arial, sans-serif" font-size="18" fill="#5f6368">React SPA から Firebase ID token を送り、Hono API が PostgreSQL に保存します</text>
+
+  <rect x="132" y="236" width="280" height="300" rx="16" fill="#e8f0fe" stroke="#4285f4" stroke-width="3"/>
+  <text x="172" y="292" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#174ea6">React SPA</text>
+  <rect x="172" y="326" width="200" height="42" rx="8" fill="#ffffff" stroke="#4285f4" stroke-width="2"/>
+  <text x="206" y="354" font-family="Arial, sans-serif" font-size="16" fill="#174ea6">Google ログイン</text>
+  <rect x="172" y="392" width="200" height="92" rx="8" fill="#ffffff" stroke="#4285f4" stroke-width="2"/>
+  <text x="204" y="428" font-family="Arial, sans-serif" font-size="16" fill="#174ea6">投稿フォーム</text>
+  <text x="218" y="456" font-family="Arial, sans-serif" font-size="14" fill="#5f6368">POST /api/posts</text>
+
+  <rect x="500" y="236" width="280" height="300" rx="16" fill="#e6f4ea" stroke="#34a853" stroke-width="3"/>
+  <text x="546" y="292" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#137333">Hono API</text>
+  <rect x="540" y="326" width="200" height="44" rx="8" fill="#ffffff" stroke="#34a853" stroke-width="2"/>
+  <text x="588" y="354" font-family="Arial, sans-serif" font-size="16" fill="#137333">Zod 検証</text>
+  <rect x="540" y="392" width="200" height="44" rx="8" fill="#ffffff" stroke="#34a853" stroke-width="2"/>
+  <text x="568" y="420" font-family="Arial, sans-serif" font-size="16" fill="#137333">verifyIdToken</text>
+  <rect x="540" y="458" width="200" height="44" rx="8" fill="#ffffff" stroke="#34a853" stroke-width="2"/>
+  <text x="594" y="486" font-family="Arial, sans-serif" font-size="16" fill="#137333">Drizzle</text>
+
+  <rect x="868" y="236" width="280" height="300" rx="16" fill="#fef7e0" stroke="#fbbc04" stroke-width="3"/>
+  <text x="926" y="292" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#b06000">PostgreSQL</text>
+  <rect x="908" y="334" width="200" height="150" rx="8" fill="#ffffff" stroke="#fbbc04" stroke-width="2"/>
+  <text x="970" y="370" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#b06000">posts</text>
+  <line x1="932" y1="396" x2="1084" y2="396" stroke="#fbbc04" stroke-width="2"/>
+  <text x="940" y="426" font-family="Arial, sans-serif" font-size="14" fill="#5f6368">content</text>
+  <text x="940" y="456" font-family="Arial, sans-serif" font-size="14" fill="#5f6368">authorName</text>
+
+  <path d="M424 386H488" stroke="#5f6368" stroke-width="4" stroke-linecap="round"/>
+  <path d="M476 372l18 14-18 14" fill="none" stroke="#5f6368" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M792 386h64" stroke="#5f6368" stroke-width="4" stroke-linecap="round"/>
+  <path d="M844 372l18 14-18 14" fill="none" stroke="#5f6368" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="638" cy="604" r="28" fill="#ea4335"/>
+  <text x="690" y="612" font-family="Arial, sans-serif" font-size="18" fill="#3c4043">Firebase Auth が「誰が投稿したか」を API に教えます</text>
+</svg>

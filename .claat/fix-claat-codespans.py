@@ -15,11 +15,12 @@ Nine fixes are applied:
    `<p><strong>Keyword:</strong>...</p>` whose keyword matches a known callout
    label, including an immediately following <ul>/<ol> list when present.
 
-3. Wrap <pre> code blocks with a toolbar that provides copy and light/dark
-   theme buttons.
+3. Wrap <pre> code blocks with an optional filename label and a toolbar that
+   provides copy and light/dark theme buttons.
 
 4. Annotate `diff <language>` fenced code blocks so the browser can apply
-   diff line styling and nested language syntax highlighting.
+   diff line styling and nested language syntax highlighting. Code fences may
+   also use `<language>:<filename>` to show a filename label above the block.
 
 5. Repair markdown links left behind when claat strips standalone <button>
    wrappers. Button syntax such as `<button>\n[label](url)\n</button>` can
@@ -79,6 +80,8 @@ CODE_TOOLBAR = """<div class="claat-code-toolbar" aria-label="Code block actions
   </button>
 </div>"""
 
+CODE_FILENAME_LABEL_TEMPLATE = '<div class="claat-code-filename">{filename}</div>\n'
+
 LOCAL_STYLE = f"""<style id="{STYLE_ID}">
   google-codelab-step .instructions .claat-code-block {{
     position: relative;
@@ -86,6 +89,24 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
     background: #f1f3f4;
     border-radius: 0;
     overflow: hidden;
+  }}
+
+  google-codelab-step .instructions .claat-code-filename {{
+    display: inline-flex;
+    max-width: min(100%, 56ch);
+    min-height: 42px;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px 18px;
+    overflow: hidden;
+    color: #3c4043;
+    background: #e8eaed;
+    border-radius: 6px 6px 0 0;
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.92rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }}
 
   google-codelab-step .instructions .claat-code-block pre {{
@@ -167,6 +188,11 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
 
   google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {{
     background: #28323f;
+  }}
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-filename {{
+    color: #f1f3f4;
+    background: #3c4658;
   }}
 
   google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {{
@@ -283,6 +309,13 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
   }}
 
   @media (max-width: 640px) {{
+    google-codelab-step .instructions .claat-code-filename {{
+      max-width: calc(100% - 72px);
+      min-height: 40px;
+      padding: 9px 14px;
+      font-size: 0.86rem;
+    }}
+
     google-codelab-step .instructions .claat-code-block pre {{
       padding: 56px 14px 16px;
     }}
@@ -528,17 +561,44 @@ def parse_markdown_code_fences(markdown: str) -> list[dict[str, str]]:
         if i < len(lines):
             i += 1
 
-        info_words = info.strip().split()
-        is_diff = bool(info_words) and info_words[0] == "diff"
+        fence_info = parse_code_fence_info(info.strip())
         fences.append(
             {
                 "info": info.strip(),
-                "is_diff": "true" if is_diff else "",
-                "diff_language": info_words[1] if is_diff and len(info_words) > 1 else "",
+                "language": fence_info["language"],
+                "filename": fence_info["filename"],
+                "is_diff": "true" if fence_info["is_diff"] else "",
+                "diff_language": fence_info["language"] if fence_info["is_diff"] else "",
             }
         )
 
     return fences
+
+
+def parse_code_fence_info(info: str) -> dict[str, str | bool]:
+    result: dict[str, str | bool] = {"language": "", "filename": "", "is_diff": False}
+    if not info:
+        return result
+
+    if info == "diff" or info.startswith("diff "):
+        result["is_diff"] = True
+        info = info[4:].strip()
+
+    if not info:
+        return result
+
+    first_space = re.search(r"\s", info)
+    first_token = info if not first_space else info[: first_space.start()]
+    remainder = "" if not first_space else info[first_space.start() :].strip()
+
+    if ":" in first_token:
+        language, filename_start = first_token.split(":", 1)
+        result["language"] = language
+        result["filename"] = (filename_start + (" " + remainder if remainder else "")).strip()
+        return result
+
+    result["language"] = first_token
+    return result
 
 
 def load_codelab_metadata(html_path: str | None) -> dict[str, str]:
@@ -761,40 +821,74 @@ def append_class_attr(tag: str, class_name: str) -> str:
     return pattern.sub(f'class={match.group(1)}{html_lib.escape(value, quote=True)}{match.group(1)}', tag, count=1)
 
 
-def annotate_diff_code_blocks(html: str, source_md: str | None) -> tuple[str, int]:
+def remove_attr(tag: str, name: str) -> str:
+    return re.sub(rf'\s+\b{re.escape(name)}=(["\']).*?\1', "", tag, count=1, flags=re.DOTALL)
+
+
+def normalize_code_language_attrs(code_tag: str, language: str) -> str:
+    if not language:
+        return code_tag
+
+    language_class = f"language-{language}"
+    code_tag = set_or_append_attr(code_tag, "language", language_class)
+
+    class_match = re.search(r'\bclass=(["\'])(.*?)\1', code_tag, re.DOTALL)
+    if not class_match:
+        return code_tag[:-1] + f' class="{html_lib.escape(language_class, quote=True)}">'
+
+    classes = [klass for klass in class_match.group(2).split() if not klass.startswith("language-")]
+    classes.append(language_class)
+    value = " ".join(classes)
+    return re.sub(
+        r'\bclass=(["\'])(.*?)\1',
+        f'class={class_match.group(1)}{html_lib.escape(value, quote=True)}{class_match.group(1)}',
+        code_tag,
+        count=1,
+        flags=re.DOTALL,
+    )
+
+
+def annotate_code_blocks(html: str, source_md: str | None) -> tuple[str, int, int]:
     fences = load_markdown_code_fences(source_md)
     code_index = 0
-    total = 0
-    pattern = re.compile(r"(?P<open><pre\b[^>]*>\s*<code\b(?P<attrs>[^>]*)>)(?P<body>.*?</code>\s*</pre>)", re.DOTALL)
+    diff_total = 0
+    filename_total = 0
+    pattern = re.compile(
+        r"(?P<pre_tag><pre\b[^>]*>)(?P<between>\s*)(?P<code_tag><code\b[^>]*>)(?P<body>.*?</code>\s*</pre>)",
+        re.DOTALL,
+    )
 
     def repl(match: re.Match) -> str:
-        nonlocal code_index, total
+        nonlocal code_index, diff_total, filename_total
 
         fence = fences[code_index] if code_index < len(fences) else {}
         code_index += 1
 
-        open_tag = match.group("open")
+        pre_tag = match.group("pre_tag")
+        code_tag = match.group("code_tag")
+        open_tag = match.group(0)[: match.start("body") - match.start()]
         has_diff_attr = bool(re.search(r'\b(?:class|language)=["\'][^"\']*\blanguage-diff\b', open_tag))
         is_diff = fence.get("is_diff") == "true" or has_diff_attr
-        if not is_diff or 'data-claat-diff="true"' in open_tag:
-            return match.group(0)
+        language = fence.get("language", "")
+        filename = fence.get("filename", "")
 
-        language = fence.get("diff_language", "")
-        code_tag_match = re.search(r"<code\b[^>]*>", open_tag)
-        if not code_tag_match:
-            return match.group(0)
-
-        code_tag = code_tag_match.group(0)
-        code_tag = append_class_attr(code_tag, "claat-diff-code")
-        code_tag = set_or_append_attr(code_tag, "data-claat-diff", "true")
         if language:
-            code_tag = set_or_append_attr(code_tag, "data-claat-diff-language", language)
+            code_tag = normalize_code_language_attrs(code_tag, language)
 
-        total += 1
-        updated_open = open_tag[: code_tag_match.start()] + code_tag + open_tag[code_tag_match.end() :]
-        return updated_open + match.group("body")
+        if filename and "data-claat-filename=" not in pre_tag:
+            pre_tag = set_or_append_attr(pre_tag, "data-claat-filename", filename)
+            filename_total += 1
 
-    return pattern.sub(repl, html), total
+        if is_diff and 'data-claat-diff="true"' not in code_tag:
+            code_tag = append_class_attr(code_tag, "claat-diff-code")
+            code_tag = set_or_append_attr(code_tag, "data-claat-diff", "true")
+            if language:
+                code_tag = set_or_append_attr(code_tag, "data-claat-diff-language", language)
+            diff_total += 1
+
+        return pre_tag + match.group("between") + code_tag + match.group("body")
+
+    return pattern.sub(repl, html), diff_total, filename_total
 
 
 def wrap_code_blocks(html: str) -> tuple[str, int]:
@@ -805,8 +899,15 @@ def wrap_code_blocks(html: str) -> tuple[str, int]:
 
     def repl(m: re.Match) -> str:
         pre = m.group("pre")
+        attrs = attrs_from_tag(m.group("pre")[: m.group("pre").find(">") + 1])
+        filename = attrs.get("data-claat-filename", "")
+        filename_label = ""
+        if filename:
+            filename_label = CODE_FILENAME_LABEL_TEMPLATE.format(filename=html_lib.escape(filename))
+            pre = remove_attr(pre, "data-claat-filename")
         return (
             '<div class="claat-code-block" data-code-theme="light">\n'
+            f"{filename_label}"
             f"{CODE_TOOLBAR}\n"
             f"{pre}\n"
             "</div>"
@@ -967,11 +1068,11 @@ def fix(
     html: str,
     html_path: str | None = None,
     source_md: str | None = None,
-) -> tuple[str, int, int, int, int, int, int, int, int, int, int]:
+) -> tuple[str, int, int, int, int, int, int, int, int, int, int, int]:
     html, n_code = escape_codespans(html)
     html, n_aside = wrap_asides(html)
     html, n_retagged = retag_troubleshooting_asides(html)
-    html, n_diff = annotate_diff_code_blocks(html, source_md)
+    html, n_diff, n_filenames = annotate_code_blocks(html, source_md)
     html, n_blocks = wrap_code_blocks(html)
     html, n_buttons = repair_button_links(html)
     html, n_download_buttons = repair_image_download_links(html)
@@ -981,7 +1082,20 @@ def fix(
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
     html, n_style, n_script = inject_local_assets(html)
-    return html, n_code, n_aside + n_retagged, n_diff, n_blocks, n_buttons, n_links, n_ogp, n_favicon, n_style, n_script
+    return (
+        html,
+        n_code,
+        n_aside + n_retagged,
+        n_diff,
+        n_filenames,
+        n_blocks,
+        n_buttons,
+        n_links,
+        n_ogp,
+        n_favicon,
+        n_style,
+        n_script,
+    )
 
 
 def main() -> int:
@@ -1002,6 +1116,7 @@ def main() -> int:
             n_code,
             n_aside,
             n_diff,
+            n_filenames,
             n_blocks,
             n_buttons,
             n_links,
@@ -1015,7 +1130,8 @@ def main() -> int:
                 f.write(fixed)
         print(
             f"{path}: fixed {n_code} code spans, wrapped {n_aside} asides, "
-            f"annotated {n_diff} diff blocks, enhanced {n_blocks} code blocks, "
+            f"annotated {n_diff} diff blocks, labeled {n_filenames} code blocks, "
+            f"enhanced {n_blocks} code blocks, "
             f"repaired {n_buttons} buttons, "
             f"linkified {n_links} URLs, "
             f"injected {n_ogp} OGP tags, {n_favicon} favicons, "

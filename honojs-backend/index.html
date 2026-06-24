@@ -1,0 +1,2593 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Hono.js で掲示板バックエンド API サーバーを作ろう</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="libs/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+<meta id="claat-local-ogp-og-title" property="og:title" content="Hono.js で掲示板バックエンド API サーバーを作ろう">
+<meta id="claat-local-ogp-twitter-title" name="twitter:title" content="Hono.js で掲示板バックエンド API サーバーを作ろう">
+<meta id="claat-local-ogp-og-description" property="og:description" content="Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth で掲示板 API をゼロから作るバックエンド入門">
+<meta id="claat-local-ogp-twitter-description" name="twitter:description" content="Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth で掲示板 API をゼロから作るバックエンド入門">
+<meta id="claat-local-ogp-twitter-card" name="twitter:card" content="summary_large_image">
+<meta id="claat-local-ogp-og-image" property="og:image" content="https://edu.gdgoc-osaka.jp/honojs-backend/img/b5eda13be872c412.png">
+<meta id="claat-local-ogp-twitter-image" name="twitter:image" content="https://edu.gdgoc-osaka.jp/honojs-backend/img/b5eda13be872c412.png">
+<link id="claat-local-favicon" rel="icon" type="image/png" href="../assets/favicon.png">
+<style id="claat-local-preprocessor-style">
+  google-codelab-step .instructions .claat-code-block {
+    position: relative;
+    margin: 16px 0;
+    background: #f1f3f4;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  google-codelab-step .instructions .claat-code-filename {
+    display: inline-flex;
+    max-width: min(100%, 56ch);
+    min-height: 42px;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px 18px;
+    overflow: hidden;
+    color: #3c4043;
+    background: #e8eaed;
+    border-radius: 6px 6px 0 0;
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.92rem;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre {
+    margin: 0;
+    padding: 18px 88px 18px 18px;
+    color: #37474f;
+    background: #f1f3f4;
+    border-radius: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code {
+    color: inherit;
+    background: transparent;
+    padding: 0;
+  }
+
+  google-codelab-step .instructions .claat-code-toolbar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  google-codelab-step .instructions .claat-code-button {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #202124;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  google-codelab-step .instructions .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-button:focus-visible {
+    background: rgba(60, 64, 67, 0.12);
+    outline: none;
+  }
+
+  google-codelab-step .instructions .claat-code-button .material-icons {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .pln,
+  google-codelab-step .instructions .claat-code-block pre .pun {
+    color: #37474f;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .kwd,
+  google-codelab-step .instructions .claat-code-block pre .typ,
+  google-codelab-step .instructions .claat-code-block pre .tag {
+    color: #9334e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .str,
+  google-codelab-step .instructions .claat-code-block pre .atv {
+    color: #188038;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .com {
+    color: #5f6368;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre .atn,
+  google-codelab-step .instructions .claat-code-block pre .lit,
+  google-codelab-step .instructions .claat-code-block pre .dec {
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] {
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-filename {
+    color: #f1f3f4;
+    background: #3c4658;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre {
+    color: #f8f9fa;
+    background: #28323f;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:hover,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-code-button:focus-visible {
+    background: rgba(248, 249, 250, 0.16);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .str,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .atv {
+    color: #34a853;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .kwd {
+    color: #f538a0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .com {
+    color: #bdc1c6;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .typ,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .tag {
+    color: #24c1e0;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .lit,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .dec {
+    color: #4285f4;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pln,
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] pre .pun {
+    color: #f8f9fa;
+  }
+
+  google-codelab-step .instructions .claat-code-block pre > code.claat-diff-code {
+    display: block;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line {
+    display: block;
+    min-height: 1.4em;
+    margin: 0 -18px;
+    padding: 0 18px;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-marker {
+    display: inline-block;
+    width: 1ch;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add {
+    background: #dff7e8;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {
+    background: #fce8e6;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {
+    background: #e8f0fe;
+    color: #1967d2;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-add .claat-diff-marker {
+    color: #137333;
+  }
+
+  google-codelab-step .instructions .claat-code-block .claat-diff-line-delete .claat-diff-marker {
+    color: #d93025;
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-add {
+    background: rgba(52, 168, 83, 0.24);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-delete {
+    background: rgba(234, 67, 53, 0.28);
+  }
+
+  google-codelab-step .instructions .claat-code-block[data-code-theme="dark"] .claat-diff-line-hunk {
+    background: rgba(66, 133, 244, 0.25);
+    color: #8ab4f8;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.warning {
+    border: 1px solid #ea8600;
+    border-left-width: 4px;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.troubleshooting {
+    border: 1px solid #d93025;
+    border-left-width: 4px;
+    border-color: #d93025;
+    background: #fce8e6;
+    color: #212124;
+  }
+
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.special,
+  google-codelab:not([theme="minimal"]) google-codelab-step .instructions aside.tip {
+    border: 1px solid #137333;
+    border-left-width: 4px;
+  }
+
+  @media (max-width: 640px) {
+    google-codelab-step .instructions .claat-code-filename {
+      max-width: calc(100% - 72px);
+      min-height: 40px;
+      padding: 9px 14px;
+      font-size: 0.86rem;
+    }
+
+    google-codelab-step .instructions .claat-code-block pre {
+      padding: 56px 14px 16px;
+    }
+
+    google-codelab-step .instructions .claat-code-block .claat-diff-line {
+      margin: 0 -14px;
+      padding: 0 14px;
+    }
+  }
+</style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  codelab-ga4id=""
+                  id="honojs-backend"
+                  title="Hono.js で掲示板バックエンド API サーバーを作ろう"
+                  environment="web"
+                  feedback-link="https://github.com/gdg-jp/honojs-backend-example/issues">
+    
+      <google-codelab-step label="はじめに" duration="3">
+        <p>このコードラボでは、<code>npm create hono@latest</code> でプロジェクトを作るところから始めて、先に React SPA を同じ Hono サーバーから配信します。その後、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使った掲示板 API サーバーを少しずつ育て、Google ログインしたユーザーだけが投稿できる掲示板にします。</p>
+<p class="image-container"><img alt="OGP" src="img/b5eda13be872c412.png"></p>
+<h2 is-upgraded>Discord で質問する</h2>
+<p>詰まったところ、エラー全文、スクリーンショットは Discord の <code>#260625-honojs-backend</code> に共有してください。Firebase Admin SDK の <code>serviceAccount.json</code> も、このチャンネルで講師から配布します。</p>
+<aside class="special"><p><strong>Tips:</strong> エラーは要約せず、そのまま貼ると原因を探しやすくなります。</p></aside>
+<h2 is-upgraded>このコードラボで作るもの</h2>
+<p>単一スレッドの掲示板 API サーバーを作ります。最初はメモリ上の配列に投稿を保存し、そのあと PostgreSQL に保存先を切り替えます。</p>
+<ul>
+<li><code>GET /api/posts</code> で投稿一覧を取得できる</li>
+<li><code>POST /api/posts</code> で新しい投稿を作成できる</li>
+<li>投稿を PostgreSQL に保存できる</li>
+<li>Zod で投稿内容を検証できる</li>
+<li>Firebase ID トークンでログイン済みユーザーだけ投稿できる</li>
+<li>React SPA を Hono サーバーから配信できる</li>
+</ul>
+<h2 is-upgraded>このコードラボで学ぶこと</h2>
+<ul>
+<li>Hono.js で Web API の入口を作る方法</li>
+<li>HTTP リクエストとレスポンスを確認する方法</li>
+<li>メモリ保存と DB 保存の違いを体験する方法</li>
+<li>Drizzle で PostgreSQL のテーブルを定義して読み書きする方法</li>
+<li>Zod で API リクエストを検証する方法</li>
+<li>Firebase Admin SDK で ID トークンを検証する方法</li>
+</ul>
+<h2 is-upgraded>必要なもの</h2>
+<ul>
+<li>Windows または macOS の PC</li>
+<li>Google Chrome</li>
+<li>Visual Studio Code</li>
+<li>Node.js 24 LTS</li>
+<li>Git</li>
+<li>Docker Desktop</li>
+<li>Google アカウント</li>
+</ul>
+<h2 is-upgraded>前提知識</h2>
+<ul>
+<li>JavaScript または TypeScript の基本的な理解</li>
+<li>配列、object、関数、非同期処理という言葉を見たことがある程度の理解</li>
+<li>React を少し触ったことがある程度の理解</li>
+</ul>
+<h2 is-upgraded>このコードラボで扱わないこと</h2>
+<ul>
+<li>Firebase プロジェクトの作成</li>
+<li>React コンポーネントの詳しい作り方</li>
+<li>SQL migration の本格運用</li>
+<li>投稿の編集、削除、複数スレッド化</li>
+<li>本番デプロイ、監視、セキュリティ設計</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="セットアップ" duration="25">
+        <p>このステップでは、PC に開発環境を入れます。Node.js、Git、Docker Desktop が入っていない前提で進めます。</p>
+<h2 is-upgraded>Windows のセットアップ手順</h2>
+<p>Windows では、ブラウザで公式サイトを開いてインストーラをダウンロードします。PowerShell は、スタートメニューで <code>PowerShell</code> と検索して開きます。</p>
+<h3 is-upgraded>Node.js をインストールする</h3>
+<p>Node.js は、TypeScript や Hono サーバーを動かすために使います。公式サイトから <strong>LTS</strong> と書かれた Windows Installer をダウンロードして実行します。</p>
+<p><a href="https://nodejs.org/en/download" target="_blank"><paper-button class="colored" raised>Node.js LTS をダウンロード</paper-button></a></p>
+<p>インストール後、PowerShell を開き直して確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">node --version
+npm --version
+</code></pre>
+</div>
+<p><code>v24.x.x</code> と <code>11.x.x</code> のように表示されれば成功です。<code>node</code> または <code>npm</code> が見つからない場合は、PowerShell を閉じて開き直します。それでも動かない場合は PC を再起動します。</p>
+<h3 is-upgraded>Git をインストールする</h3>
+<p>Git は、完成コードや各ステップの checkpoint を確認するために使います。公式の Git ダウンロードページから Windows 版をダウンロードします。</p>
+<p><a href="https://git-scm.com/download/win" target="_blank"><paper-button class="colored" raised>Git for Windows をダウンロード</paper-button></a></p>
+<p>インストーラでは、基本的にデフォルト設定で進めます。迷ったら次の項目だけ確認します。</p>
+<ul>
+<li><strong>Adjusting your PATH environment</strong> は <code>Git from the command line and also from 3rd-party software</code> を選ぶ</li>
+<li><strong>Default branch name</strong> は <code>main</code> を使う設定にする</li>
+<li>エディタ選択は Visual Studio Code を選べれば選ぶ</li>
+</ul>
+<p>インストール後、PowerShell を開き直して確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">git --version
+</code></pre>
+</div>
+<p><code>git version 2.x.x</code> のように表示されれば成功です。</p>
+<h3 is-upgraded>Docker Desktop をインストールする</h3>
+<p>Docker Desktop は、PostgreSQL を自分の PC で起動するために使います。公式の Windows 向けインストールページを開き、<strong>Docker Desktop for Windows</strong> をダウンロードします。</p>
+<p><a href="https://docs.docker.com/desktop/setup/install/windows-install/" target="_blank"><paper-button class="colored" raised>Docker Desktop for Windows をダウンロード</paper-button></a></p>
+<p>インストール後、Docker Desktop を起動します。初回起動では利用規約の確認や WSL まわりの設定が表示されることがあります。画面の案内に従って進め、必要なら PC を再起動します。</p>
+<p>Docker Desktop が起動したら、PowerShell で確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-powershell" class="language-powershell">docker --version
+docker compose version
+</code></pre>
+</div>
+<p><code>Docker version ...</code> と <code>Docker Compose version ...</code> が表示されれば成功です。</p>
+<p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、PowerShell を開き直します。Windows では Docker Desktop のインストール後に再起動が必要になることがあります。</p>
+<h3 is-upgraded>Visual Studio Code をインストールする</h3>
+<p>Visual Studio Code は、コードを編集するためのエディタです。公式サイトから Windows 版をダウンロードします。</p>
+<p><a href="https://code.visualstudio.com/download" target="_blank"><paper-button class="colored" raised>Visual Studio Code をダウンロード</paper-button></a></p>
+<p>インストール後、VS Code を開きます。メニューが英語でも問題ありません。日本語にしたい場合は、拡張機能で <code>Japanese Language Pack</code> を検索してインストールします。</p>
+<h2 is-upgraded>Mac のセットアップ手順</h2>
+<p>macOS では、ブラウザで公式サイトを開いてインストーラをダウンロードします。ターミナルは <code>Cmd + Space</code> で Spotlight を開き、<code>Terminal</code> と入力して起動します。</p>
+<h3 is-upgraded>Node.js をインストールする</h3>
+<p>Node.js は、TypeScript や Hono サーバーを動かすために使います。公式サイトから <strong>LTS</strong> と書かれた macOS Installer をダウンロードして実行します。</p>
+<p><a href="https://nodejs.org/en/download" target="_blank"><paper-button class="colored" raised>Node.js LTS をダウンロード</paper-button></a></p>
+<p>インストール後、ターミナルを開き直して確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">node --version
+npm --version
+</code></pre>
+</div>
+<p><code>v24.x.x</code> と <code>11.x.x</code> のように表示されれば成功です。</p>
+<h3 is-upgraded>Git をインストールする</h3>
+<p>Git は、完成コードや各ステップの checkpoint を確認するために使います。macOS では、Xcode Command Line Tools を入れると Git も使えるようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">xcode-select --install
+</code></pre>
+</div>
+<p>画面が表示されたら <strong>Install</strong> を押します。すでにインストール済みの場合は、そのまま次に進みます。</p>
+<p>Git 公式サイトの macOS インストールページにも、複数のインストール方法がまとまっています。</p>
+<p><a href="https://git-scm.com/install/mac" target="_blank"><paper-button class="colored" raised>Git の macOS インストール手順を開く</paper-button></a></p>
+<p>インストール後、ターミナルを開き直して確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">git --version
+</code></pre>
+</div>
+<p><code>git version 2.x.x</code> のように表示されれば成功です。</p>
+<h3 is-upgraded>Docker Desktop をインストールする</h3>
+<p>Docker Desktop は、PostgreSQL を自分の PC で起動するために使います。公式の Mac 向けインストールページを開き、自分の Mac に合った版を選びます。</p>
+<p><a href="https://docs.docker.com/desktop/setup/install/mac-install/" target="_blank"><paper-button class="colored" raised>Docker Desktop for Mac をダウンロード</paper-button></a></p>
+<p>Apple Silicon の Mac は <strong>Apple silicon</strong>、Intel Mac は <strong>Intel chip</strong> を選びます。ダウンロードした <code>.dmg</code> を開き、Docker を Applications フォルダへドラッグします。</p>
+<p>Docker Desktop を起動し、初回設定を進めます。起動後、ターミナルで確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">docker --version
+docker compose version
+</code></pre>
+</div>
+<p><code>Docker version ...</code> と <code>Docker Compose version ...</code> が表示されれば成功です。</p>
+<p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、ターミナルを開き直します。</p>
+<h3 is-upgraded>Visual Studio Code をインストールする</h3>
+<p>Visual Studio Code は、コードを編集するためのエディタです。公式サイトから macOS 版をダウンロードします。</p>
+<p><a href="https://code.visualstudio.com/download" target="_blank"><paper-button class="colored" raised>Visual Studio Code をダウンロード</paper-button></a></p>
+<p>ダウンロードした <code>.zip</code> を開き、<code>Visual Studio Code.app</code> を Applications フォルダへ移動します。</p>
+<p>ターミナルから <code>code .</code> で VS Code を開きたい場合は、VS Code を起動して <code>Cmd + Shift + P</code> を押し、<code>Shell Command: Install 'code' command in PATH</code> を実行します。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="バックエンドの説明" duration="15">
+        <p>このステップでは、実装に入る前にバックエンドの役割を整理します。覚える言葉は多く見えますが、すべては「ブラウザから来たリクエストを受け取り、安全にデータを読み書きして、レスポンスを返す」という流れに集約できます。</p>
+<p class="image-container"><img alt="掲示板アプリのリクエストの流れ" src="img/1880657cfc551b8d.png"></p>
+<h2 is-upgraded>なぜバックエンドが必要か</h2>
+<p class="image-container"><img alt="バックエンドが守る信頼境界" src="img/2a7a146f579c372e.png"></p>
+<p>フロントエンドは、利用者のブラウザで動きます。画面を表示し、ボタンや入力欄の操作を受け取り、API を呼び出します。一方で、ブラウザに届いたコードは利用者から見えるため、DB 接続情報や Firebase Admin SDK の秘密鍵を置けません。</p>
+<p>バックエンドは、サーバー側の信頼できる場所で動きます。このコードラボでは Hono API がバックエンドです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>場所</p>
+</td><td colspan="1" rowspan="1"><p>担当すること</p>
+</td><td colspan="1" rowspan="1"><p>このコードラボでの例</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>フロントエンド</p>
+</td><td colspan="1" rowspan="1"><p>画面と操作</p>
+</td><td colspan="1" rowspan="1"><p>Google ログイン画面、投稿フォーム、投稿一覧</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>バックエンド</p>
+</td><td colspan="1" rowspan="1"><p>ルールとデータ</p>
+</td><td colspan="1" rowspan="1"><p>投稿内容の検証、認可、DB 保存</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>外部サービス</p>
+</td><td colspan="1" rowspan="1"><p>認証などの専門機能</p>
+</td><td colspan="1" rowspan="1"><p>Firebase Auth</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>DB</p>
+</td><td colspan="1" rowspan="1"><p>アプリの記憶</p>
+</td><td colspan="1" rowspan="1"><p>PostgreSQL の <code>posts</code> テーブル</p>
+</td></tr>
+</table>
+<h2 is-upgraded>API はフロントエンドとバックエンドの約束</h2>
+<p class="image-container"><img alt="HTTPリクエストの解剖図" src="img/e320b79813121a09.png"></p>
+<p>API は、フロントエンドとバックエンドの間の約束です。約束には、URL、HTTP メソッド、ヘッダー、リクエスト body、レスポンスの形が含まれます。</p>
+<p>このコードラボで作る API は2つです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>HTTP メソッド</p>
+</td><td colspan="1" rowspan="1"><p>URL</p>
+</td><td colspan="1" rowspan="1"><p>役割</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>GET</code></p>
+</td><td colspan="1" rowspan="1"><p><code>/api/posts</code></p>
+</td><td colspan="1" rowspan="1"><p>投稿一覧を取得する</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>POST</code></p>
+</td><td colspan="1" rowspan="1"><p><code>/api/posts</code></p>
+</td><td colspan="1" rowspan="1"><p>新しい投稿を作成する</p>
+</td></tr>
+</table>
+<p><code>POST /api/posts</code> では、フロントエンドから投稿本文だけを送ります。バックエンドは、投稿者の <code>uid</code>、名前、アイコン URL を Firebase ID トークンから取り出します。投稿者名をフロントエンドから受け取らないことで、他人の名前を名乗る投稿を防ぎます。</p>
+<h2 is-upgraded>DB はアプリの記憶</h2>
+<p class="image-container"><img alt="投稿がpostsテーブルの1行になる流れ" src="img/a0c2d556e954fa1c.png"></p>
+<p>DB は、アプリのデータを保存し、あとから検索できるようにする場所です。このコードラボでは PostgreSQL を使い、掲示板の投稿を <code>posts</code> テーブルに保存します。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>カラム</p>
+</td><td colspan="1" rowspan="1"><p>役割</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>id</code></p>
+</td><td colspan="1" rowspan="1"><p>投稿を一意に識別する番号</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>content</code></p>
+</td><td colspan="1" rowspan="1"><p>投稿本文</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>author_uid</code></p>
+</td><td colspan="1" rowspan="1"><p>Firebase のユーザー ID</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>author_name</code></p>
+</td><td colspan="1" rowspan="1"><p>投稿者名</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>author_photo_url</code></p>
+</td><td colspan="1" rowspan="1"><p>投稿者アイコン</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>created_at</code></p>
+</td><td colspan="1" rowspan="1"><p>作成日時</p>
+</td></tr>
+</table>
+<p>DB は単なる保存場所ではありません。複数人が同時にアクセスしても壊れにくくし、必要なデータを検索しやすくし、<code>not null</code> のようなルールでデータの形も守ります。</p>
+<h2 is-upgraded>バリデーションは外から来た値の門番</h2>
+<p class="image-container"><img alt="Zodによる検証パイプライン" src="img/fec8a33f5e83da4c.png"></p>
+<p>API に届く JSON は、常に正しいとは限りません。空文字、長すぎる文字列、JSON ではない値、想定外の object が届くことがあります。</p>
+<p>このコードラボでは Zod を使って、投稿作成のリクエストを検証します。</p>
+<p><code>unknown input</code> → <code>Zod validation</code> → <code>typed data</code> → <code>DB</code></p>
+<p>Zod の役割は、外から来た信用できない値を、アプリの内側で安心して扱える値に変換することです。</p>
+<h2 is-upgraded>認証と認可は分けて考える</h2>
+<p class="image-container"><img alt="認証と認可の2段階ゲート" src="img/30298dd8bacae6fb.png"></p>
+<p>認証は「あなたは誰か」を確認することです。認可は「あなたはその操作をしてよいか」を確認することです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>API</p>
+</td><td colspan="1" rowspan="1"><p>認可</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>GET /api/posts</code></p>
+</td><td colspan="1" rowspan="1"><p>誰でも取得できる</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>POST /api/posts</code></p>
+</td><td colspan="1" rowspan="1"><p>ログイン済みだけ作成できる</p>
+</td></tr>
+</table>
+<p>フロントエンドは Firebase ID トークンを <code>Authorization: Bearer ...</code> ヘッダーに入れて送ります。バックエンドは Firebase Admin SDK の <code>verifyIdToken</code> で検証します。</p>
+<p>ログイン済みであっても、何でもできるわけではありません。たとえば拡張課題の投稿削除では、「ログイン済み」だけでなく「その投稿を作った本人か」も確認する必要があります。</p>
+<h2 is-upgraded>今日使う言葉</h2>
+<table>
+<tr><td colspan="1" rowspan="1"><p>言葉</p>
+</td><td colspan="1" rowspan="1"><p>意味</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>リクエスト</p>
+</td><td colspan="1" rowspan="1"><p>ブラウザから API へ送る要求</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>レスポンス</p>
+</td><td colspan="1" rowspan="1"><p>API からブラウザへ返す結果</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>エンドポイント</p>
+</td><td colspan="1" rowspan="1"><p><code>GET /api/posts</code> のような API の呼び出し口</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>HTTP メソッド</p>
+</td><td colspan="1" rowspan="1"><p><code>GET</code>、<code>POST</code> など、何をしたいかを表す動詞</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>JSON</p>
+</td><td colspan="1" rowspan="1"><p>フロントエンドとバックエンドでやり取りするデータ形式</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>ステータスコード</p>
+</td><td colspan="1" rowspan="1"><p><code>200</code>、<code>201</code>、<code>400</code>、<code>401</code> など、結果を表す番号</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>テーブル</p>
+</td><td colspan="1" rowspan="1"><p>DB のデータの入れ物</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>レコード</p>
+</td><td colspan="1" rowspan="1"><p>テーブルに保存された1件分のデータ</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>スキーマ</p>
+</td><td colspan="1" rowspan="1"><p>データの形やルール</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>バリデーション</p>
+</td><td colspan="1" rowspan="1"><p>入力が期待した形か確認すること</p>
+</td></tr>
+</table>
+<h2 is-upgraded>参考にした公開資料</h2>
+<p>この説明は、日本のソフトウェア企業が公開している研修資料の構成も参考にしています。</p>
+<ul>
+<li><a href="https://zenn.dev/mixi/articles/95e0d0477c1ed7" target="_blank">MIXI 新卒向け技術研修 2025</a></li>
+<li><a href="https://techblog.recruit.co.jp/article-5841/" target="_blank">リクルート エンジニアコース新人研修 2025</a></li>
+<li><a href="https://blog.cybozu.io/entry/2025/07/08/171543" target="_blank">Cybozu エンジニア新人研修 2025</a></li>
+<li><a href="https://cybozu.dev/ja/tutorials/hello-js/web-api/" target="_blank">Cybozu Web API を使ってみよう</a></li>
+<li><a href="https://speakerdeck.com/cyberagentdevelopers/security-training-technical-part2024" target="_blank">CyberAgent セキュリティ研修 Technical Part 2024</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Hono プロジェクトを作成する" duration="10">
+        <p>ここから実装に入ります。まずは Hono の公式 starter から、新しい TypeScript プロジェクトを作成します。</p>
+<aside class="special"><p><strong>Tips:</strong> Hono は、Web API を作るための軽量な TypeScript フレームワークです。URL ごとに処理を書く「ルーティング」が中心で、今回のような小さな API サーバーを作り始めやすい道具です。</p></aside>
+<h2 is-upgraded>作業フォルダでプロジェクトを作成する</h2>
+<p>ターミナルまたは PowerShell で、作業用フォルダに移動してから次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm create hono@latest honojs-backend-app
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>npm create</code> は、指定した starter から新しいプロジェクトを作るコマンドです。ここでは Hono 公式 starter を使って、<code>honojs-backend-app</code> というフォルダに最小構成の Hono アプリを作ります。</p>
+<p>途中で template を聞かれたら、<code>nodejs</code> を選びます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">cd honojs-backend-app
+npm install
+</code></pre>
+</div>
+<h2 is-upgraded>VS Code で開く</h2>
+<p>次のコマンドで、作成したプロジェクトを VS Code で開きます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">code .
+</code></pre>
+</div>
+<p><code>code</code> コマンドが使えない場合は、VS Code のメニューから <strong>File &gt; Open Folder...</strong> を選び、<code>honojs-backend-app</code> フォルダを開きます。</p>
+<h2 is-upgraded>起動する</h2>
+<p>Hono starter が用意している開発用コマンドを実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>npm run dev</code> は、<code>package.json</code> の <code>scripts.dev</code> に書かれた開発用コマンドを実行します。Hono starter では、TypeScript のサーバーを起動し、変更があれば自動で再起動します。</p>
+<p><code>http://localhost:3000</code> のような URL が表示されたら、ブラウザで開きます。<code>Hello Hono!</code> のような文字が表示されれば成功です。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点では、Hono starter が作った最小構成だけがあります。</p>
+<ul>
+<li><code>package.json</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>src/index.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-create-hono" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-create-hono</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="必要なライブラリを追加する" duration="8">
+        <p>このステップでは、後の手順で使うライブラリを先に追加します。package scripts は追加せず、Hono starter が最初から用意した <code>npm run dev</code>、<code>npm run build</code>、<code>npm start</code> を使います。DB 操作や React build には <code>npx</code> を使います。</p>
+<h2 is-upgraded>バックエンド用ライブラリを追加する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm install @hono/node-server drizzle-orm pg zod firebase-admin
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>npm install</code> は、プロジェクトで使うライブラリを <code>node_modules</code> に入れ、<code>package.json</code> に記録するコマンドです。別の PC でも <code>npm install</code> すれば同じライブラリを復元できます。</p>
+<h2 is-upgraded>フロントエンド用ライブラリを追加する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm install react react-dom firebase @heroui/react @heroui/theme @react-aria/ssr framer-motion lucide-react
+</code></pre>
+</div>
+<h2 is-upgraded>開発用ライブラリを追加する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm install -D vite @vitejs/plugin-react typescript tsx drizzle-kit @types/node @types/pg @types/react @types/react-dom tailwindcss @tailwindcss/vite
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>-D</code> は「開発中だけ使うライブラリ」を意味します。<code>drizzle-kit</code> は DB 定義を反映するための開発用コマンドなので、<code>dependencies</code> ではなく <code>devDependencies</code> に入れます。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点では、ファイル構成はほぼ変わりません。代わりに <code>package.json</code> と <code>package-lock.json</code> にライブラリ情報が追加されています。</p>
+<ul>
+<li><code>package.json</code></li>
+<li><code>package-lock.json</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>src/index.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-install" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-install</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="React SPA を配信する" duration="17">
+        <p>このステップでは、先に React SPA を追加します。以降の API 実装では、curl に加えてブラウザからも動作確認できるようになります。React 側はこのコードラボの主役ではないため、1 ファイルを貼り付けて、Hono サーバーから配信できるようにします。</p>
+<h2 is-upgraded>Vite 設定を追加する</h2>
+<p>プロジェクト直下に <code>vite.config.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">vite.config.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import tailwindcss from &#34;@tailwindcss/vite&#34;;
+import react from &#34;@vitejs/plugin-react&#34;;
+import { defineConfig } from &#34;vite&#34;;
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  build: {
+    outDir: &#34;dist/public&#34;,
+    emptyOutDir: true
+  },
+  server: {
+    proxy: {
+      &#34;/api&#34;: &#34;http://localhost:3000&#34;
+    }
+  }
+});
+</code></pre>
+</div>
+<p>Vite は React アプリをビルドするために使います。<code>proxy</code> は、React 開発サーバーから <code>/api</code> を呼んだときに Hono サーバーへ転送する設定です。</p>
+<h2 is-upgraded>Tailwind と HTML を追加する</h2>
+<p>プロジェクト直下に <code>tailwind.config.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">tailwind.config.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { heroui } from &#34;@heroui/theme&#34;;
+import type { Config } from &#34;tailwindcss&#34;;
+
+export default {
+  content: [
+    &#34;./index.html&#34;,
+    &#34;./src/**/*.{ts,tsx}&#34;,
+    &#34;./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}&#34;
+  ],
+  plugins: [heroui()]
+} satisfies Config;
+</code></pre>
+</div>
+<p>プロジェクト直下に <code>style.css</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">style.css</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-css" class="language-css">@import &#34;tailwindcss&#34;;
+@config &#34;./tailwind.config.ts&#34;;
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(20, 184, 166, 0.18),
+      transparent 28rem
+    ),
+    radial-gradient(
+      circle at 85% 8%,
+      rgba(244, 114, 182, 0.14),
+      transparent 26rem
+    ),
+    #f7f8fb;
+}
+</code></pre>
+</div>
+<p>プロジェクト直下に <code>index.html</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">index.html</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-html" class="language-html">&lt;!doctype html&gt;
+&lt;html lang=&#34;ja&#34;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&#34;UTF-8&#34; /&gt;
+    &lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0&#34; /&gt;
+    &lt;title&gt;Hono.js Bulletin Board&lt;/title&gt;
+    &lt;link rel=&#34;stylesheet&#34; href=&#34;/style.css&#34; /&gt;
+    &lt;script type=&#34;module&#34; src=&#34;/src/client.tsx&#34;&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id=&#34;root&#34;&gt;&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+<h2 is-upgraded>React SPA を追加する</h2>
+<p><code>src/client.tsx</code> を作成し、次の内容を貼り付けます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/client.tsx</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-tsx" class="language-tsx">import {
+  Avatar,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  HeroUIProvider,
+  Input,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  Spinner,
+  Textarea
+} from &#34;@heroui/react&#34;;
+import { getApp, getApps, initializeApp } from &#34;firebase/app&#34;;
+import {
+  GoogleAuthProvider,
+  getAuth,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type User
+} from &#34;firebase/auth&#34;;
+import { Send } from &#34;lucide-react&#34;;
+import { StrictMode, useEffect, useMemo, useState } from &#34;react&#34;;
+import { createRoot } from &#34;react-dom/client&#34;;
+
+const firebaseConfig = {
+  apiKey: &#34;AIzaSyDUEhUzWwW8mOi4RaJCfKfhLFyQSwVbCZc&#34;,
+  authDomain: &#34;honojs-backend.firebaseapp.com&#34;,
+  projectId: &#34;honojs-backend&#34;,
+  storageBucket: &#34;honojs-backend.firebasestorage.app&#34;,
+  messagingSenderId: &#34;971208233892&#34;,
+  appId: &#34;1:971208233892:web:beb6fee5b1fefade79e731&#34;,
+  measurementId: &#34;G-7N53ZKXG6F&#34;
+};
+
+interface Post {
+  id: number;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl: string | null;
+  createdAt: string;
+}
+
+const firebaseApp =
+  getApps().length &gt; 0 ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const provider = new GoogleAuthProvider();
+
+const formatDate = (value: string) =&gt;
+  new Intl.DateTimeFormat(&#34;ja-JP&#34;, {
+    dateStyle: &#34;medium&#34;,
+    timeStyle: &#34;short&#34;
+  }).format(new Date(value));
+
+const fetchPosts = async () =&gt; {
+  const response = await fetch(&#34;/api/posts&#34;);
+
+  if (!response.ok) {
+    throw new Error(&#34;投稿一覧を取得できませんでした。&#34;);
+  }
+
+  const data = (await response.json()) as { posts: Post[] };
+  return data.posts;
+};
+
+const App = () =&gt; {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [posts, setPosts] = useState&lt;Post[]&gt;([]);
+  const [content, setContent] = useState(&#34;&#34;);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
+  const [isPosting, setIsPosting] = useState(false);
+  const [error, setError] = useState&lt;string | null&gt;(null);
+
+  const remaining = useMemo(() =&gt; 280 - content.length, [content]);
+
+  useEffect(() =&gt; {
+    return onAuthStateChanged(auth, (currentUser) =&gt; {
+      setUser(currentUser);
+      setAuthReady(true);
+    });
+  }, []);
+
+  useEffect(() =&gt; {
+    fetchPosts()
+      .then(setPosts)
+      .catch((caught: unknown) =&gt; {
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : &#34;投稿一覧を取得できませんでした。&#34;
+        );
+      })
+      .finally(() =&gt; {
+        setIsLoadingPosts(false);
+      });
+  }, []);
+
+  const handleLogin = async () =&gt; {
+    setError(null);
+    await signInWithPopup(auth, provider).catch((caught: unknown) =&gt; {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : &#34;Googleログインに失敗しました。&#34;
+      );
+    });
+  };
+
+  const handleSubmit = async () =&gt; {
+    if (!user || content.trim().length === 0 || remaining &lt; 0) {
+      return;
+    }
+
+    setIsPosting(true);
+    setError(null);
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(&#34;/api/posts&#34;, {
+        method: &#34;POST&#34;,
+        headers: {
+          &#34;Content-Type&#34;: &#34;application/json&#34;,
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ content })
+      });
+
+      const data = (await response.json()) as { post?: Post; error?: string };
+
+      if (!response.ok || !data.post) {
+        throw new Error(data.error ?? &#34;投稿に失敗しました。&#34;);
+      }
+
+      setPosts((currentPosts) =&gt; [data.post as Post, ...currentPosts]);
+      setContent(&#34;&#34;);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : &#34;投稿に失敗しました。&#34;
+      );
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  if (!authReady) {
+    return (
+      &lt;HeroUIProvider&gt;
+        &lt;main className=&#34;grid min-h-screen place-items-center&#34;&gt;
+          &lt;Spinner label=&#34;認証状態を確認しています&#34; /&gt;
+        &lt;/main&gt;
+      &lt;/HeroUIProvider&gt;
+    );
+  }
+
+  if (!user) {
+    return (
+      &lt;HeroUIProvider&gt;
+        &lt;main className=&#34;mx-auto grid min-h-screen max-w-md place-items-center px-6&#34;&gt;
+          &lt;Card
+            className=&#34;w-full border border-default-200 shadow-sm&#34;
+            radius=&#34;sm&#34;
+          &gt;
+            &lt;CardHeader className=&#34;flex-col items-start gap-2 px-6 pt-6&#34;&gt;
+              &lt;p className=&#34;text-sm font-medium text-primary&#34;&gt;
+                Hono.js Backend Workshop
+              &lt;/p&gt;
+              &lt;h1 className=&#34;text-2xl font-semibold tracking-normal text-foreground&#34;&gt;
+                掲示板 API にログイン
+              &lt;/h1&gt;
+            &lt;/CardHeader&gt;
+            &lt;CardBody className=&#34;gap-5 px-6 pb-6&#34;&gt;
+              &lt;p className=&#34;text-sm leading-6 text-default-600&#34;&gt;
+                Google アカウントでログインすると、Firebase ID
+                トークンを使って投稿できます。
+              &lt;/p&gt;
+              {error ? (
+                &lt;div className=&#34;rounded-small border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700&#34;&gt;
+                  {error}
+                &lt;/div&gt;
+              ) : null}
+              &lt;Button color=&#34;primary&#34; size=&#34;lg&#34; onPress={handleLogin}&gt;
+                Google でログイン
+              &lt;/Button&gt;
+            &lt;/CardBody&gt;
+          &lt;/Card&gt;
+        &lt;/main&gt;
+      &lt;/HeroUIProvider&gt;
+    );
+  }
+
+  return (
+    &lt;HeroUIProvider&gt;
+      &lt;div className=&#34;min-h-screen&#34;&gt;
+        &lt;Navbar
+          className=&#34;border-b border-default-200 bg-background/80 backdrop-blur&#34;
+          maxWidth=&#34;xl&#34;
+        &gt;
+          &lt;NavbarBrand&gt;
+            &lt;p className=&#34;font-semibold text-foreground&#34;&gt;掲示板 API&lt;/p&gt;
+          &lt;/NavbarBrand&gt;
+          &lt;NavbarContent justify=&#34;end&#34;&gt;
+            &lt;Avatar
+              name={user.displayName ?? &#34;User&#34;}
+              size=&#34;sm&#34;
+              src={user.photoURL ?? undefined}
+            /&gt;
+            &lt;Button size=&#34;sm&#34; variant=&#34;flat&#34; onPress={() =&gt; signOut(auth)}&gt;
+              ログアウト
+            &lt;/Button&gt;
+          &lt;/NavbarContent&gt;
+        &lt;/Navbar&gt;
+
+        &lt;main className=&#34;mx-auto grid max-w-5xl gap-6 px-4 py-6 md:grid-cols-[22rem_1fr]&#34;&gt;
+          &lt;section&gt;
+            &lt;Card className=&#34;border border-default-200 shadow-sm&#34; radius=&#34;sm&#34;&gt;
+              &lt;CardHeader&gt;
+                &lt;div&gt;
+                  &lt;h2 className=&#34;text-lg font-semibold&#34;&gt;新しい投稿&lt;/h2&gt;
+                  &lt;p className=&#34;text-sm text-default-500&#34;&gt;
+                    280文字以内で書いてください。
+                  &lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/CardHeader&gt;
+              &lt;CardBody className=&#34;gap-4&#34;&gt;
+                &lt;Input
+                  isReadOnly
+                  label=&#34;投稿者&#34;
+                  value={user.displayName ?? &#34;匿名ユーザー&#34;}
+                  variant=&#34;bordered&#34;
+                /&gt;
+                &lt;Textarea
+                  label=&#34;内容&#34;
+                  minRows={5}
+                  value={content}
+                  variant=&#34;bordered&#34;
+                  onValueChange={setContent}
+                /&gt;
+                &lt;div className=&#34;flex items-center justify-between gap-3&#34;&gt;
+                  &lt;span
+                    className={
+                      remaining &lt; 0
+                        ? &#34;text-sm text-danger&#34;
+                        : &#34;text-sm text-default-500&#34;
+                    }
+                  &gt;
+                    残り {remaining} 文字
+                  &lt;/span&gt;
+                  &lt;Button
+                    color=&#34;primary&#34;
+                    endContent={&lt;Send size={16} /&gt;}
+                    isDisabled={content.trim().length === 0 || remaining &lt; 0}
+                    isLoading={isPosting}
+                    onPress={handleSubmit}
+                  &gt;
+                    投稿
+                  &lt;/Button&gt;
+                &lt;/div&gt;
+                {error ? (
+                  &lt;div className=&#34;rounded-small border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700&#34;&gt;
+                    {error}
+                  &lt;/div&gt;
+                ) : null}
+              &lt;/CardBody&gt;
+            &lt;/Card&gt;
+          &lt;/section&gt;
+
+          &lt;section className=&#34;min-w-0&#34;&gt;
+            &lt;div className=&#34;mb-3 flex items-center justify-between&#34;&gt;
+              &lt;h2 className=&#34;text-lg font-semibold&#34;&gt;投稿一覧&lt;/h2&gt;
+              &lt;span className=&#34;text-sm text-default-500&#34;&gt;{posts.length}件&lt;/span&gt;
+            &lt;/div&gt;
+            {isLoadingPosts ? (
+              &lt;div className=&#34;grid min-h-64 place-items-center rounded-small border border-default-200 bg-background&#34;&gt;
+                &lt;Spinner label=&#34;読み込み中&#34; /&gt;
+              &lt;/div&gt;
+            ) : posts.length === 0 ? (
+              &lt;div className=&#34;rounded-small border border-dashed border-default-300 bg-background px-6 py-12 text-center text-default-500&#34;&gt;
+                まだ投稿はありません。
+              &lt;/div&gt;
+            ) : (
+              &lt;div className=&#34;grid gap-3&#34;&gt;
+                {posts.map((post) =&gt; (
+                  &lt;Card
+                    key={post.id}
+                    className=&#34;border border-default-200 shadow-sm&#34;
+                    radius=&#34;sm&#34;
+                  &gt;
+                    &lt;CardBody className=&#34;gap-3&#34;&gt;
+                      &lt;div className=&#34;flex items-center gap-3&#34;&gt;
+                        &lt;Avatar
+                          name={post.authorName}
+                          size=&#34;sm&#34;
+                          src={post.authorPhotoUrl ?? undefined}
+                        /&gt;
+                        &lt;div className=&#34;min-w-0&#34;&gt;
+                          &lt;p className=&#34;truncate text-sm font-medium&#34;&gt;
+                            {post.authorName}
+                          &lt;/p&gt;
+                          &lt;p className=&#34;text-xs text-default-500&#34;&gt;
+                            {formatDate(post.createdAt)}
+                          &lt;/p&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                      &lt;p className=&#34;whitespace-pre-wrap break-words text-sm leading-6&#34;&gt;
+                        {post.content}
+                      &lt;/p&gt;
+                    &lt;/CardBody&gt;
+                  &lt;/Card&gt;
+                ))}
+              &lt;/div&gt;
+            )}
+          &lt;/section&gt;
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/HeroUIProvider&gt;
+  );
+};
+
+createRoot(document.getElementById(&#34;root&#34;) as HTMLElement).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;
+);
+</code></pre>
+</div>
+<p>この React SPA は、<code>GET /api/posts</code> で投稿一覧を取得し、ログイン済みユーザーの Firebase ID トークンを <code>Authorization</code> ヘッダーに入れて <code>POST /api/posts</code> を呼びます。</p>
+<h2 is-upgraded>Hono からビルド済み SPA を配信する</h2>
+<p><code>src/index.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/index.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">+import { existsSync } from &#34;node:fs&#34;;
++import { readFile } from &#34;node:fs/promises&#34;;
++import { join } from &#34;node:path&#34;;
+import { serve } from &#34;@hono/node-server&#34;;
++import { serveStatic } from &#34;@hono/node-server/serve-static&#34;;
+import { Hono } from &#34;hono&#34;;
++import { logger } from &#34;hono/logger&#34;;
+
++const publicDir = join(process.cwd(), &#34;dist&#34;, &#34;public&#34;);
++const indexHtml = join(publicDir, &#34;index.html&#34;);
+
+const app = new Hono();
+
++app.use(logger());
+
+-app.get(&#34;/&#34;, (c) =&gt; c.text(&#34;Hello Hono!&#34;));
++app.get(&#34;/api/health&#34;, (c) =&gt; c.json({ ok: true }));
+
++app.use(
++  &#34;/*&#34;,
++  serveStatic({
++    root: &#34;./dist/public&#34;
++  })
++);
++
++app.get(&#34;*&#34;, async (c) =&gt; {
++  if (c.req.path.startsWith(&#34;/api/&#34;)) {
++    return c.json({ error: &#34;API route is not implemented yet.&#34; }, 404);
++  }
++
++  if (!existsSync(indexHtml)) {
++    return c.text(
++      &#34;React SPA is not built yet. Run `npx vite build` first.&#34;,
++      404
++    );
++  }
++
++  return c.html(await readFile(indexHtml, &#34;utf8&#34;));
++});
+
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000
+  },
+  (info) =&gt; {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  }
+);
+</code></pre>
+</div>
+<p><code>serveStatic</code> は、<code>dist/public</code> にある CSS や JavaScript を Hono から配信します。<code>app.get("*", ...)</code> は、React SPA の入口である <code>index.html</code> を返します。ただし <code>/api/</code> から始まる未実装の API は、HTML ではなく JSON の <code>404</code> を返すようにしておきます。</p>
+<h2 is-upgraded>ビルドして起動する</h2>
+<p>React SPA をビルドし、そのあと Hono サーバーをビルドします。この時点ではまだ投稿 API を作っていないため、ログイン後の投稿一覧にはエラーが表示されます。次のステップで <code>GET /api/posts</code> を作ると、画面から投稿一覧を確認できるようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npx vite build
+npm run build
+npm start
+</code></pre>
+</div>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google ログイン画面が表示されれば成功です。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、React SPA を同じ Hono サーバーから配信できるようになりました。次のステップから、API を追加するたびにブラウザで画面の変化を確認できます。</p>
+<ul>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-react-spa" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-react-spa</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="投稿一覧 API を作る" duration="10">
+        <p>このステップでは、<code>GET /api/posts</code> を作ります。最初は DB を使わず、メモリ上の配列から投稿一覧を返します。</p>
+<h2 is-upgraded>post.ts を作成する</h2>
+<p><code>src/post.ts</code> を作成し、次の内容を貼り付けます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/post.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { Hono } from &#34;hono&#34;;
+
+export interface PostOutput {
+  id: number;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl: string | null;
+  createdAt: string;
+}
+
+const posts: PostOutput[] = [];
+
+export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; posts;
+
+export const postRoutes = new Hono().get(&#34;/&#34;, async (c) =&gt; {
+  const rows = await listPosts();
+  return c.json({ posts: rows });
+});
+</code></pre>
+</div>
+<p><code>PostOutput</code> は、API がフロントエンドへ返す投稿の形です。今は <code>posts</code> が空配列なので、投稿一覧も空になります。</p>
+<h2 is-upgraded>index.ts から postRoutes を使う</h2>
+<p><code>src/index.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/index.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">import { existsSync } from &#34;node:fs&#34;;
+import { readFile } from &#34;node:fs/promises&#34;;
+import { join } from &#34;node:path&#34;;
+import { serve } from &#34;@hono/node-server&#34;;
+import { serveStatic } from &#34;@hono/node-server/serve-static&#34;;
+import { Hono } from &#34;hono&#34;;
+import { logger } from &#34;hono/logger&#34;;
++import { postRoutes } from &#34;./post.js&#34;;
+
+const publicDir = join(process.cwd(), &#34;dist&#34;, &#34;public&#34;);
+const indexHtml = join(publicDir, &#34;index.html&#34;);
+
+const app = new Hono();
+
+app.use(logger());
+
+app.get(&#34;/api/health&#34;, (c) =&gt; c.json({ ok: true }));
++app.route(&#34;/api/posts&#34;, postRoutes);
+
+app.use(
+  &#34;/*&#34;,
+  serveStatic({
+    root: &#34;./dist/public&#34;
+  })
+);
+
+app.get(&#34;*&#34;, async (c) =&gt; {
+  if (c.req.path.startsWith(&#34;/api/&#34;)) {
+    return c.json({ error: &#34;API route is not implemented yet.&#34; }, 404);
+  }
+
+  if (!existsSync(indexHtml)) {
+    return c.text(
+      &#34;React SPA is not built yet. Run `npx vite build` first.&#34;,
+      404
+    );
+  }
+
+  return c.html(await readFile(indexHtml, &#34;utf8&#34;));
+});
+
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000
+  },
+  (info) =&gt; {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  }
+);
+</code></pre>
+</div>
+<p><code>app.route("/api/posts", postRoutes)</code> は、<code>postRoutes</code> に書いたルートを <code>/api/posts</code> の下にまとめて取り付けます。今回なら <code>postRoutes.get("/")</code> は <code>GET /api/posts</code> として動きます。</p>
+<h2 is-upgraded>curl で確認する</h2>
+<p>サーバーを起動します。すでに起動している場合は、<code>Ctrl + C</code> で止めてから起動し直します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl http://localhost:3000/api/posts
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>curl</code> は、ターミナルから HTTP リクエストを送るためのコマンドです。ブラウザを使わずに API のレスポンスだけを確認できるので、バックエンド開発でよく使います。</p>
+<p><code>{"posts":[]}</code> が返れば成功です。</p>
+<h2 is-upgraded>ブラウザで確認する</h2>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、掲示板画面の投稿一覧に <code>まだ投稿はありません。</code> と表示されれば成功です。</p>
+<p>この時点で、React SPA は <code>GET /api/posts</code> を呼んでいます。API が空配列を返すので、画面にも「投稿がまだない」状態が表示されます。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、最初の API が動きました。</p>
+<ul>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+<li><code>src/post.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-get-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-get-posts-memory</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="投稿作成 API を作る" duration="12">
+        <p>このステップでは、<code>POST /api/posts</code> を追加します。まだログインや DB は使わず、投稿をメモリ上の配列に保存します。</p>
+<h2 is-upgraded>post.ts を更新する</h2>
+<p><code>src/post.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/post.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">import { Hono } from &#34;hono&#34;;
+
+export interface PostOutput {
+  id: number;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl: string | null;
+  createdAt: string;
+}
+
++export interface CreatePostInput {
++  content: string;
++  authorUid: string;
++  authorName: string;
++  authorPhotoUrl?: string;
++}
+
+const posts: PostOutput[] = [];
++let nextId = 1;
+
+export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; posts;
+
++export const createPost = async (
++  input: CreatePostInput
++): Promise&lt;PostOutput&gt; =&gt; {
++  const post = {
++    id: nextId,
++    content: input.content,
++    authorUid: input.authorUid,
++    authorName: input.authorName,
++    authorPhotoUrl: input.authorPhotoUrl ?? null,
++    createdAt: new Date().toISOString()
++  };
++
++  nextId += 1;
++  posts.unshift(post);
++  return post;
++};
++
+ export const postRoutes = new Hono()
+   .get(&#34;/&#34;, async (c) =&gt; {
+     const rows = await listPosts();
+     return c.json({ posts: rows });
++  })
++  .post(&#34;/&#34;, async (c) =&gt; {
++    const body = (await c.req.json().catch(() =&gt; null)) as {
++      content?: unknown;
++    } | null;
++
++    if (typeof body?.content !== &#34;string&#34; || body.content.trim().length === 0) {
++      return c.json({ error: &#34;投稿内容を入力してください。&#34; }, 400);
++    }
++
++    const post = await createPost({
++      content: body.content.trim(),
++      authorUid: &#34;temporary-user&#34;,
++      authorName: &#34;仮ユーザー&#34;,
++      authorPhotoUrl: undefined
++    });
++
++    return c.json({ post }, 201);
+   });
+</code></pre>
+</div>
+<p><code>posts.unshift(post)</code> は、新しい投稿を配列の先頭に追加します。掲示板では新しい投稿を上に出したいので、後ろではなく先頭に入れています。</p>
+<h2 is-upgraded>curl で投稿する</h2>
+<p>サーバーを起動し直します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -X POST http://localhost:3000/api/posts \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;content&#34;:&#34;はじめての投稿です&#34;}&#39;
+</code></pre>
+</div>
+<p><code>"content":"はじめての投稿です"</code> を含む JSON が返れば成功です。次に一覧を取得します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl http://localhost:3000/api/posts
+</code></pre>
+</div>
+<p>投稿した内容が <code>posts</code> の中に入っていれば成功です。</p>
+<h2 is-upgraded>ブラウザで確認する</h2>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、投稿フォームに <code>ブラウザからの投稿です</code> と入力して <strong>投稿</strong> ボタンを押します。</p>
+<p>投稿一覧の先頭に入力した内容が表示されれば成功です。ブラウザからは、React SPA が <code>POST /api/posts</code> を呼び、成功した投稿を画面の一覧に追加しています。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、DB なしの小さな掲示板 API ができました。</p>
+<ul>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+<li><code>src/post.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-post-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-post-posts-memory</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="PostgreSQL に保存する" duration="18">
+        <p>今の実装では、投稿はサーバーのメモリ上にあります。まずはその弱点を体験してから、Docker Compose、PostgreSQL、Drizzle を追加して DB に保存します。</p>
+<h2 is-upgraded>サーバーを再起動するとデータが消えることを確認する</h2>
+<p>投稿を1件作ったあと、サーバーを <code>Ctrl + C</code> で止めます。もう一度起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで一覧を取得します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl http://localhost:3000/api/posts
+</code></pre>
+</div>
+<p>さっき作った投稿が消えて、<code>{"posts":[]}</code> に戻ります。これは <code>posts</code> 配列が Node.js のプロセスの中だけに存在しているためです。プロセスを止めると、配列の中身も消えます。</p>
+<p>ブラウザでも <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を再読み込みします。投稿一覧が空に戻っていれば、メモリ保存の弱点を画面でも確認できています。</p>
+<h2 is-upgraded>docker-compose.yml を作成する</h2>
+<p>プロジェクト直下に <code>docker-compose.yml</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">docker-compose.yml</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-yaml" class="language-yaml">services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - &#34;5432:5432&#34;
+    environment:
+      POSTGRES_USER: hono
+      POSTGRES_PASSWORD: hono
+      POSTGRES_DB: hono_board
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [&#34;CMD-SHELL&#34;, &#34;pg_isready -U hono -d hono_board&#34;]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
+</code></pre>
+</div>
+<p><code>volumes</code> は、PostgreSQL のデータをコンテナの外側に残すための設定です。コンテナを止めても、DB の中身は <code>postgres-data</code> に残ります。</p>
+<h2 is-upgraded>PostgreSQL を起動する</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">docker compose up -d
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>docker compose up -d</code> は、<code>docker-compose.yml</code> に書いたサービスをバックグラウンドで起動します。ここでは PostgreSQL コンテナを起動し、API サーバーから接続できる DB を用意します。</p>
+<p><code>postgres</code> コンテナが <code>Started</code> または <code>Running</code> になれば成功です。</p>
+<h2 is-upgraded>DB 接続ファイルを作成する</h2>
+<p><code>src/db.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/db.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { drizzle } from &#34;drizzle-orm/node-postgres&#34;;
+import pg from &#34;pg&#34;;
+
+const connectionString =
+  process.env.DATABASE_URL ??
+  &#34;postgres://hono:hono@localhost:5432/hono_board&#34;;
+
+const pool = new pg.Pool({
+  connectionString
+});
+
+export const db = drizzle(pool);
+
+export const closeDb = () =&gt; pool.end();
+</code></pre>
+</div>
+<aside class="special"><p><strong>Tips:</strong> Drizzle は、TypeScript から SQL を組み立てて DB を操作するためのライブラリです。SQL 文字列を手で連結する代わりに、テーブル定義と関数を使って安全に読み書きできます。</p></aside>
+<h2 is-upgraded>Drizzle 設定ファイルを作成する</h2>
+<p>プロジェクト直下に <code>drizzle.config.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">drizzle.config.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { defineConfig } from &#34;drizzle-kit&#34;;
+
+export default defineConfig({
+  schema: &#34;./src/post.ts&#34;,
+  out: &#34;./drizzle&#34;,
+  dialect: &#34;postgresql&#34;,
+  dbCredentials: {
+    url:
+      process.env.DATABASE_URL ??
+      &#34;postgres://hono:hono@localhost:5432/hono_board&#34;
+  }
+});
+</code></pre>
+</div>
+<p><code>schema</code> は、Drizzle がテーブル定義を探しに行くファイルです。今回は <code>posts</code> テーブルを <code>src/post.ts</code> に書くので、このパスを指定します。</p>
+<h2 is-upgraded>post.ts を DB 版に変更する</h2>
+<p><code>src/post.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/post.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">+import { desc } from &#34;drizzle-orm&#34;;
++import { pgTable, serial, text, timestamp, varchar } from &#34;drizzle-orm/pg-core&#34;;
+import { Hono } from &#34;hono&#34;;
++import { db } from &#34;./db.js&#34;;
+
+export interface PostOutput {
+  id: number;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl: string | null;
+  createdAt: string;
+}
+
+export interface CreatePostInput {
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl?: string;
+}
+
++export const posts = pgTable(&#34;posts&#34;, {
++  id: serial(&#34;id&#34;).primaryKey(),
++  content: text(&#34;content&#34;).notNull(),
++  authorUid: varchar(&#34;author_uid&#34;, { length: 128 }).notNull(),
++  authorName: varchar(&#34;author_name&#34;, { length: 128 }).notNull(),
++  authorPhotoUrl: text(&#34;author_photo_url&#34;),
++  createdAt: timestamp(&#34;created_at&#34;, { withTimezone: true })
++    .defaultNow()
++    .notNull()
++});
++
+-const posts: PostOutput[] = [];
+-let nextId = 1;
++const toPostOutput = (post: typeof posts.$inferSelect): PostOutput =&gt; ({
++  id: post.id,
++  content: post.content,
++  authorUid: post.authorUid,
++  authorName: post.authorName,
++  authorPhotoUrl: post.authorPhotoUrl,
++  createdAt: post.createdAt.toISOString()
++});
+ 
+ export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; {
+-  return posts;
++  const rows = await db
++    .select()
++    .from(posts)
++    .orderBy(desc(posts.createdAt), desc(posts.id));
++
++  return rows.map(toPostOutput);
+ };
+ 
+ export const createPost = async (
+   input: CreatePostInput
+ ): Promise&lt;PostOutput&gt; =&gt; {
+-  const post = {
+-    id: nextId,
+-    content: input.content,
+-    authorUid: input.authorUid,
+-    authorName: input.authorName,
+-    authorPhotoUrl: input.authorPhotoUrl ?? null,
+-    createdAt: new Date().toISOString()
+-  };
+-
+-  nextId += 1;
+-  posts.unshift(post);
+-  return post;
++  const rows = await db
++    .insert(posts)
++    .values({
++      content: input.content,
++      authorUid: input.authorUid,
++      authorName: input.authorName,
++      authorPhotoUrl: input.authorPhotoUrl
++    })
++    .returning();
++
++  return toPostOutput(rows[0]);
+ };
+ 
+ export const postRoutes = new Hono()
+  .get(&#34;/&#34;, async (c) =&gt; {
+    const rows = await listPosts();
+    return c.json({ posts: rows });
+  })
+  .post(&#34;/&#34;, async (c) =&gt; {
+    const body = (await c.req.json().catch(() =&gt; null)) as {
+      content?: unknown;
+    } | null;
+
+    if (typeof body?.content !== &#34;string&#34; || body.content.trim().length === 0) {
+      return c.json({ error: &#34;投稿内容を入力してください。&#34; }, 400);
+    }
+
+    const post = await createPost({
+      content: body.content.trim(),
+      authorUid: &#34;temporary-user&#34;,
+      authorName: &#34;仮ユーザー&#34;,
+      authorPhotoUrl: undefined
+    });
+
+    return c.json({ post }, 201);
+  });
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>db.select().from(posts).orderBy(desc(posts.createdAt), desc(posts.id))</code> は、DB の <code>posts</code> テーブルから行を取得し、作成日時が新しい順、同じ時刻なら ID が大きい順に並べます。</p>
+<h2 is-upgraded>DB にテーブルを作る</h2>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npx drizzle-kit push
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>npx</code> は、プロジェクトに入っているコマンドを一時的に実行するためのコマンドです。ここでは <code>package.json</code> に新しい script を追加せず、<code>drizzle-kit</code> を直接実行しています。</p>
+<p>エラーで止まらなければ成功です。Drizzle が <code>posts</code> テーブルを PostgreSQL に作成します。</p>
+<h2 is-upgraded>DB 保存を確認する</h2>
+<p>サーバーを起動し直します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで投稿します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -X POST http://localhost:3000/api/posts \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;content&#34;:&#34;DBに保存される投稿です&#34;}&#39;
+</code></pre>
+</div>
+<p>サーバーを <code>Ctrl + C</code> で止め、もう一度起動します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>投稿一覧を取得します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl http://localhost:3000/api/posts
+</code></pre>
+</div>
+<p>再起動しても投稿が残っていれば成功です。</p>
+<h2 is-upgraded>ブラウザで確認する</h2>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を再読み込みします。<code>DBに保存される投稿です</code> が投稿一覧に残っていれば成功です。</p>
+<p>さらに投稿フォームから <code>ブラウザからDBへ保存します</code> と投稿し、サーバーを再起動してからブラウザを再読み込みします。投稿が残っていれば、React SPA から作った投稿も PostgreSQL に保存されています。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、投稿の保存先がメモリから PostgreSQL に変わりました。</p>
+<ul>
+<li><code>docker-compose.yml</code></li>
+<li><code>drizzle.config.ts</code></li>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+<li><code>src/db.ts</code></li>
+<li><code>src/post.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-drizzle-postgres" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-drizzle-postgres</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Zod でリクエストを検証する" duration="10">
+        <p>このステップでは、<code>POST /api/posts</code> に届く JSON を Zod で検証します。いまの手書きチェックを、再利用しやすく読みやすい schema に置き換えます。</p>
+<aside class="special"><p><strong>Tips:</strong> Zod は、外から来た値が期待した形かどうかを実行時に確認するライブラリです。TypeScript の型は開発中の助けですが、HTTP で届いた JSON が本当に正しいかは実行時に確認する必要があります。</p></aside>
+<h2 is-upgraded>post.ts に Zod schema を追加する</h2>
+<p><code>src/post.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/post.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">import { desc } from &#34;drizzle-orm&#34;;
+import { pgTable, serial, text, timestamp, varchar } from &#34;drizzle-orm/pg-core&#34;;
+import { Hono } from &#34;hono&#34;;
++import { z } from &#34;zod&#34;;
+import { db } from &#34;./db.js&#34;;
+
+export const posts = pgTable(&#34;posts&#34;, {
+  id: serial(&#34;id&#34;).primaryKey(),
+  content: text(&#34;content&#34;).notNull(),
+  authorUid: varchar(&#34;author_uid&#34;, { length: 128 }).notNull(),
+  authorName: varchar(&#34;author_name&#34;, { length: 128 }).notNull(),
+  authorPhotoUrl: text(&#34;author_photo_url&#34;),
+  createdAt: timestamp(&#34;created_at&#34;, { withTimezone: true })
+    .defaultNow()
+    .notNull()
+});
+
+export interface PostOutput {
+  id: number;
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl: string | null;
+  createdAt: string;
+}
+
+export interface CreatePostInput {
+  content: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoUrl?: string;
+}
+
++export const createPostSchema = z.object({
++  content: z
++    .string()
++    .trim()
++    .min(1, &#34;投稿内容を入力してください。&#34;)
++    .max(280, &#34;投稿は280文字以内です。&#34;)
++});
+
+const toPostOutput = (post: typeof posts.$inferSelect): PostOutput =&gt; ({
+  id: post.id,
+  content: post.content,
+  authorUid: post.authorUid,
+  authorName: post.authorName,
+  authorPhotoUrl: post.authorPhotoUrl,
+  createdAt: post.createdAt.toISOString()
+});
+
+export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; {
+  const rows = await db
+    .select()
+    .from(posts)
+    .orderBy(desc(posts.createdAt), desc(posts.id));
+
+  return rows.map(toPostOutput);
+};
+
+export const createPost = async (
+  input: CreatePostInput
+): Promise&lt;PostOutput&gt; =&gt; {
+  const rows = await db
+    .insert(posts)
+    .values({
+      content: input.content,
+      authorUid: input.authorUid,
+      authorName: input.authorName,
+      authorPhotoUrl: input.authorPhotoUrl
+    })
+    .returning();
+
+  return toPostOutput(rows[0]);
+};
+
+export const postRoutes = new Hono()
+  .get(&#34;/&#34;, async (c) =&gt; {
+    const rows = await listPosts();
+    return c.json({ posts: rows });
+  })
+  .post(&#34;/&#34;, async (c) =&gt; {
+-    const body = (await c.req.json().catch(() =&gt; null)) as {
+-      content?: unknown;
+-    } | null;
+-
+-    if (typeof body?.content !== &#34;string&#34; || body.content.trim().length === 0) {
+-      return c.json({ error: &#34;投稿内容を入力してください。&#34; }, 400);
+-    }
++    const body = await c.req.json().catch(() =&gt; null);
++    const parsed = createPostSchema.safeParse(body);
++
++    if (!parsed.success) {
++      return c.json(
++        { error: parsed.error.issues[0]?.message ?? &#34;Invalid request body.&#34; },
++        400
++      );
++    }
+
+    const post = await createPost({
+-      content: body.content.trim(),
++      content: parsed.data.content,
+      authorUid: &#34;temporary-user&#34;,
+      authorName: &#34;仮ユーザー&#34;,
+      authorPhotoUrl: undefined
+    });
+
+    return c.json({ post }, 201);
+  });
+</code></pre>
+</div>
+<p><code>safeParse</code> は、成功したら <code>parsed.success === true</code> と検証済みデータを返し、失敗したら <code>parsed.success === false</code> とエラー情報を返します。例外で落とすのではなく、API として <code>400 Bad Request</code> を返しやすくなります。</p>
+<h2 is-upgraded>空文字を送って確認する</h2>
+<p>サーバーを起動し直します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで、空文字を投稿してみます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -X POST http://localhost:3000/api/posts \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;content&#34;:&#34;&#34;}&#39;
+</code></pre>
+</div>
+<p><code>"投稿内容を入力してください。"</code> というエラーが返れば成功です。</p>
+<h2 is-upgraded>ブラウザで確認する</h2>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開き、投稿フォームに 280 文字を超える文章を入力します。残り文字数がマイナス表示になり、<strong>投稿</strong> ボタンが押せなくなれば成功です。</p>
+<p>画面側でも入力ミスを防いでいますが、API 側の Zod validation も必要です。ブラウザの制御は利用者に見えるコードなので、悪意のある人は回避できます。そのため、サーバー側でも <code>curl</code> のような直接リクエストを検証します。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、外から来た JSON を Zod で検証できるようになりました。</p>
+<ul>
+<li><code>docker-compose.yml</code></li>
+<li><code>drizzle.config.ts</code></li>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+<li><code>src/db.ts</code></li>
+<li><code>src/post.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-zod-validation" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-zod-validation</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Firebase Bearer 認可を実装する" duration="15">
+        <p>このステップでは、投稿作成 API をログイン済みユーザーだけが使えるようにします。<code>GET /api/posts</code> はログインなしでも見られますが、<code>POST /api/posts</code> は Firebase ID トークンを必須にします。</p>
+<h2 is-upgraded>serviceAccount.json を配置する</h2>
+<p>Discord の <code>#260625-honojs-backend</code> に講師が投稿した Firebase Admin SDK の JSON をコピーし、プロジェクト直下に <code>serviceAccount.json</code> という名前で保存します。</p>
+<p><strong>Warning: </strong><code>serviceAccount.json</code> は秘密鍵です。GitHub、Discord の別チャンネル、SNS などに貼らないでください。</p>
+<h2 is-upgraded>.gitignore に秘密鍵を追加する</h2>
+<p><code>.gitignore</code> に次の行を追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">.gitignore</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text claat-diff-code" data-claat-diff="true" data-claat-diff-language="text">+serviceAccount.json
++.env
+</code></pre>
+</div>
+<p>この設定により、秘密鍵や環境変数ファイルが Git に入る事故を防ぎます。</p>
+<h2 is-upgraded>Firebase middleware を作成する</h2>
+<p><code>src/firebase.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/firebase.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { existsSync } from &#34;node:fs&#34;;
+import { resolve } from &#34;node:path&#34;;
+import { cert, getApps, initializeApp } from &#34;firebase-admin/app&#34;;
+import { getAuth } from &#34;firebase-admin/auth&#34;;
+import type { MiddlewareHandler } from &#34;hono&#34;;
+import { createMiddleware } from &#34;hono/factory&#34;;
+
+export interface AuthUser {
+  uid: string;
+  name: string;
+  picture?: string;
+}
+
+export interface FirebaseVariables {
+  user: AuthUser;
+}
+
+const firebaseServiceAccountPath = resolve(
+  process.cwd(),
+  process.env.FIREBASE_SERVICE_ACCOUNT_PATH ?? &#34;serviceAccount.json&#34;
+);
+
+const getFirebaseApp = () =&gt; {
+  if (getApps().length &gt; 0) {
+    return getApps()[0];
+  }
+
+  if (!existsSync(firebaseServiceAccountPath)) {
+    throw new Error(
+      `Firebase Admin SDK credentials were not found. Place serviceAccount.json at ${firebaseServiceAccountPath}.`
+    );
+  }
+
+  return initializeApp({
+    credential: cert(firebaseServiceAccountPath)
+  });
+};
+
+export const verifyIdToken = async (idToken: string): Promise&lt;AuthUser&gt; =&gt; {
+  const decoded = await getAuth(getFirebaseApp()).verifyIdToken(idToken);
+
+  return {
+    uid: decoded.uid,
+    name:
+      typeof decoded.name === &#34;string&#34; &amp;&amp; decoded.name.length &gt; 0
+        ? decoded.name
+        : &#34;匿名ユーザー&#34;,
+    picture: typeof decoded.picture === &#34;string&#34; ? decoded.picture : undefined
+  };
+};
+
+export const requireFirebaseAuth: MiddlewareHandler&lt;{
+  Variables: FirebaseVariables;
+}&gt; = createMiddleware(async (c, next) =&gt; {
+  const authorization = c.req.header(&#34;authorization&#34;);
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) {
+    return c.json({ error: &#34;Bearer token is required.&#34; }, 401);
+  }
+
+  try {
+    const user = await verifyIdToken(match[1]);
+    c.set(&#34;user&#34;, user);
+    await next();
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : &#34;Firebase authentication failed.&#34;;
+    return c.json({ error: message }, 401);
+  }
+});
+</code></pre>
+</div>
+<p>Firebase Admin SDK は、サーバー側だけで使うライブラリです。<code>verifyIdToken</code> で ID トークンを検証し、信用できる <code>uid</code> や表示名を取り出します。</p>
+<h2 is-upgraded>post.ts の POST だけを保護する</h2>
+<p><code>src/post.ts</code> を次のように変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/post.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">import { desc } from &#34;drizzle-orm&#34;;
+import { pgTable, serial, text, timestamp, varchar } from &#34;drizzle-orm/pg-core&#34;;
+import { Hono } from &#34;hono&#34;;
+import { z } from &#34;zod&#34;;
+import { db } from &#34;./db.js&#34;;
++import { type FirebaseVariables, requireFirebaseAuth } from &#34;./firebase.js&#34;;
+
+@@
+
+-export const postRoutes = new Hono()
++export const postRoutes = new Hono&lt;{ Variables: FirebaseVariables }&gt;()
+  .get(&#34;/&#34;, async (c) =&gt; {
+    const rows = await listPosts();
+    return c.json({ posts: rows });
+  })
+-  .post(&#34;/&#34;, async (c) =&gt; {
++  .post(&#34;/&#34;, requireFirebaseAuth, async (c) =&gt; {
+    const body = await c.req.json().catch(() =&gt; null);
+    const parsed = createPostSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return c.json(
+        { error: parsed.error.issues[0]?.message ?? &#34;Invalid request body.&#34; },
+        400
+      );
+    }
+
++    const user = c.get(&#34;user&#34;);
+     const post = await createPost({
+      content: parsed.data.content,
+-      authorUid: &#34;temporary-user&#34;,
+-      authorName: &#34;仮ユーザー&#34;,
+-      authorPhotoUrl: undefined
++      authorUid: user.uid,
++      authorName: user.name,
++      authorPhotoUrl: user.picture
+    });
+
+    return c.json({ post }, 201);
+  });
+</code></pre>
+</div>
+<p><code>requireFirebaseAuth</code> は、POST の本処理に入る前に実行されます。トークンがなければ <code>401</code> で止まり、トークンが正しければ <code>c.set("user", user)</code> によって後続の処理でログインユーザーを使えます。</p>
+<h2 is-upgraded>トークンなしの投稿が拒否されることを確認する</h2>
+<p>サーバーを起動し直します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>別のターミナルで、トークンなしの投稿を試します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl -X POST http://localhost:3000/api/posts \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;content&#34;:&#34;ログインなしの投稿&#34;}&#39;
+</code></pre>
+</div>
+<p><code>"Bearer token is required."</code> が返れば成功です。投稿作成 API をログイン必須にできました。</p>
+<h2 is-upgraded>ブラウザで確認する</h2>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、投稿フォームから <code>Firebase認可後の投稿です</code> と投稿します。</p>
+<p>投稿一覧に表示される投稿者名やアイコンが、自分の Google アカウントの表示名・アイコンになっていれば成功です。React SPA は Firebase Web SDK で ID トークンを取得し、<code>Authorization: Bearer ...</code> ヘッダーとして API に送っています。Hono 側は Firebase Admin SDK の <code>verifyIdToken</code> でそのトークンを検証しています。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点で、API 側の認証認可まで完成しました。</p>
+<ul>
+<li><code>.gitignore</code></li>
+<li><code>docker-compose.yml</code></li>
+<li><code>drizzle.config.ts</code></li>
+<li><code>index.html</code></li>
+<li><code>package.json</code></li>
+<li><code>style.css</code></li>
+<li><code>tailwind.config.ts</code></li>
+<li><code>tsconfig.json</code></li>
+<li><code>vite.config.ts</code></li>
+<li><code>src/client.tsx</code></li>
+<li><code>src/index.ts</code></li>
+<li><code>src/db.ts</code></li>
+<li><code>src/firebase.ts</code></li>
+<li><code>src/post.ts</code></li>
+</ul>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-firebase-auth" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-firebase-auth</paper-button></a></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 投稿を削除する" duration="5">
+        <p>ここからは早く終わった人向けの拡張課題です。</p>
+<h2 is-upgraded>ゴール</h2>
+<p>自分が作った投稿だけ削除できる API を追加します。</p>
+<ul>
+<li><code>DELETE /api/posts/:id</code> を追加する</li>
+<li>Firebase Bearer 認可を必須にする</li>
+<li>DB の <code>authorUid</code> とログイン中ユーザーの <code>uid</code> が一致したときだけ削除する</li>
+<li>一致しない場合は <code>403</code> を返す</li>
+</ul>
+<p><strong>Hint: </strong><code>drizzle-orm</code> の <code>eq</code> と <code>and</code> を調べると実装しやすいです。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 投稿を編集する" duration="5">
+        <h2 is-upgraded>ゴール</h2>
+<p>自分が作った投稿だけ編集できる API を追加します。</p>
+<ul>
+<li><code>PATCH /api/posts/:id</code> を追加する</li>
+<li>request body は <code>{ content }</code> にする</li>
+<li>作成時と同じ Zod validation を使う</li>
+<li>自分の投稿ではない場合は <code>403</code> を返す</li>
+</ul>
+<p>編集後に投稿一覧を再取得すると、画面でも変更が確認できます。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Extra: 複数スレッドにする" duration="5">
+        <h2 is-upgraded>ゴール</h2>
+<p>単一スレッドだった掲示板を、複数スレッド対応にします。</p>
+<ul>
+<li><code>threads</code> テーブルを追加する</li>
+<li><code>posts</code> に <code>threadId</code> を追加する</li>
+<li><code>GET /api/threads/:threadId/posts</code> を追加する</li>
+<li><code>POST /api/threads/:threadId/posts</code> を追加する</li>
+</ul>
+<p>まずはスレッドの作成 UI までは作らず、DB に手動でスレッドを1件追加して動作確認すると進めやすいです。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="おめでとうございます！" duration="3">
+        <p>このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。</p>
+<h2 is-upgraded>学んだこと</h2>
+<ul>
+<li>Hono.js で Web API の入口を作る方法</li>
+<li>HTTP リクエストとレスポンスを確認する方法</li>
+<li>メモリ保存と DB 保存の違いを体験する方法</li>
+<li>Drizzle で PostgreSQL のテーブルを定義して読み書きする方法</li>
+<li>Zod で API リクエストを検証する方法</li>
+<li>Firebase Admin SDK で ID トークンを検証する方法</li>
+</ul>
+<h2 is-upgraded>完成コード</h2>
+<p>完成したコードは次のリポジトリにあります。</p>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example" target="_blank"><paper-button class="colored" raised>完成版リポジトリを開く</paper-button></a></p>
+<p>詰まったときは、各ステップ末尾の checkpoint tag と自分のコードを見比べてください。</p>
+<h2 is-upgraded>片付け</h2>
+<p>PostgreSQL コンテナを止める場合は、ターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">docker compose down
+</code></pre>
+</div>
+<p>今日作った <code>serviceAccount.json</code> は秘密鍵です。不要になったら削除してください。</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="libs/native-shim.js"></script>
+  <script src="libs/custom-elements.min.js"></script>
+  <script src="libs/prettify.js"></script>
+  <script src="libs/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+<script id="claat-local-preprocessor-script">
+(function () {
+  function setTheme(block, theme) {
+    var isDark = theme === 'dark';
+    var toggle = block.querySelector('.claat-toggle-code-theme');
+    block.dataset.codeTheme = isDark ? 'dark' : 'light';
+    if (!toggle) return;
+    toggle.setAttribute('aria-label', isDark ? 'Use light code theme' : 'Use dark code theme');
+    toggle.setAttribute('title', isDark ? 'Use light code theme' : 'Use dark code theme');
+    var icon = toggle.querySelector('.material-icons');
+    if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
+  function diffCopyText(source) {
+    return source.replace(/\n$/, '').split('\n').reduce(function (lines, line) {
+      if (/^@@/.test(line) || /^(\+\+\+|---)/.test(line)) return lines;
+      var marker = line.charAt(0);
+      if (marker === '-') return lines;
+      if (marker === '+' || marker === ' ') {
+        var body = line.slice(1);
+        if (marker === '+' && /^ [^\s]/.test(body)) body = body.slice(1);
+        lines.push(body);
+        return lines;
+      }
+      lines.push(line);
+      return lines;
+    }, []).join('\n');
+  }
+
+  function codeTextForCopy(code) {
+    if (!code) return '';
+    if (code.dataset && (code.dataset.claatDiff === 'true' || code.classList.contains('language-diff'))) {
+      return diffCopyText(code.dataset.claatDiffSource || code.textContent);
+    }
+    return code.innerText;
+  }
+
+  function escapeHtml(value) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function prettyLine(value, language) {
+    var escaped = escapeHtml(value);
+    if (!language || typeof window.prettyPrintOne !== 'function') return escaped;
+    try {
+      return window.prettyPrintOne(escaped, language);
+    } catch (error) {
+      return escaped;
+    }
+  }
+
+  function diffLineHtml(line, language) {
+    if (/^@@/.test(line)) {
+      return '<span class="claat-diff-line claat-diff-line-hunk">' + escapeHtml(line) + '</span>';
+    }
+
+    var marker = line.charAt(0);
+    var isFileHeader = /^(\+\+\+|---)/.test(line);
+    var className = 'claat-diff-line';
+    if (!isFileHeader && marker === '+') className += ' claat-diff-line-add';
+    if (!isFileHeader && marker === '-') className += ' claat-diff-line-delete';
+    if (isFileHeader) className += ' claat-diff-line-hunk';
+
+    if (marker === '+' || marker === '-' || marker === ' ') {
+      return (
+        '<span class="' + className + '">' +
+        '<span class="claat-diff-marker">' + escapeHtml(marker) + '</span>' +
+        prettyLine(line.slice(1), language) +
+        '</span>'
+      );
+    }
+
+    return '<span class="' + className + '">' + prettyLine(line, language) + '</span>';
+  }
+
+  function enhanceDiffCodeBlocks() {
+    document.querySelectorAll('pre > code[data-claat-diff="true"], pre > code.language-diff').forEach(function (code) {
+      if (code.dataset.claatDiffEnhanced === 'true') return;
+      var language = code.dataset.claatDiffLanguage || '';
+      var source = code.textContent.replace(/\n$/, '');
+      code.dataset.claatDiffSource = source;
+      code.classList.add('claat-diff-code');
+      code.innerHTML = source.split('\n').map(function (line) {
+        return diffLineHtml(line, language);
+      }).join('');
+      code.dataset.claatDiffEnhanced = 'true';
+    });
+  }
+
+  document.addEventListener('click', function (event) {
+    var copyButton = event.target.closest('.claat-copy-code');
+    var themeButton = event.target.closest('.claat-toggle-code-theme');
+    if (!copyButton && !themeButton) return;
+
+    var block = event.target.closest('.claat-code-block');
+    if (!block) return;
+
+    if (copyButton) {
+      var code = block.querySelector('pre > code') || block.querySelector('pre');
+      if (!code) return;
+      copyText(codeTextForCopy(code)).then(function () {
+        var icon = copyButton.querySelector('.material-icons');
+        if (!icon) return;
+        icon.textContent = 'done';
+        window.setTimeout(function () {
+          icon.textContent = 'content_copy';
+        }, 1200);
+      });
+    }
+
+    if (themeButton) {
+      setTheme(block, block.dataset.codeTheme === 'dark' ? 'light' : 'dark');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.claat-code-block').forEach(function (block) {
+      setTheme(block, block.dataset.codeTheme || 'light');
+    });
+    enhanceDiffCodeBlocks();
+  });
+}());
+</script>
+</body>
+</html>
