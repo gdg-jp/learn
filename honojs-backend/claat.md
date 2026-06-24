@@ -935,6 +935,7 @@ import { Hono } from "hono";
 +const indexHtml = join(publicDir, "index.html");
 
 const app = new Hono();
+const port = Number(process.env.PORT ?? 3000);
 
 +app.use(logger());
 
@@ -966,7 +967,7 @@ const app = new Hono();
 serve(
   {
     fetch: app.fetch,
-    port: 3000
+    port
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
@@ -975,6 +976,8 @@ serve(
 ```
 
 `serveStatic` は、`dist/public` にある CSS や JavaScript を Hono から配信します。`app.get("*", ...)` は、React SPA の入口である `index.html` を返します。ただし `/api/` から始まる未実装の API は、HTML ではなく JSON の `404` を返すようにしておきます。
+
+> **Troubleshooting:** `Error: listen EADDRINUSE: address already in use` が出た場合は、同じポートで別のサーバーが起動しています。すでに起動している `npm run dev` を `Ctrl + C` で止めるか、別のポートで `PORT=4000 npm run dev` のように起動します。
 
 ### ビルドして起動する
 
@@ -1064,6 +1067,7 @@ const publicDir = join(process.cwd(), "dist", "public");
 const indexHtml = join(publicDir, "index.html");
 
 const app = new Hono();
+const port = Number(process.env.PORT ?? 3000);
 
 app.use(logger());
 
@@ -1095,7 +1099,7 @@ app.get("*", async (c) => {
 serve(
   {
     fetch: app.fetch,
-    port: 3000
+    port
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
@@ -1513,6 +1517,9 @@ npx drizzle-kit push
 ```
 
 > **Tips:** `npx` は、プロジェクトに入っているコマンドを一時的に実行するためのコマンドです。ここでは `package.json` に新しい script を追加せず、`drizzle-kit` を直接実行しています。
+
+> **Troubleshooting:** `/Users/.../honojs-backend-app/drizzle.config.json file does not exist` のようなエラーが出た場合は、`drizzle.config.ts` がプロジェクト直下にあるか確認してください。
+> `src/drizzle.config.ts` のように `src` フォルダの中に作っている場合は、`honojs-backend-app/drizzle.config.ts` に移動します。
 
 エラーで止まらなければ成功です。Drizzle が `posts` テーブルを PostgreSQL に作成します。
 

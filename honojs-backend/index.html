@@ -1343,6 +1343,7 @@ import { Hono } from &#34;hono&#34;;
 +const indexHtml = join(publicDir, &#34;index.html&#34;);
 
 const app = new Hono();
+const port = Number(process.env.PORT ?? 3000);
 
 +app.use(logger());
 
@@ -1374,7 +1375,7 @@ const app = new Hono();
 serve(
   {
     fetch: app.fetch,
-    port: 3000
+    port
   },
   (info) =&gt; {
     console.log(`Server is running on http://localhost:${info.port}`);
@@ -1383,6 +1384,7 @@ serve(
 </code></pre>
 </div>
 <p><code>serveStatic</code> は、<code>dist/public</code> にある CSS や JavaScript を Hono から配信します。<code>app.get("*", ...)</code> は、React SPA の入口である <code>index.html</code> を返します。ただし <code>/api/</code> から始まる未実装の API は、HTML ではなく JSON の <code>404</code> を返すようにしておきます。</p>
+<p><strong>Troubleshooting: </strong><code>Error: listen EADDRINUSE: address already in use</code> が出た場合は、同じポートで別のサーバーが起動しています。すでに起動している <code>npm run dev</code> を <code>Ctrl + C</code> で止めるか、別のポートで <code>PORT=4000 npm run dev</code> のように起動します。</p>
 <h2 is-upgraded>ビルドして起動する</h2>
 <p>React SPA をビルドし、そのあと Hono サーバーをビルドします。この時点ではまだ投稿 API を作っていないため、ログイン後の投稿一覧にはエラーが表示されます。次のステップで <code>GET /api/posts</code> を作ると、画面から投稿一覧を確認できるようになります。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1492,6 +1494,7 @@ const publicDir = join(process.cwd(), &#34;dist&#34;, &#34;public&#34;);
 const indexHtml = join(publicDir, &#34;index.html&#34;);
 
 const app = new Hono();
+const port = Number(process.env.PORT ?? 3000);
 
 app.use(logger());
 
@@ -1523,7 +1526,7 @@ app.get(&#34;*&#34;, async (c) =&gt; {
 serve(
   {
     fetch: app.fetch,
-    port: 3000
+    port
   },
   (info) =&gt; {
     console.log(`Server is running on http://localhost:${info.port}`);
@@ -2023,6 +2026,7 @@ export interface CreatePostInput {
 </code></pre>
 </div>
 <p><strong>Tips: </strong><code>npx</code> は、プロジェクトに入っているコマンドを一時的に実行するためのコマンドです。ここでは <code>package.json</code> に新しい script を追加せず、<code>drizzle-kit</code> を直接実行しています。</p>
+<p><strong>Troubleshooting: </strong><code>/Users/.../honojs-backend-app/drizzle.config.json file does not exist</code> のようなエラーが出た場合は、<code>drizzle.config.ts</code> がプロジェクト直下にあるか確認してください。 <code>src/drizzle.config.ts</code> のように <code>src</code> フォルダの中に作っている場合は、<code>honojs-backend-app/drizzle.config.ts</code> に移動します。</p>
 <p>エラーで止まらなければ成功です。Drizzle が <code>posts</code> テーブルを PostgreSQL に作成します。</p>
 <h2 is-upgraded>DB 保存を確認する</h2>
 <p>サーバーを起動し直します。</p>
