@@ -261,6 +261,8 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
 
   google-codelab-step .instructions .claat-code-block .claat-diff-line-delete {{
     background: #fce8e6;
+    -webkit-user-select: none;
+    user-select: none;
   }}
 
   google-codelab-step .instructions .claat-code-block .claat-diff-line-hunk {{
