@@ -1664,7 +1664,7 @@ export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; posts;
 +    } | null;
 +
 +    if (typeof body?.content !== &#34;string&#34; || body.content.trim().length === 0) {
-+      return c.json({ error: &#34;投稿内容を入力してください。&#34; }, 400);
++      return c.json({ error: &#34;Invalid request body.&#34; }, 400);
 +    }
 +
 +    const post = await createPost({
@@ -2140,8 +2140,8 @@ export interface CreatePostInput {
 <pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">import { desc } from &#34;drizzle-orm&#34;;
 import { pgTable, serial, text, timestamp, varchar } from &#34;drizzle-orm/pg-core&#34;;
 import { Hono } from &#34;hono&#34;;
-+import { z } from &#34;zod&#34;;
 import { db } from &#34;./db.js&#34;;
++import { z } from &#34;zod&#34;;
 
 export const posts = pgTable(&#34;posts&#34;, {
   id: serial(&#34;id&#34;).primaryKey(),

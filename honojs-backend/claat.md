@@ -1220,7 +1220,7 @@ export const listPosts = async (): Promise<PostOutput[]> => posts;
 +    } | null;
 +
 +    if (typeof body?.content !== "string" || body.content.trim().length === 0) {
-+      return c.json({ error: "投稿内容を入力してください。" }, 400);
++      return c.json({ error: "Invalid request body." }, 400);
 +    }
 +
 +    const post = await createPost({
@@ -1603,8 +1603,8 @@ Duration: 0:10:00
 import { desc } from "drizzle-orm";
 import { pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { Hono } from "hono";
-+import { z } from "zod";
 import { db } from "./db.js";
++import { z } from "zod";
 
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
