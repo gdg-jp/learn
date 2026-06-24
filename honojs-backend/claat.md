@@ -341,7 +341,19 @@ Duration: 0:10:00
 
 ### 作業フォルダでプロジェクトを作成する
 
-ターミナルまたは PowerShell で、作業用フォルダに移動してから次を実行します。
+ターミナルまたは PowerShell で、作業用フォルダに移動してから進めます。
+
+作業用フォルダがまだない人、どのフォルダで作業すればよいかわからない人は、次のコマンドでホームディレクトリの下に `proj` フォルダを作ります。
+
+```bash
+cd ~
+mkdir proj
+cd proj
+```
+
+> **Tips:** `cd` は作業ディレクトリを移動するコマンドです。`~` は自分のホームディレクトリを表します。`mkdir proj` は `proj` という新しいフォルダを作ります。
+
+`proj` フォルダに移動できたら、次を実行します。
 
 ```bash
 npm create hono@latest honojs-backend-app
@@ -349,11 +361,31 @@ npm create hono@latest honojs-backend-app
 
 > **Tips:** `npm create` は、指定した starter から新しいプロジェクトを作るコマンドです。ここでは Hono 公式 starter を使って、`honojs-backend-app` というフォルダに最小構成の Hono アプリを作ります。
 
-途中で template を聞かれたら、`nodejs` を選びます。
+途中で質問が表示されたら、次のように選びます。
+
+| 質問                                           | 選ぶもの |
+| ---------------------------------------------- | -------- |
+| `Which template do you want to use?`           | `nodejs` |
+| `Do you want to install project dependencies?` | `Y`      |
+| `Which package manager do you want to use?`    | `npm`    |
+
+次のように表示されれば成功です。
+
+```text
+✔ Using target directory … honojs-backend-app
+✔ Which template do you want to use? nodejs
+✔ Do you want to install project dependencies? Yes
+✔ Which package manager do you want to use? npm
+✔ Cloning the template
+✔ Installing project dependencies
+🎉 Copied project files
+Get started with: cd honojs-backend-app
+```
+
+`Do you want to install project dependencies?` で `Yes` を選んだ場合、`npm install` はすでに実行されています。次は作成されたフォルダに移動します。
 
 ```bash
 cd honojs-backend-app
-npm install
 ```
 
 ### VS Code で開く
@@ -980,7 +1012,6 @@ npm start
   [この時点のコードを見る: step-react-spa](https://github.com/gdg-jp/honojs-backend-template/tree/step-react-spa)
 </button>
 
-
 ## 投稿一覧 API を作る
 
 Duration: 0:10:00
@@ -1409,7 +1440,7 @@ export interface CreatePostInput {
 +  authorPhotoUrl: post.authorPhotoUrl,
 +  createdAt: post.createdAt.toISOString()
 +});
- 
+
  export const listPosts = async (): Promise<PostOutput[]> => {
 -  return posts;
 +  const rows = await db
@@ -1419,7 +1450,7 @@ export interface CreatePostInput {
 +
 +  return rows.map(toPostOutput);
  };
- 
+
  export const createPost = async (
    input: CreatePostInput
  ): Promise<PostOutput> => {
@@ -1447,7 +1478,7 @@ export interface CreatePostInput {
 +
 +  return toPostOutput(rows[0]);
  };
- 
+
  export const postRoutes = new Hono()
   .get("/", async (c) => {
     const rows = await listPosts();

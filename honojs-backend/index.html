@@ -634,7 +634,24 @@ docker compose version
         <p>ここから実装に入ります。まずは Hono の公式 starter から、新しい TypeScript プロジェクトを作成します。</p>
 <aside class="special"><p><strong>Tips:</strong> Hono は、Web API を作るための軽量な TypeScript フレームワークです。URL ごとに処理を書く「ルーティング」が中心で、今回のような小さな API サーバーを作り始めやすい道具です。</p></aside>
 <h2 is-upgraded>作業フォルダでプロジェクトを作成する</h2>
-<p>ターミナルまたは PowerShell で、作業用フォルダに移動してから次を実行します。</p>
+<p>ターミナルまたは PowerShell で、作業用フォルダに移動してから進めます。</p>
+<p>作業用フォルダがまだない人、どのフォルダで作業すればよいかわからない人は、次のコマンドでホームディレクトリの下に <code>proj</code> フォルダを作ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">cd ~
+mkdir proj
+cd proj
+</code></pre>
+</div>
+<p><strong>Tips: </strong><code>cd</code> は作業ディレクトリを移動するコマンドです。<code>~</code> は自分のホームディレクトリを表します。<code>mkdir proj</code> は <code>proj</code> という新しいフォルダを作ります。</p>
+<p><code>proj</code> フォルダに移動できたら、次を実行します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -648,7 +665,42 @@ docker compose version
 </code></pre>
 </div>
 <p><strong>Tips: </strong><code>npm create</code> は、指定した starter から新しいプロジェクトを作るコマンドです。ここでは Hono 公式 starter を使って、<code>honojs-backend-app</code> というフォルダに最小構成の Hono アプリを作ります。</p>
-<p>途中で template を聞かれたら、<code>nodejs</code> を選びます。</p>
+<p>途中で質問が表示されたら、次のように選びます。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>質問</p>
+</td><td colspan="1" rowspan="1"><p>選ぶもの</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>Which template do you want to use?</code></p>
+</td><td colspan="1" rowspan="1"><p><code>nodejs</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>Do you want to install project dependencies?</code></p>
+</td><td colspan="1" rowspan="1"><p><code>Yes</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><code>Which package manager do you want to use?</code></p>
+</td><td colspan="1" rowspan="1"><p><code>npm</code></p>
+</td></tr>
+</table>
+<p>次のように表示されれば成功です。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✔ Using target directory ... honojs-backend-app
+✔ Which template do you want to use? nodejs
+✔ Do you want to install project dependencies? Yes
+✔ Which package manager do you want to use? npm
+✔ Cloning the template
+✔ Installing project dependencies
+🎉 Copied project files
+Get started with: cd honojs-backend-app
+</code></pre>
+</div>
+<p><code>Do you want to install project dependencies?</code> で <code>Yes</code> を選んだ場合、<code>npm install</code> はすでに実行されています。次は作成されたフォルダに移動します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
   <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
@@ -659,7 +711,6 @@ docker compose version
   </button>
 </div>
 <pre><code language="language-bash" class="language-bash">cd honojs-backend-app
-npm install
 </code></pre>
 </div>
 <h2 is-upgraded>VS Code で開く</h2>
