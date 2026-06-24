@@ -1776,17 +1776,6 @@ Discord の `#260625-honojs-backend` に講師が投稿した Firebase Admin SDK
 
 > **Warning:** `serviceAccount.json` は秘密鍵です。GitHub、Discord の別チャンネル、SNS などに貼らないでください。
 
-### .gitignore に秘密鍵を追加する
-
-`.gitignore` に次の行を追加します。
-
-```diff text:.gitignore
-+serviceAccount.json
-+.env
-```
-
-この設定により、秘密鍵や環境変数ファイルが Git に入る事故を防ぎます。
-
 ### Firebase middleware を作成する
 
 `src/firebase.ts` を作成します。
