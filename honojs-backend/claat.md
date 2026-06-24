@@ -380,14 +380,21 @@ npm run dev
 
 ### 現時点のコードベース
 
-この時点では、Hono starter が作った最小構成だけがあります。
+この時点のディレクトリ構成は次のようになります。
 
-- `package.json`
-- `tsconfig.json`
-- `src/index.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── package-lock.json
+├── package.json
+├── src
+│   └── index.ts
+└── tsconfig.json
+```
 
 <button>
-  [この時点のコードを見る: step-npm-create-hono](https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-create-hono)
+  [この時点のコードを見る: step-npm-create-hono](https://github.com/gdg-jp/honojs-backend-template/tree/step-npm-create-hono)
 </button>
 
 ## 必要なライブラリを追加する
@@ -407,7 +414,7 @@ npm install @hono/node-server drizzle-orm pg zod firebase-admin
 ### フロントエンド用ライブラリを追加する
 
 ```bash
-npm install react react-dom firebase @heroui/react @heroui/theme @react-aria/ssr framer-motion lucide-react
+npm install react react-dom firebase @heroui/react@2.8.10 @heroui/theme@2.4.26 @react-aria/ssr framer-motion lucide-react
 ```
 
 ### 開発用ライブラリを追加する
@@ -420,15 +427,21 @@ npm install -D vite @vitejs/plugin-react typescript tsx drizzle-kit @types/node 
 
 ### 現時点のコードベース
 
-この時点では、ファイル構成はほぼ変わりません。代わりに `package.json` と `package-lock.json` にライブラリ情報が追加されています。
+この時点のディレクトリ構成は次のようになります。
 
-- `package.json`
-- `package-lock.json`
-- `tsconfig.json`
-- `src/index.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── package-lock.json
+├── package.json
+├── src
+│   └── index.ts
+└── tsconfig.json
+```
 
 <button>
-  [この時点のコードを見る: step-npm-install](https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-install)
+  [この時点のコードを見る: step-npm-install](https://github.com/gdg-jp/honojs-backend-template/tree/step-npm-install)
 </button>
 
 ## React SPA を配信する
@@ -857,6 +870,22 @@ createRoot(document.getElementById("root") as HTMLElement).render(
 
 この React SPA は、`GET /api/posts` で投稿一覧を取得し、ログイン済みユーザーの Firebase ID トークンを `Authorization` ヘッダーに入れて `POST /api/posts` を呼びます。
 
+### TypeScript の JSX 設定を React 用に変更する
+
+Hono starter には、JSX を Hono 用に解釈する設定が入っている場合があります。React SPA を TypeScript でビルドできるように、`tsconfig.json` の `jsxImportSource` を React に変更します。
+
+```diff json:tsconfig.json
+     "jsx": "react-jsx",
+-    "jsxImportSource": "hono/jsx",
++    "jsxImportSource": "react",
++    "rootDir": "./src",
+     "outDir": "./dist"
+   },
++  "include": ["src/**/*.ts", "src/**/*.tsx"],
+   "exclude": ["node_modules"]
+ }
+```
+
 ### Hono からビルド済み SPA を配信する
 
 `src/index.ts` を次のように変更します。
@@ -929,19 +958,26 @@ npm start
 
 ### 現時点のコードベース
 
-この時点で、React SPA を同じ Hono サーバーから配信できるようになりました。次のステップから、API を追加するたびにブラウザで画面の変化を確認できます。
+この時点のディレクトリ構成は次のようになります。
 
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   └── index.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-react-spa](https://github.com/gdg-jp/honojs-backend-example/tree/step-react-spa)
+  [この時点のコードを見る: step-react-spa](https://github.com/gdg-jp/honojs-backend-template/tree/step-react-spa)
 </button>
 
 
@@ -1064,20 +1100,27 @@ curl http://localhost:3000/api/posts
 
 ### 現時点のコードベース
 
-この時点で、最初の API が動きました。
+この時点のディレクトリ構成は次のようになります。
 
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
-- `src/post.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-get-posts-memory](https://github.com/gdg-jp/honojs-backend-example/tree/step-get-posts-memory)
+  [この時点のコードを見る: step-get-posts-memory](https://github.com/gdg-jp/honojs-backend-template/tree/step-get-posts-memory)
 </button>
 
 ## 投稿作成 API を作る
@@ -1190,20 +1233,27 @@ curl http://localhost:3000/api/posts
 
 ### 現時点のコードベース
 
-この時点で、DB なしの小さな掲示板 API ができました。
+この時点のディレクトリ構成は次のようになります。
 
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
-- `src/post.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-post-posts-memory](https://github.com/gdg-jp/honojs-backend-example/tree/step-post-posts-memory)
+  [この時点のコードを見る: step-post-posts-memory](https://github.com/gdg-jp/honojs-backend-template/tree/step-post-posts-memory)
 </button>
 
 ## PostgreSQL に保存する
@@ -1473,23 +1523,30 @@ curl http://localhost:3000/api/posts
 
 ### 現時点のコードベース
 
-この時点で、投稿の保存先がメモリから PostgreSQL に変わりました。
+この時点のディレクトリ構成は次のようになります。
 
-- `docker-compose.yml`
-- `drizzle.config.ts`
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
-- `src/db.ts`
-- `src/post.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-drizzle-postgres](https://github.com/gdg-jp/honojs-backend-example/tree/step-drizzle-postgres)
+  [この時点のコードを見る: step-drizzle-postgres](https://github.com/gdg-jp/honojs-backend-template/tree/step-drizzle-postgres)
 </button>
 
 ## Zod でリクエストを検証する
@@ -1643,23 +1700,30 @@ curl -X POST http://localhost:3000/api/posts \
 
 ### 現時点のコードベース
 
-この時点で、外から来た JSON を Zod で検証できるようになりました。
+この時点のディレクトリ構成は次のようになります。
 
-- `docker-compose.yml`
-- `drizzle.config.ts`
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
-- `src/db.ts`
-- `src/post.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-zod-validation](https://github.com/gdg-jp/honojs-backend-example/tree/step-zod-validation)
+  [この時点のコードを見る: step-zod-validation](https://github.com/gdg-jp/honojs-backend-template/tree/step-zod-validation)
 </button>
 
 ## Firebase Bearer 認可を実装する
@@ -1842,25 +1906,31 @@ curl -X POST http://localhost:3000/api/posts \
 
 ### 現時点のコードベース
 
-この時点で、API 側の認証認可まで完成しました。
+この時点のディレクトリ構成は次のようになります。
 
-- `.gitignore`
-- `docker-compose.yml`
-- `drizzle.config.ts`
-- `index.html`
-- `package.json`
-- `style.css`
-- `tailwind.config.ts`
-- `tsconfig.json`
-- `vite.config.ts`
-- `src/client.tsx`
-- `src/index.ts`
-- `src/db.ts`
-- `src/firebase.ts`
-- `src/post.ts`
+```text
+.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── firebase.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+```
 
 <button>
-  [この時点のコードを見る: step-firebase-auth](https://github.com/gdg-jp/honojs-backend-example/tree/step-firebase-auth)
+  [この時点のコードを見る: step-firebase-auth](https://github.com/gdg-jp/honojs-backend-template/tree/step-firebase-auth)
 </button>
 
 ## Extra: 投稿を削除する

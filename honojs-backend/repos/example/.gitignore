@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.npm-cache/
+.env
+.DS_Store
+serviceAccount.json
+drizzle/meta/

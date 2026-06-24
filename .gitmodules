@@ -16,4 +16,7 @@
 [submodule "create-multi-agent/repos/template"]
 	path = create-multi-agent/repos/template
 	url = https://github.com/gdsc-osaka/customer-support-agent.git
+[submodule "honojs-backend/repos/template"]
+	path = honojs-backend/repos/template
+	url = https://github.com/gdg-jp/honojs-backend-template.git
 	

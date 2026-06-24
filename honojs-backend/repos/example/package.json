@@ -1,0 +1,49 @@
+{
+  "name": "honojs-backend-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "start": "node dist/server.js",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "@heroui/react": "^2.7.11",
+    "@react-aria/ssr": "^3.9.10",
+    "drizzle-orm": "^0.44.2",
+    "firebase": "^11.10.0",
+    "firebase-admin": "^13.4.0",
+    "framer-motion": "^12.23.0",
+    "hono": "^4.8.3",
+    "lucide-react": "^0.468.0",
+    "pg": "^8.16.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/node": "^24.0.10",
+    "@types/pg": "^8.15.4",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "drizzle-kit": "^0.31.4",
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}

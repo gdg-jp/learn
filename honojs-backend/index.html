@@ -692,13 +692,27 @@ npm install
 <p><strong>Tips: </strong><code>npm run dev</code> は、<code>package.json</code> の <code>scripts.dev</code> に書かれた開発用コマンドを実行します。Hono starter では、TypeScript のサーバーを起動し、変更があれば自動で再起動します。</p>
 <p><code>http://localhost:3000</code> のような URL が表示されたら、ブラウザで開きます。<code>Hello Hono!</code> のような文字が表示されれば成功です。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点では、Hono starter が作った最小構成だけがあります。</p>
-<ul>
-<li><code>package.json</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>src/index.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-create-hono" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-create-hono</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── package-lock.json
+├── package.json
+├── src
+│   └── index.ts
+└── tsconfig.json
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-npm-create-hono" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-create-hono</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -729,7 +743,7 @@ npm install
     <span class="material-icons" aria-hidden="true">content_copy</span>
   </button>
 </div>
-<pre><code language="language-bash" class="language-bash">npm install react react-dom firebase @heroui/react @heroui/theme @react-aria/ssr framer-motion lucide-react
+<pre><code language="language-bash" class="language-bash">npm install react react-dom firebase @heroui/react@2.8.10 @heroui/theme@2.4.26 @react-aria/ssr framer-motion lucide-react
 </code></pre>
 </div>
 <h2 is-upgraded>開発用ライブラリを追加する</h2>
@@ -747,14 +761,27 @@ npm install
 </div>
 <p><strong>Tips: </strong><code>-D</code> は「開発中だけ使うライブラリ」を意味します。<code>drizzle-kit</code> は DB 定義を反映するための開発用コマンドなので、<code>dependencies</code> ではなく <code>devDependencies</code> に入れます。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点では、ファイル構成はほぼ変わりません。代わりに <code>package.json</code> と <code>package-lock.json</code> にライブラリ情報が追加されています。</p>
-<ul>
-<li><code>package.json</code></li>
-<li><code>package-lock.json</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>src/index.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-npm-install" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-install</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── package-lock.json
+├── package.json
+├── src
+│   └── index.ts
+└── tsconfig.json
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-npm-install" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-npm-install</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -1216,6 +1243,29 @@ createRoot(document.getElementById(&#34;root&#34;) as HTMLElement).render(
 </code></pre>
 </div>
 <p>この React SPA は、<code>GET /api/posts</code> で投稿一覧を取得し、ログイン済みユーザーの Firebase ID トークンを <code>Authorization</code> ヘッダーに入れて <code>POST /api/posts</code> を呼びます。</p>
+<h2 is-upgraded>TypeScript の JSX 設定を React 用に変更する</h2>
+<p>Hono starter には、JSX を Hono 用に解釈する設定が入っている場合があります。React SPA を TypeScript でビルドできるように、<code>tsconfig.json</code> の <code>jsxImportSource</code> を React に変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">tsconfig.json</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json claat-diff-code" data-claat-diff="true" data-claat-diff-language="json">     &#34;jsx&#34;: &#34;react-jsx&#34;,
+-    &#34;jsxImportSource&#34;: &#34;hono/jsx&#34;,
++    &#34;jsxImportSource&#34;: &#34;react&#34;,
++    &#34;rootDir&#34;: &#34;./src&#34;,
+     &#34;outDir&#34;: &#34;./dist&#34;
+   },
++  &#34;include&#34;: [&#34;src/**/*.ts&#34;, &#34;src/**/*.tsx&#34;],
+   &#34;exclude&#34;: [&#34;node_modules&#34;]
+ }
+</code></pre>
+</div>
 <h2 is-upgraded>Hono からビルド済み SPA を配信する</h2>
 <p><code>src/index.ts</code> を次のように変更します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1298,18 +1348,32 @@ npm start
 </div>
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google ログイン画面が表示されれば成功です。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、React SPA を同じ Hono サーバーから配信できるようになりました。次のステップから、API を追加するたびにブラウザで画面の変化を確認できます。</p>
-<ul>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-react-spa" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-react-spa</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   └── index.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-react-spa" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-react-spa</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -1448,19 +1512,33 @@ serve(
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、掲示板画面の投稿一覧に <code>まだ投稿はありません。</code> と表示されれば成功です。</p>
 <p>この時点で、React SPA は <code>GET /api/posts</code> を呼んでいます。API が空配列を返すので、画面にも「投稿がまだない」状態が表示されます。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、最初の API が動きました。</p>
-<ul>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-<li><code>src/post.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-get-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-get-posts-memory</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-get-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-get-posts-memory</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -1592,19 +1670,33 @@ export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; posts;
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、投稿フォームに <code>ブラウザからの投稿です</code> と入力して <strong>投稿</strong> ボタンを押します。</p>
 <p>投稿一覧の先頭に入力した内容が表示されれば成功です。ブラウザからは、React SPA が <code>POST /api/posts</code> を呼び、成功した投稿を画面の一覧に追加しています。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、DB なしの小さな掲示板 API ができました。</p>
-<ul>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-<li><code>src/post.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-post-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-post-posts-memory</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-post-posts-memory" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-post-posts-memory</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -1939,22 +2031,36 @@ export interface CreatePostInput {
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を再読み込みします。<code>DBに保存される投稿です</code> が投稿一覧に残っていれば成功です。</p>
 <p>さらに投稿フォームから <code>ブラウザからDBへ保存します</code> と投稿し、サーバーを再起動してからブラウザを再読み込みします。投稿が残っていれば、React SPA から作った投稿も PostgreSQL に保存されています。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、投稿の保存先がメモリから PostgreSQL に変わりました。</p>
-<ul>
-<li><code>docker-compose.yml</code></li>
-<li><code>drizzle.config.ts</code></li>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-<li><code>src/db.ts</code></li>
-<li><code>src/post.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-drizzle-postgres" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-drizzle-postgres</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-drizzle-postgres" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-drizzle-postgres</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -2119,22 +2225,36 @@ export const postRoutes = new Hono()
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開き、投稿フォームに 280 文字を超える文章を入力します。残り文字数がマイナス表示になり、<strong>投稿</strong> ボタンが押せなくなれば成功です。</p>
 <p>画面側でも入力ミスを防いでいますが、API 側の Zod validation も必要です。ブラウザの制御は利用者に見えるコードなので、悪意のある人は回避できます。そのため、サーバー側でも <code>curl</code> のような直接リクエストを検証します。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、外から来た JSON を Zod で検証できるようになりました。</p>
-<ul>
-<li><code>docker-compose.yml</code></li>
-<li><code>drizzle.config.ts</code></li>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-<li><code>src/db.ts</code></li>
-<li><code>src/post.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-zod-validation" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-zod-validation</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-zod-validation" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-zod-validation</paper-button></a></p>
 
 
       </google-codelab-step>
@@ -2338,24 +2458,37 @@ import { db } from &#34;./db.js&#34;;
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、投稿フォームから <code>Firebase認可後の投稿です</code> と投稿します。</p>
 <p>投稿一覧に表示される投稿者名やアイコンが、自分の Google アカウントの表示名・アイコンになっていれば成功です。React SPA は Firebase Web SDK で ID トークンを取得し、<code>Authorization: Bearer ...</code> ヘッダーとして API に送っています。Hono 側は Firebase Admin SDK の <code>verifyIdToken</code> でそのトークンを検証しています。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
-<p>この時点で、API 側の認証認可まで完成しました。</p>
-<ul>
-<li><code>.gitignore</code></li>
-<li><code>docker-compose.yml</code></li>
-<li><code>drizzle.config.ts</code></li>
-<li><code>index.html</code></li>
-<li><code>package.json</code></li>
-<li><code>style.css</code></li>
-<li><code>tailwind.config.ts</code></li>
-<li><code>tsconfig.json</code></li>
-<li><code>vite.config.ts</code></li>
-<li><code>src/client.tsx</code></li>
-<li><code>src/index.ts</code></li>
-<li><code>src/db.ts</code></li>
-<li><code>src/firebase.ts</code></li>
-<li><code>src/post.ts</code></li>
-</ul>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example/tree/step-firebase-auth" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-firebase-auth</paper-button></a></p>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── firebase.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+<p><a href="https://github.com/gdg-jp/honojs-backend-template/tree/step-firebase-auth" target="_blank"><paper-button class="colored" raised>この時点のコードを見る: step-firebase-auth</paper-button></a></p>
 
 
       </google-codelab-step>
