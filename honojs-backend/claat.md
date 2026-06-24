@@ -68,7 +68,7 @@ Duration: 0:03:00
 
 ## セットアップ
 
-Duration: 0:25:00
+Duration: 0:20:00
 
 このステップでは、PC に開発環境を入れます。Node.js、Git、Docker Desktop が入っていない前提で進めます。
 
@@ -1966,7 +1966,7 @@ curl -X POST http://localhost:3000/api/posts \
 
 ## Extra: 投稿を削除する
 
-Duration: 0:05:00
+Duration: 0:00:00
 
 ここからは早く終わった人向けの拡張課題です。
 
@@ -1983,7 +1983,7 @@ Duration: 0:05:00
 
 ## Extra: 投稿を編集する
 
-Duration: 0:05:00
+Duration: 0:00:00
 
 ### ゴール
 
@@ -1998,7 +1998,7 @@ Duration: 0:05:00
 
 ## Extra: 複数スレッドにする
 
-Duration: 0:05:00
+Duration: 0:00:00
 
 ### ゴール
 
@@ -2013,7 +2013,7 @@ Duration: 0:05:00
 
 ## おめでとうございます！
 
-Duration: 0:03:00
+Duration: 0:00:00
 
 このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。
 

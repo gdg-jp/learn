@@ -335,7 +335,7 @@
 
       </google-codelab-step>
     
-      <google-codelab-step label="セットアップ" duration="25">
+      <google-codelab-step label="セットアップ" duration="20">
         <p>このステップでは、PC に開発環境を入れます。Node.js、Git、Docker Desktop が入っていない前提で進めます。</p>
 <h2 is-upgraded>Windows のセットアップ手順</h2>
 <p>Windows では、ブラウザで公式サイトを開いてインストーラをダウンロードします。PowerShell は、スタートメニューで <code>PowerShell</code> と検索して開きます。</p>
@@ -674,7 +674,7 @@ cd proj
 </td><td colspan="1" rowspan="1"><p><code>nodejs</code></p>
 </td></tr>
 <tr><td colspan="1" rowspan="1"><p><code>Do you want to install project dependencies?</code></p>
-</td><td colspan="1" rowspan="1"><p><code>Yes</code></p>
+</td><td colspan="1" rowspan="1"><p><code>Y</code></p>
 </td></tr>
 <tr><td colspan="1" rowspan="1"><p><code>Which package manager do you want to use?</code></p>
 </td><td colspan="1" rowspan="1"><p><code>npm</code></p>
@@ -1944,7 +1944,7 @@ export interface CreatePostInput {
 +  authorPhotoUrl: post.authorPhotoUrl,
 +  createdAt: post.createdAt.toISOString()
 +});
- 
+
  export const listPosts = async (): Promise&lt;PostOutput[]&gt; =&gt; {
 -  return posts;
 +  const rows = await db
@@ -1954,7 +1954,7 @@ export interface CreatePostInput {
 +
 +  return rows.map(toPostOutput);
  };
- 
+
  export const createPost = async (
    input: CreatePostInput
  ): Promise&lt;PostOutput&gt; =&gt; {
@@ -1982,7 +1982,7 @@ export interface CreatePostInput {
 +
 +  return toPostOutput(rows[0]);
  };
- 
+
  export const postRoutes = new Hono()
   .get(&#34;/&#34;, async (c) =&gt; {
     const rows = await listPosts();
@@ -2546,7 +2546,7 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
-      <google-codelab-step label="Extra: 投稿を削除する" duration="5">
+      <google-codelab-step label="Extra: 投稿を削除する" duration="0">
         <p>ここからは早く終わった人向けの拡張課題です。</p>
 <h2 is-upgraded>ゴール</h2>
 <p>自分が作った投稿だけ削除できる API を追加します。</p>
@@ -2561,7 +2561,7 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
-      <google-codelab-step label="Extra: 投稿を編集する" duration="5">
+      <google-codelab-step label="Extra: 投稿を編集する" duration="0">
         <h2 is-upgraded>ゴール</h2>
 <p>自分が作った投稿だけ編集できる API を追加します。</p>
 <ul>
@@ -2575,7 +2575,7 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
-      <google-codelab-step label="Extra: 複数スレッドにする" duration="5">
+      <google-codelab-step label="Extra: 複数スレッドにする" duration="0">
         <h2 is-upgraded>ゴール</h2>
 <p>単一スレッドだった掲示板を、複数スレッド対応にします。</p>
 <ul>
@@ -2589,7 +2589,7 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
-      <google-codelab-step label="おめでとうございます！" duration="3">
+      <google-codelab-step label="おめでとうございます！" duration="0">
         <p>このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。</p>
 <h2 is-upgraded>学んだこと</h2>
 <ul>
