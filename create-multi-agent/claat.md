@@ -855,7 +855,7 @@ make run
 
 ### Cloud Shell でポート 8080 をプレビューする
 
-Cloud Shell Editor の右上にある **ウェブでプレビュー** を押し、**ポート 8080 でプレビュー** を選択します。新しいタブで ADK Web が開いたら、`dynamic_travel_planning_agent` に次の依頼を送ります。
+Cloud Shell Editor の右上にある **ウェブでプレビュー** を押し、**ポート 8080 でプレビュー** を選択します。新しいタブで ADK Web が開いたら、`coordinator` に次の依頼を送ります。
 
 ![Cloud Shell Editor でポート 8080 をプレビューするメニュー](img/screen_04_port_8080_preview.png)
 
@@ -1203,7 +1203,7 @@ Duration: 0:25:00
              route_after_clarification,
              {
                  ROUTE_CLARIFY: request_clarification,
--                DEFAULT_ROUTE: request_clarification,
+-                DEFAULT_ROUTE: clarify_agent,
 +                DEFAULT_ROUTE: candidate_workflow,
              },
          ),
