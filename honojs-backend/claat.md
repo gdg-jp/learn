@@ -1964,6 +1964,41 @@ curl -X POST http://localhost:3000/api/posts \
   [この時点のコードを見る: step-firebase-auth](https://github.com/gdg-jp/honojs-backend-template/tree/step-firebase-auth)
 </button>
 
+## おめでとうございます！
+
+Duration: 0:00:00
+
+このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。
+
+### 学んだこと
+
+- Hono.js で Web API の入口を作る方法
+- HTTP リクエストとレスポンスを確認する方法
+- メモリ保存と DB 保存の違いを体験する方法
+- Drizzle で PostgreSQL のテーブルを定義して読み書きする方法
+- Zod で API リクエストを検証する方法
+- Firebase Admin SDK で ID トークンを検証する方法
+
+### 完成コード
+
+完成したコードは次のリポジトリにあります。
+
+<button>
+  [完成版リポジトリを開く](https://github.com/gdg-jp/honojs-backend-example)
+</button>
+
+詰まったときは、各ステップ末尾の checkpoint tag と自分のコードを見比べてください。
+
+### 片付け
+
+PostgreSQL コンテナを止める場合は、ターミナルで次を実行します。
+
+```bash
+docker compose down
+```
+
+今日作った `serviceAccount.json` は秘密鍵です。不要になったら削除してください。
+
 ## Extra: 投稿を削除する
 
 Duration: 0:00:00
@@ -2010,38 +2045,3 @@ Duration: 0:00:00
 - `POST /api/threads/:threadId/posts` を追加する
 
 まずはスレッドの作成 UI までは作らず、DB に手動でスレッドを1件追加して動作確認すると進めやすいです。
-
-## おめでとうございます！
-
-Duration: 0:00:00
-
-このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。
-
-### 学んだこと
-
-- Hono.js で Web API の入口を作る方法
-- HTTP リクエストとレスポンスを確認する方法
-- メモリ保存と DB 保存の違いを体験する方法
-- Drizzle で PostgreSQL のテーブルを定義して読み書きする方法
-- Zod で API リクエストを検証する方法
-- Firebase Admin SDK で ID トークンを検証する方法
-
-### 完成コード
-
-完成したコードは次のリポジトリにあります。
-
-<button>
-  [完成版リポジトリを開く](https://github.com/gdg-jp/honojs-backend-example)
-</button>
-
-詰まったときは、各ステップ末尾の checkpoint tag と自分のコードを見比べてください。
-
-### 片付け
-
-PostgreSQL コンテナを止める場合は、ターミナルで次を実行します。
-
-```bash
-docker compose down
-```
-
-今日作った `serviceAccount.json` は秘密鍵です。不要になったら削除してください。

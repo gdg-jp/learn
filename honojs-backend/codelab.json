@@ -3,7 +3,7 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2026-06-25T06:05:11+09:00",
+  "updated": "2026-06-25T06:11:47+09:00",
   "id": "honojs-backend",
   "duration": 138,
   "title": "Hono.js で掲示板バックエンド API サーバーを作ろう",

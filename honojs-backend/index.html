@@ -2546,6 +2546,40 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
+      <google-codelab-step label="おめでとうございます！" duration="0">
+        <p>このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。</p>
+<h2 is-upgraded>学んだこと</h2>
+<ul>
+<li>Hono.js で Web API の入口を作る方法</li>
+<li>HTTP リクエストとレスポンスを確認する方法</li>
+<li>メモリ保存と DB 保存の違いを体験する方法</li>
+<li>Drizzle で PostgreSQL のテーブルを定義して読み書きする方法</li>
+<li>Zod で API リクエストを検証する方法</li>
+<li>Firebase Admin SDK で ID トークンを検証する方法</li>
+</ul>
+<h2 is-upgraded>完成コード</h2>
+<p>完成したコードは次のリポジトリにあります。</p>
+<p><a href="https://github.com/gdg-jp/honojs-backend-example" target="_blank"><paper-button class="colored" raised>完成版リポジトリを開く</paper-button></a></p>
+<p>詰まったときは、各ステップ末尾の checkpoint tag と自分のコードを見比べてください。</p>
+<h2 is-upgraded>片付け</h2>
+<p>PostgreSQL コンテナを止める場合は、ターミナルで次を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">docker compose down
+</code></pre>
+</div>
+<p>今日作った <code>serviceAccount.json</code> は秘密鍵です。不要になったら削除してください。</p>
+
+
+      </google-codelab-step>
+    
       <google-codelab-step label="Extra: 投稿を削除する" duration="0">
         <p>ここからは早く終わった人向けの拡張課題です。</p>
 <h2 is-upgraded>ゴール</h2>
@@ -2585,40 +2619,6 @@ import { db } from &#34;./db.js&#34;;
 <li><code>POST /api/threads/:threadId/posts</code> を追加する</li>
 </ul>
 <p>まずはスレッドの作成 UI までは作らず、DB に手動でスレッドを1件追加して動作確認すると進めやすいです。</p>
-
-
-      </google-codelab-step>
-    
-      <google-codelab-step label="おめでとうございます！" duration="0">
-        <p>このコードラボでは、Hono.js、PostgreSQL、Drizzle、Zod、Firebase Auth を使って、掲示板 API サーバーをゼロから作りました。</p>
-<h2 is-upgraded>学んだこと</h2>
-<ul>
-<li>Hono.js で Web API の入口を作る方法</li>
-<li>HTTP リクエストとレスポンスを確認する方法</li>
-<li>メモリ保存と DB 保存の違いを体験する方法</li>
-<li>Drizzle で PostgreSQL のテーブルを定義して読み書きする方法</li>
-<li>Zod で API リクエストを検証する方法</li>
-<li>Firebase Admin SDK で ID トークンを検証する方法</li>
-</ul>
-<h2 is-upgraded>完成コード</h2>
-<p>完成したコードは次のリポジトリにあります。</p>
-<p><a href="https://github.com/gdg-jp/honojs-backend-example" target="_blank"><paper-button class="colored" raised>完成版リポジトリを開く</paper-button></a></p>
-<p>詰まったときは、各ステップ末尾の checkpoint tag と自分のコードを見比べてください。</p>
-<h2 is-upgraded>片付け</h2>
-<p>PostgreSQL コンテナを止める場合は、ターミナルで次を実行します。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-bash" class="language-bash">docker compose down
-</code></pre>
-</div>
-<p>今日作った <code>serviceAccount.json</code> は秘密鍵です。不要になったら削除してください。</p>
 
 
       </google-codelab-step>

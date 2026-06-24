@@ -19,4 +19,7 @@
 [submodule "honojs-backend/repos/template"]
 	path = honojs-backend/repos/template
 	url = https://github.com/gdg-jp/honojs-backend-template.git
+[submodule "honojs-backend/repos/example"]
+	path = honojs-backend/repos/example
+	url = https://github.com/gdg-jp/honojs-backend-example.git
 	
