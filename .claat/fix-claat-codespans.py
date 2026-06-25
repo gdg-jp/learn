@@ -764,9 +764,11 @@ def escape_codespans(html: str) -> tuple[str, int]:
 
 def wrap_asides(html: str) -> tuple[str, int]:
     keys = "|".join(re.escape(k) for k in ASIDE_KEYWORDS)
-    # <p><strong>Keyword:</strong>...</p> optionally followed by a single <ul>/<ol> block
+    # <p><strong>Keyword:</strong>...</p> optionally followed by a single <ul>/<ol> block.
+    # claat may keep the space after the marker inside <strong>, as in
+    # <strong>Tips: </strong><code>...</code>.
     pattern = re.compile(
-        r"<p><strong>(?P<kw>" + keys + r"):?</strong>"
+        r"<p><strong>\s*(?P<kw>" + keys + r"):?\s*</strong>"
         r"(?P<body>.*?)</p>"
         r"(?P<list>\s*<(?P<lt>ul|ol)[^>]*>.*?</(?P=lt)>)?",
         re.DOTALL,
@@ -791,7 +793,7 @@ def wrap_asides(html: str) -> tuple[str, int]:
 
 def retag_troubleshooting_asides(html: str) -> tuple[str, int]:
     pattern = re.compile(
-        r'<aside class="warning">(\s*<p><strong>Troubleshooting:?</strong>)',
+        r'<aside class="warning">(\s*<p><strong>\s*Troubleshooting:?\s*</strong>)',
         re.DOTALL,
     )
     return pattern.subn(r'<aside class="troubleshooting">\1', html)

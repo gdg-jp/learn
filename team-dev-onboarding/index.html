@@ -421,7 +421,7 @@ git config --global user.email &#34;your-email@example.com&#34;
 </code></pre>
 </div>
 <aside class="special"><p><strong>Tip:</strong> メールアドレスは GitHub に登録したものと<strong>同じ</strong>にしておくと、PR で「あなたのアイコン」がコミットに紐づきます。プライベートにしたい人は GitHub の Settings → Emails で <code>xxxxx+username@users.noreply.github.com</code> 形式のアドレスを取得できます。</p></aside>
-<p><strong>Troubleshooting: </strong><code>git: command not found</code> と出た場合、インストールが完了していないか、PATH が通っていません。ターミナルを一度閉じて開き直してから試してみてください。それでもダメなら経験者を呼びましょう。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>git: command not found</code> と出た場合、インストールが完了していないか、PATH が通っていません。ターミナルを一度閉じて開き直してから試してみてください。それでもダメなら経験者を呼びましょう。</p></aside>
 
 
       </google-codelab-step>
@@ -466,7 +466,7 @@ npm --version
 </code></pre>
 </div>
 <p><code>v20.x.x</code> のような表示が両方とも出れば成功です。</p>
-<p><strong>Troubleshooting: </strong><code>node: command not found</code> が出るときは、ターミナルの再起動が一番効きます。それでもダメな場合は PC 自体を再起動してみてください。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>node: command not found</code> が出るときは、ターミナルの再起動が一番効きます。それでもダメな場合は PC 自体を再起動してみてください。</p></aside>
 
 
       </google-codelab-step>
@@ -529,7 +529,7 @@ npm --version
 </td><td colspan="1" rowspan="1"><p>動いているコマンドを止める</p>
 </td></tr>
 </table>
-<p><strong>Tip: </strong><code>Ctrl + C</code> は<strong>最強の脱出ボタン</strong>です。何か変なコマンドを実行してしまったとき、固まったときは押せば大抵抜けられます。</p>
+<aside class="special"><p><strong>Tip: </strong><code>Ctrl + C</code> は<strong>最強の脱出ボタン</strong>です。何か変なコマンドを実行してしまったとき、固まったときは押せば大抵抜けられます。</p></aside>
 <p>これで事前準備は完了です！ここからは当日のハンズオンに入ります。</p>
 
 
@@ -584,7 +584,7 @@ cd react-example
 </code></pre>
 </div>
 <p>成功すると、<code>react-example</code> というフォルダが作られ、その中に移動できます。<code>ls</code>（または <code>dir</code>）でファイル一覧を見て、<code>package.json</code> や <code>src</code> フォルダがあれば成功です。</p>
-<p><strong>Troubleshooting: </strong><code>Permission denied</code> や <code>fatal: unable to access ...</code> が出る場合、ネットワーク（Wi-Fi）に繋がっているか確認してください。社内 / 学内ネットワークで proxy がある場合は経験者に相談しましょう。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>Permission denied</code> や <code>fatal: unable to access ...</code> が出る場合、ネットワーク（Wi-Fi）に繋がっているか確認してください。社内 / 学内ネットワークで proxy がある場合は経験者に相談しましょう。</p></aside>
 
 
       </google-codelab-step>
@@ -686,7 +686,7 @@ cd react-example
 </div>
 <h2 is-upgraded>ブラウザで開いてみる</h2>
 <p>ブラウザで <a href="http://localhost:5173" target="_blank">http://localhost:5173</a> にアクセスしてみましょう。<code>Participants</code> というタイトルと、<code>Alice</code> だけが表示されたリストが見えれば成功です。</p>
-<p><strong>Tip: </strong><code>npm run dev</code> で起動した開発サーバーは<strong>起動したまま</strong>にしておきます。ファイルを保存すると自動的にブラウザが更新される（HMR）ので、編集中はずっと立ち上げておくのが便利です。</p>
+<aside class="special"><p><strong>Tip: </strong><code>npm run dev</code> で起動した開発サーバーは<strong>起動したまま</strong>にしておきます。ファイルを保存すると自動的にブラウザが更新される（HMR）ので、編集中はずっと立ち上げておくのが便利です。</p></aside>
 <aside class="troubleshooting"><p><strong>Troubleshooting:</strong> ポート 5173 が既に使われているとエラーが出ることがあります。<code>Ctrl + C</code> でいったん止めて、他の <code>npm run dev</code> が動いていないか確認してください。</p></aside>
 
 
@@ -814,7 +814,7 @@ git commit -m &#34;feat: add &lt;your-name&gt; to participants&#34;
 <li><code>docs:</code> ドキュメントの修正</li>
 </ul></aside>
 <p>このプレフィックスは「Conventional Commits」と呼ばれる慣習で、多くのチームで使われています。</p>
-<p><strong>Troubleshooting: </strong><code>Please tell me who you are</code> というエラーが出た場合は、STEP 3 の <code>git config --global user.name / user.email</code> を実行し忘れています。設定してから再度 commit してください。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>Please tell me who you are</code> というエラーが出た場合は、STEP 3 の <code>git config --global user.name / user.email</code> を実行し忘れています。設定してから再度 commit してください。</p></aside>
 
 
       </google-codelab-step>
@@ -851,7 +851,7 @@ git commit -m &#34;feat: add &lt;your-name&gt; to participants&#34;
 </ol>
 <h2 is-upgraded>確認</h2>
 <p>ブラウザで <a href="https://github.com/gdsc-osaka/react-example" target="_blank">https://github.com/gdsc-osaka/react-example</a> を開いて、自分のブランチ（<code>feature/add-&lt;your-name&gt;</code>）が一覧に出ていれば成功です。</p>
-<p><strong>Troubleshooting: </strong><code>Permission denied</code> が出る場合、リポジトリに push する権限がない可能性があります。経験者に「コラボレーターに追加してください」と頼みましょう。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>Permission denied</code> が出る場合、リポジトリに push する権限がない可能性があります。経験者に「コラボレーターに追加してください」と頼みましょう。</p></aside>
 
 
       </google-codelab-step>

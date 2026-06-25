@@ -294,7 +294,7 @@
 <p>完成後の coordinator は、1 つの大きな LLM に全部を任せるのではなく、Graph Workflow で処理を分割します。</p>
 <p class="image-container"><img alt="Coordinator Workflow が旅行希望から旅程案と旅しおり画像を生成する流れ" src="img/9adb75b00b1f6639.png"></p>
 <p><code>clarify_agent</code> は旅行希望を構造化し、不足情報があれば <code>RequestInput</code> でユーザーに追加質問します。条件がそろったら候補生成、候補ごとの検索リサーチ、専門エージェント評価、候補選択、詳細旅程、旅しおり画像生成へ進みます。</p>
-<p><strong>補足: </strong><code>comfort_agent</code>、<code>risk_agent</code>、<code>experience_agent</code> は coordinator と同じプロセス内の sub-agent ではありません。A2A サービスとして別 port で起動し、coordinator は Agent Card を読んで呼び出します。</p>
+<aside class="special"><p><strong>補足: </strong><code>comfort_agent</code>、<code>risk_agent</code>、<code>experience_agent</code> は coordinator と同じプロセス内の sub-agent ではありません。A2A サービスとして別 port で起動し、coordinator は Agent Card を読んで呼び出します。</p></aside>
 <h2 is-upgraded>session.state に保存するデータを確認する</h2>
 <p>Workflow の各 node は、後続 node が使う中間成果物を <code>session.state</code> に保存します。</p>
 <table>
@@ -429,7 +429,7 @@ TRAVEL_AGENT_TRACE_TO_CLOUD=false
 </code></pre>
 </div>
 <p>モデル呼び出しには Google AI Studio の API key を使います。<code>GOOGLE_API_KEY</code> に自分の API key を設定してください。<code>GOOGLE_CLOUD_PROJECT</code> と <code>GOOGLE_CLOUD_LOCATION</code> は Agent Runtime へのデプロイで使います。</p>
-<p><strong>Warning: </strong><code>.env</code> に書いた API key や project 固有の値は commit しないでください。このハンズオンでは <code>.env.example</code> だけを共有します。</p>
+<aside class="warning"><p><strong>Warning: </strong><code>.env</code> に書いた API key や project 固有の値は commit しないでください。このハンズオンでは <code>.env.example</code> だけを共有します。</p></aside>
 <h2 is-upgraded>ADK を import できることを確認する</h2>
 <p>ターミナルを開いて下記を実行します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -496,7 +496,7 @@ PY
 <p class="image-container"><img alt="ADK の JoinNode による fan-out と join の図" src="img/a66552d7c2ac3981.png"></p>
 <p>複数の独立した処理を同時に走らせたい場合は、graph を複数の経路に fan out し、最後に <code>JoinNode</code> で合流させます。<code>JoinNode</code> は上流の並列 node がすべて <code>Event</code> を返すまで待ち、集まった出力を次の node に渡します。</p>
 <p>このコードラボでは <code>travel_research_workflow</code> が各 <code>TravelOption</code> に対して <code>research_candidate</code> を並列実行し、結果を <code>research_reports</code> に保存します。</p>
-<p><strong>Warning: </strong><code>JoinNode</code> はすべての上流 node から出力が届くまで進みません。失敗時にも fallback の <code>Event</code> を返す設計にしないと、合流点で workflow が止まります。</p>
+<aside class="warning"><p><strong>Warning: </strong><code>JoinNode</code> はすべての上流 node から出力が届くまで進みません。失敗時にも fallback の <code>Event</code> を返す設計にしないと、合流点で workflow が止まります。</p></aside>
 <h3 is-upgraded>ネストされたワークフロー</h3>
 <p class="image-container"><img alt="ADK の nested workflow を親 workflow の node として組み込む図" src="img/9042dc0a2fc90792.png"></p>
 <p>複雑な処理は、別の <code>Workflow</code> として切り出し、親 workflow の node として組み込めます。これにより、候補生成、リサーチ、専門評価のようなまとまった責務を再利用しやすくなります。</p>
@@ -617,7 +617,7 @@ root_agent = Workflow(
 </td></tr>
 </table>
 <p>このコードラボでは、不足情報の clarification、候補選択、再提案の確認に human input を使います。たとえば旅行希望に日数や予算がない場合、workflow は <code>RequestInput</code> で質問し、ユーザーの回答を受け取ってから <code>clarify_agent</code> に戻ります。</p>
-<p><strong>補足: </strong><code>response_schema</code> は、ユーザーの自由入力を自動で指定形式に変換するものではありません。自然文の回答を構造化したい場合は、UI で入力形式を制御するか、次の Agent node で schema に合わせて整形します。</p>
+<aside class="special"><p><strong>補足: </strong><code>response_schema</code> は、ユーザーの自由入力を自動で指定形式に変換するものではありません。自然文の回答を構造化したい場合は、UI で入力形式を制御するか、次の Agent node で schema に合わせて整形します。</p></aside>
 <p>詳しくは <a href="https://adk.dev/graphs/human-input/" target="_blank">Human input for agent workflows</a> を参照してください。</p>
 <h2 is-upgraded>Session、State、Memory</h2>
 <p class="image-container"><img alt="ADK の Session、State、Memory の関係図" src="img/f8f7b9463366d20b.png"></p>
@@ -1425,7 +1425,7 @@ agents/experience/agent.py               体験価値評価 specialist
 +    )
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>build_research_input</code> は検索 Agent に渡す候補ごとの調査依頼、<code>build_research_report_input</code> は検索メモを formatter が構造化しやすい入力にします。どちらも <code>text(...)</code> を通して dict や Pydantic model を読みやすい文字列へ変換します。</p>
+<aside class="special"><p><strong>Tips: </strong><code>build_research_input</code> は検索 Agent に渡す候補ごとの調査依頼、<code>build_research_report_input</code> は検索メモを formatter が構造化しやすい入力にします。どちらも <code>text(...)</code> を通して dict や Pydantic model を読みやすい文字列へ変換します。</p></aside>
 <h2 is-upgraded>candidate_workflow を agent.py に追加する</h2>
 <p><code>agents/coordinator/agent.py</code> に候補生成 Workflow を追加します。</p>
 <div class="claat-code-block" data-code-theme="light">

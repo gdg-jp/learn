@@ -399,7 +399,7 @@ docker compose version
 </code></pre>
 </div>
 <p><code>Docker version ...</code> と <code>Docker Compose version ...</code> が表示されれば成功です。</p>
-<p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、PowerShell を開き直します。Windows では Docker Desktop のインストール後に再起動が必要になることがあります。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、PowerShell を開き直します。Windows では Docker Desktop のインストール後に再起動が必要になることがあります。</p></aside>
 <h3 is-upgraded>Visual Studio Code をインストールする</h3>
 <p>Visual Studio Code は、コードを編集するためのエディタです。公式サイトから Windows 版をダウンロードします。</p>
 <p><a href="https://code.visualstudio.com/download" target="_blank"><paper-button class="colored" raised>Visual Studio Code をダウンロード</paper-button></a></p>
@@ -474,7 +474,7 @@ docker compose version
 </code></pre>
 </div>
 <p><code>Docker version ...</code> と <code>Docker Compose version ...</code> が表示されれば成功です。</p>
-<p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、ターミナルを開き直します。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>docker</code> コマンドが見つからない場合は、Docker Desktop が起動しているか確認し、ターミナルを開き直します。</p></aside>
 <h3 is-upgraded>Visual Studio Code をインストールする</h3>
 <p>Visual Studio Code は、コードを編集するためのエディタです。公式サイトから macOS 版をダウンロードします。</p>
 <p><a href="https://code.visualstudio.com/download" target="_blank"><paper-button class="colored" raised>Visual Studio Code をダウンロード</paper-button></a></p>
@@ -650,7 +650,7 @@ mkdir proj
 cd proj
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>cd</code> は作業ディレクトリを移動するコマンドです。<code>~</code> は自分のホームディレクトリを表します。<code>mkdir proj</code> は <code>proj</code> という新しいフォルダを作ります。</p>
+<aside class="special"><p><strong>Tips: </strong><code>cd</code> は作業ディレクトリを移動するコマンドです。<code>~</code> は自分のホームディレクトリを表します。<code>mkdir proj</code> は <code>proj</code> という新しいフォルダを作ります。</p></aside>
 <p><code>proj</code> フォルダに移動できたら、次を実行します。</p>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -664,7 +664,7 @@ cd proj
 <pre><code language="language-bash" class="language-bash">npm create hono@latest honojs-backend-app
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>npm create</code> は、指定した starter から新しいプロジェクトを作るコマンドです。ここでは Hono 公式 starter を使って、<code>honojs-backend-app</code> というフォルダに最小構成の Hono アプリを作ります。</p>
+<aside class="special"><p><strong>Tips: </strong><code>npm create</code> は、指定した starter から新しいプロジェクトを作るコマンドです。ここでは Hono 公式 starter を使って、<code>honojs-backend-app</code> というフォルダに最小構成の Hono アプリを作ります。</p></aside>
 <p>途中で質問が表示されたら、次のように選びます。</p>
 <table>
 <tr><td colspan="1" rowspan="1"><p>質問</p>
@@ -742,7 +742,7 @@ Get started with: cd honojs-backend-app
 <pre><code language="language-bash" class="language-bash">npm run dev
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>npm run dev</code> は、<code>package.json</code> の <code>scripts.dev</code> に書かれた開発用コマンドを実行します。Hono starter では、TypeScript のサーバーを起動し、変更があれば自動で再起動します。</p>
+<aside class="special"><p><strong>Tips: </strong><code>npm run dev</code> は、<code>package.json</code> の <code>scripts.dev</code> に書かれた開発用コマンドを実行します。Hono starter では、TypeScript のサーバーを起動し、変更があれば自動で再起動します。</p></aside>
 <p><code>http://localhost:3000</code> のような URL が表示されたら、ブラウザで開きます。<code>Hello Hono!</code> のような文字が表示されれば成功です。</p>
 <h2 is-upgraded>現時点のコードベース</h2>
 <p>この時点のディレクトリ構成は次のようになります。</p>
@@ -785,7 +785,7 @@ Get started with: cd honojs-backend-app
 <pre><code language="language-bash" class="language-bash">npm install @hono/node-server drizzle-orm pg zod firebase-admin
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>npm install</code> は、プロジェクトで使うライブラリを <code>node_modules</code> に入れ、<code>package.json</code> に記録するコマンドです。別の PC でも <code>npm install</code> すれば同じライブラリを復元できます。</p>
+<aside class="special"><p><strong>Tips: </strong><code>npm install</code> は、プロジェクトで使うライブラリを <code>node_modules</code> に入れ、<code>package.json</code> に記録するコマンドです。別の PC でも <code>npm install</code> すれば同じライブラリを復元できます。</p></aside>
 <h2 is-upgraded>フロントエンド用ライブラリを追加する</h2>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -812,7 +812,7 @@ Get started with: cd honojs-backend-app
 <pre><code language="language-bash" class="language-bash">npm install -D vite @vitejs/plugin-react typescript tsx drizzle-kit @types/node @types/pg @types/react @types/react-dom tailwindcss @tailwindcss/vite
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>-D</code> は「開発中だけ使うライブラリ」を意味します。<code>drizzle-kit</code> は DB 定義を反映するための開発用コマンドなので、<code>dependencies</code> ではなく <code>devDependencies</code> に入れます。</p>
+<aside class="special"><p><strong>Tips: </strong><code>-D</code> は「開発中だけ使うライブラリ」を意味します。<code>drizzle-kit</code> は DB 定義を反映するための開発用コマンドなので、<code>dependencies</code> ではなく <code>devDependencies</code> に入れます。</p></aside>
 <h2 is-upgraded>現時点のコードベース</h2>
 <p>この時点のディレクトリ構成は次のようになります。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1384,7 +1384,7 @@ serve(
 </code></pre>
 </div>
 <p><code>serveStatic</code> は、<code>dist/public</code> にある CSS や JavaScript を Hono から配信します。<code>app.get("*", ...)</code> は、React SPA の入口である <code>index.html</code> を返します。ただし <code>/api/</code> から始まる未実装の API は、HTML ではなく JSON の <code>404</code> を返すようにしておきます。</p>
-<p><strong>Troubleshooting: </strong><code>Error: listen EADDRINUSE: address already in use</code> が出た場合は、同じポートで別のサーバーが起動しています。すでに起動している <code>npm run dev</code> を <code>Ctrl + C</code> で止めるか、別のポートで <code>PORT=4000 npm run dev</code> のように起動します。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>Error: listen EADDRINUSE: address already in use</code> が出た場合は、同じポートで別のサーバーが起動しています。すでに起動している <code>npm run dev</code> を <code>Ctrl + C</code> で止めるか、別のポートで <code>PORT=4000 npm run dev</code> のように起動します。</p></aside>
 <h2 is-upgraded>ビルドして起動する</h2>
 <p>React SPA をビルドし、そのあと Hono サーバーをビルドします。この時点ではまだ投稿 API を作っていないため、ログイン後の投稿一覧にはエラーが表示されます。次のステップで <code>GET /api/posts</code> を作ると、画面から投稿一覧を確認できるようになります。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -1562,7 +1562,7 @@ serve(
 <pre><code language="language-bash" class="language-bash">curl http://localhost:3000/api/posts
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>curl</code> は、ターミナルから HTTP リクエストを送るためのコマンドです。ブラウザを使わずに API のレスポンスだけを確認できるので、バックエンド開発でよく使います。</p>
+<aside class="special"><p><strong>Tips: </strong><code>curl</code> は、ターミナルから HTTP リクエストを送るためのコマンドです。ブラウザを使わずに API のレスポンスだけを確認できるので、バックエンド開発でよく使います。</p></aside>
 <p><code>{"posts":[]}</code> が返れば成功です。</p>
 <h2 is-upgraded>ブラウザで確認する</h2>
 <p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開きます。Google でログインし、掲示板画面の投稿一覧に <code>まだ投稿はありません。</code> と表示されれば成功です。</p>
@@ -1835,7 +1835,7 @@ volumes:
 <pre><code language="language-bash" class="language-bash">docker compose up -d
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>docker compose up -d</code> は、<code>docker-compose.yml</code> に書いたサービスをバックグラウンドで起動します。ここでは PostgreSQL コンテナを起動し、API サーバーから接続できる DB を用意します。</p>
+<aside class="special"><p><strong>Tips: </strong><code>docker compose up -d</code> は、<code>docker-compose.yml</code> に書いたサービスをバックグラウンドで起動します。ここでは PostgreSQL コンテナを起動し、API サーバーから接続できる DB を用意します。</p></aside>
 <p><code>postgres</code> コンテナが <code>Started</code> または <code>Running</code> になれば成功です。</p>
 <h2 is-upgraded>DB 接続ファイルを作成する</h2>
 <p><code>src/db.ts</code> を作成します。</p>
@@ -2011,7 +2011,7 @@ export interface CreatePostInput {
   });
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>db.select().from(posts).orderBy(desc(posts.createdAt), desc(posts.id))</code> は、DB の <code>posts</code> テーブルから行を取得し、作成日時が新しい順、同じ時刻なら ID が大きい順に並べます。</p>
+<aside class="special"><p><strong>Tips: </strong><code>db.select().from(posts).orderBy(desc(posts.createdAt), desc(posts.id))</code> は、DB の <code>posts</code> テーブルから行を取得し、作成日時が新しい順、同じ時刻なら ID が大きい順に並べます。</p></aside>
 <h2 is-upgraded>DB にテーブルを作る</h2>
 <div class="claat-code-block" data-code-theme="light">
 <div class="claat-code-toolbar" aria-label="Code block actions">
@@ -2025,8 +2025,8 @@ export interface CreatePostInput {
 <pre><code language="language-bash" class="language-bash">npx drizzle-kit push
 </code></pre>
 </div>
-<p><strong>Tips: </strong><code>npx</code> は、プロジェクトに入っているコマンドを一時的に実行するためのコマンドです。ここでは <code>package.json</code> に新しい script を追加せず、<code>drizzle-kit</code> を直接実行しています。</p>
-<p><strong>Troubleshooting: </strong><code>/Users/.../honojs-backend-app/drizzle.config.json file does not exist</code> のようなエラーが出た場合は、<code>drizzle.config.ts</code> がプロジェクト直下にあるか確認してください。 <code>src/drizzle.config.ts</code> のように <code>src</code> フォルダの中に作っている場合は、<code>honojs-backend-app/drizzle.config.ts</code> に移動します。</p>
+<aside class="special"><p><strong>Tips: </strong><code>npx</code> は、プロジェクトに入っているコマンドを一時的に実行するためのコマンドです。ここでは <code>package.json</code> に新しい script を追加せず、<code>drizzle-kit</code> を直接実行しています。</p></aside>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>/Users/.../honojs-backend-app/drizzle.config.json file does not exist</code> のようなエラーが出た場合は、<code>drizzle.config.ts</code> がプロジェクト直下にあるか確認してください。 <code>src/drizzle.config.ts</code> のように <code>src</code> フォルダの中に作っている場合は、<code>honojs-backend-app/drizzle.config.ts</code> に移動します。</p></aside>
 <p>エラーで止まらなければ成功です。Drizzle が <code>posts</code> テーブルを PostgreSQL に作成します。</p>
 <h2 is-upgraded>DB 保存を確認する</h2>
 <p>サーバーを起動し直します。</p>
@@ -2320,24 +2320,7 @@ export const postRoutes = new Hono()
         <p>このステップでは、投稿作成 API をログイン済みユーザーだけが使えるようにします。<code>GET /api/posts</code> はログインなしでも見られますが、<code>POST /api/posts</code> は Firebase ID トークンを必須にします。</p>
 <h2 is-upgraded>serviceAccount.json を配置する</h2>
 <p>Discord の <code>#260625-honojs-backend</code> に講師が投稿した Firebase Admin SDK の JSON をコピーし、プロジェクト直下に <code>serviceAccount.json</code> という名前で保存します。</p>
-<p><strong>Warning: </strong><code>serviceAccount.json</code> は秘密鍵です。GitHub、Discord の別チャンネル、SNS などに貼らないでください。</p>
-<h2 is-upgraded>.gitignore に秘密鍵を追加する</h2>
-<p><code>.gitignore</code> に次の行を追加します。</p>
-<div class="claat-code-block" data-code-theme="light">
-<div class="claat-code-filename">.gitignore</div>
-<div class="claat-code-toolbar" aria-label="Code block actions">
-  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
-    <span class="material-icons" aria-hidden="true">dark_mode</span>
-  </button>
-  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
-    <span class="material-icons" aria-hidden="true">content_copy</span>
-  </button>
-</div>
-<pre><code language="language-text" class="language-text claat-diff-code" data-claat-diff="true" data-claat-diff-language="text">+serviceAccount.json
-+.env
-</code></pre>
-</div>
-<p>この設定により、秘密鍵や環境変数ファイルが Git に入る事故を防ぎます。</p>
+<aside class="warning"><p><strong>Warning: </strong><code>serviceAccount.json</code> は秘密鍵です。GitHub、Discord の別チャンネル、SNS などに貼らないでください。</p></aside>
 <h2 is-upgraded>Firebase middleware を作成する</h2>
 <p><code>src/firebase.ts</code> を作成します。</p>
 <div class="claat-code-block" data-code-theme="light">
@@ -2594,7 +2577,7 @@ import { db } from &#34;./db.js&#34;;
 <li>DB の <code>authorUid</code> とログイン中ユーザーの <code>uid</code> が一致したときだけ削除する</li>
 <li>一致しない場合は <code>403</code> を返す</li>
 </ul>
-<p><strong>Hint: </strong><code>drizzle-orm</code> の <code>eq</code> と <code>and</code> を調べると実装しやすいです。</p>
+<aside class="special"><p><strong>Hint: </strong><code>drizzle-orm</code> の <code>eq</code> と <code>and</code> を調べると実装しやすいです。</p></aside>
 
 
       </google-codelab-step>
