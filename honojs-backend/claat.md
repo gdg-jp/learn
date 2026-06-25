@@ -2894,6 +2894,498 @@ rm -f serviceAccount.json
 出力がなければ成功です。
 ```
 
+## Extra: API をテストする
+
+Duration: 0:30:00
+
+この Extra では、API の Unit test、Integration test、E2E test を追加します。Vitest、Hono の `testClient()`、Testcontainers PostgreSQL、Drizzle ORM、`drizzle-kit migrate` を組み合わせ、テストごとに DB を空にしてから検証します。
+
+### ソフトウェアテストを考える
+
+実装に入る前に、次の問題を考えてください。
+
+> **問い:** 3つの整数 `a`, `b`, `c` を受け取り、それらが三角形の3辺として成立するか、成立するなら正三角形・二等辺三角形・不等辺三角形のどれかを判定するプログラムがあります。以下のプログラムをテストするために十分なテストケースを考えてください。
+
+これは、ソフトウェアテストの古典的な練習問題である Myers の三角形問題です。単に `3, 3, 3` や `3, 4, 5` だけを試すと、明らかな成功ケースしか確認できません。
+
+たとえば、次のような観点があります。
+
+- 正三角形
+- 二等辺三角形
+- 不等辺三角形
+- 三角形不成立
+- 0、負数、小数、文字列のような不正入力
+- `a + b = c` のような境界
+- 入力順序を入れ替えた場合
+- 非常に大きい数
+
+Myers の問題では、22個程度のテストケースで主要な観点を網羅できるとかなり高い水準です。それより大きく増える場合は、同じ意味のテストを重複していないか見直します。テストは多ければ多いほどよいのではなく、欠陥を見つけやすい観点を過不足なく置くことが大切です。
+
+テストする目的は、主に次の3つです。
+
+- 欠陥を防ぐ: バグだらけの製品をリリースしないため
+- ユーザーの期待を満たしているか確認する: 要件を満たすかどうかを確かめるため
+- 変更による破壊を検知する: コード変更で以前の動作が壊れたことに気づくため
+
+### テストの種類を整理する
+
+Unit test は、関数や小さなモジュールを単体で検証します。今回なら、Zod schema が空文字や長すぎる投稿を拒否することを確認します。
+
+Integration test は、複数の部品を組み合わせて検証します。今回なら、Hono API、Drizzle、PostgreSQL をつないで、DB に入れた投稿を API から取得できることを確認します。
+
+E2E test は、利用者に近い入口からシステム全体の振る舞いを検証します。今回なら、Hono の request boundary を通して `GET /api/health` や `POST /api/posts` の認可エラーまで確認します。ブラウザ操作まで含める場合は Playwright などを追加しますが、この Extra では API E2E に絞ります。
+
+ほかにも、Mutation test、Property-based test、Alloy のような形式手法・モデル検査など、さまざまなテストや検証の方法があります。
+
+ホワイトボックステストは、内部構造を知ったうえで分岐や関数をテストします。ブラックボックステストは、内部実装ではなく入力と出力、つまり振る舞いをテストします。今回の Unit test はややホワイトボックス寄り、API の Integration / E2E test はブラックボックス寄りです。
+
+ソフトウェアテストの七原則も押さえておきます。
+
+1. テストは欠陥があることは示せるが、欠陥がないことは示せない
+2. 全数テストは不可能
+3. 早期テストで時間とコストを削減できる
+4. 欠陥は偏在する
+5. 同じテストだけでは新しい欠陥を見つけにくくなる
+6. テストは条件次第で変わる
+7. バグゼロでもユーザーの役に立たなければ意味がない
+
+テストケースを考えるときは、同値分割法と境界値分析がよく使われます。同値分割法は「同じ扱いになる入力」をグループ化し、代表値を選ぶ技法です。境界値分析は、`0` と `1`、`280` と `281` のように、条件が切り替わる境界の前後を重点的に試す技法です。
+
+### テストライブラリを追加する
+
+Vitest と Testcontainers を追加します。Hono の `testClient()` は `hono/testing` から import できるため、追加インストールは不要です。
+
+```bash
+npm install -D vitest testcontainers @testcontainers/postgresql
+```
+
+**期待される出力:**
+
+```text
+added ... packages
+```
+
+> **補足:** `@hono/vitest-helper` を使う構成もありますが、この Extra では Hono 本体に含まれる `hono/testing` の `testClient()` を使います。
+
+### npm scripts を追加する
+
+`package.json` の `scripts` にテスト用コマンドを追加します。
+
+```diff json:package.json
+   "scripts": {
+     "dev": "tsx watch src/index.ts",
+     "build": "npx vite build && tsc",
+-    "start": "node dist/index.js"
++    "start": "node dist/index.js",
++    "test:unit": "vitest run test/**/*.unit.test.ts",
++    "test:integration": "vitest run test/**/*.integration.test.ts",
++    "test:e2e": "vitest run test/**/*.e2e.test.ts",
++    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e"
+   },
+```
+
+`test:unit` は速い検証、`test:integration` は DB まで含む検証、`test:e2e` は API の入口から見る検証です。`test:all` は3種類を順番に実行します。
+
+### Hono app をテストしやすく分離する
+
+今の `src/index.ts` は、app の定義と `serve()` によるサーバー起動が同じファイルにあります。テストで import しただけでサーバーが起動しないように、app の定義を `src/app.ts` に分けます。
+
+`src/app.ts` を作成します。
+
+```ts:src/app.ts
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { postRoutes } from "./post.js";
+
+const publicDir = join(process.cwd(), "dist", "public");
+const indexHtml = join(publicDir, "index.html");
+
+export const app = new Hono()
+  .use(logger())
+  .get("/api/health", (c) => c.json({ ok: true }))
+  .route("/api/posts", postRoutes)
+  .use(
+    "/*",
+    serveStatic({
+      root: "./dist/public"
+    })
+  )
+  .get("*", async (c) => {
+    if (c.req.path.startsWith("/api/")) {
+      return c.json({ error: "API route is not implemented yet." }, 404);
+    }
+
+    if (!existsSync(indexHtml)) {
+      return c.text(
+        "React SPA is not built yet. Run `npx vite build` first.",
+        404
+      );
+    }
+
+    return c.html(await readFile(indexHtml, "utf8"));
+  });
+
+export type AppType = typeof app;
+```
+
+`testClient()` の型推論を効かせるため、`new Hono()` から `.get()`、`.route()` をつなげて app を作っています。
+
+`src/index.ts` は、サーバー起動だけを担当するファイルにします。
+
+```ts:src/index.ts
+import { serve } from "@hono/node-server";
+import { app } from "./app.js";
+
+const port = Number(process.env.PORT ?? 3000);
+
+serve(
+  {
+    fetch: app.fetch,
+    port
+  },
+  (info) => {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  }
+);
+```
+
+テストでは `src/app.ts` を import します。ローカル開発や Cloud Run では、これまでどおり `src/index.ts` からサーバーを起動します。
+
+### migration SQL を用意する
+
+Testcontainers で起動した PostgreSQL にも、本番と同じテーブルを作る必要があります。Drizzle の migration SQL がまだない場合は作成します。
+
+```bash
+npx drizzle-kit generate
+```
+
+**期待される出力:**
+
+```text
+[✓] Your SQL migration file ➜ drizzle/0000_....sql
+```
+
+すでに migration がある場合は、`No schema changes, nothing to migrate` と表示されることがあります。その場合は、既存の `drizzle/*.sql` を使います。
+
+### テスト用 DB ヘルパーを作成する
+
+`test` フォルダを作成し、Testcontainers PostgreSQL を起動するヘルパーを作ります。
+
+```bash
+mkdir -p test
+```
+
+**期待される出力:**
+
+```text
+出力がなければ成功です。
+```
+
+`test/test-db.ts` を作成します。
+
+```ts:test/test-db.ts
+import { execFileSync } from "node:child_process";
+import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import pg from "pg";
+
+let container: StartedPostgreSqlContainer | undefined;
+let pool: pg.Pool | undefined;
+
+export const setupTestDatabase = async () => {
+  if (container && pool) {
+    return;
+  }
+
+  container = await new PostgreSqlContainer("postgres:17-alpine")
+    .withDatabase("hono_board")
+    .withUsername("hono")
+    .withPassword("hono")
+    .start();
+
+  process.env.DATABASE_URL = container.getConnectionUri();
+
+  execFileSync("npx", ["drizzle-kit", "migrate"], {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      DATABASE_URL: process.env.DATABASE_URL
+    }
+  });
+
+  pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL
+  });
+};
+
+export const resetTestDatabase = async () => {
+  if (!pool) {
+    throw new Error("Test database is not started.");
+  }
+
+  await pool.query("TRUNCATE TABLE posts RESTART IDENTITY CASCADE");
+};
+
+export const stopTestDatabase = async () => {
+  await import("../src/db.js")
+    .then(({ closeDb }) => closeDb())
+    .catch(() => undefined);
+
+  await pool?.end();
+  await container?.stop();
+
+  pool = undefined;
+  container = undefined;
+};
+```
+
+`setupTestDatabase()` は PostgreSQL コンテナを起動し、`DATABASE_URL` をそのコンテナに向け、`drizzle-kit migrate` でテーブルを作ります。`resetTestDatabase()` は各テスト前に `TRUNCATE TABLE posts RESTART IDENTITY CASCADE` を実行し、投稿データと ID 採番を初期化します。
+
+> **Troubleshooting:** Testcontainers は Docker を使います。`Could not find a working container runtime strategy` のようなエラーが出た場合は、Docker Desktop が起動しているか確認してください。
+
+### Unit test を追加する
+
+Unit test では、DB や HTTP を使わず、Zod schema だけを検証します。
+
+`test/post.unit.test.ts` を作成します。
+
+```ts:test/post.unit.test.ts
+import { describe, expect, it } from "vitest";
+import { createPostSchema } from "../src/post.js";
+
+describe("createPostSchema", () => {
+  it("投稿内容の前後の空白を取り除く", () => {
+    const result = createPostSchema.parse({ content: "  hello  " });
+
+    expect(result.content).toBe("hello");
+  });
+
+  it("空文字を拒否する", () => {
+    const result = createPostSchema.safeParse({ content: "" });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("281文字の投稿を拒否する", () => {
+    const result = createPostSchema.safeParse({
+      content: "a".repeat(281)
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+空文字と281文字は境界値分析の例です。`0文字`、`1文字`、`280文字`、`281文字` のように、条件が切り替わる前後を狙うと、少ないテストで欠陥を見つけやすくなります。
+
+Unit test を実行します。
+
+```bash
+npm run test:unit
+```
+
+**期待される出力:**
+
+```text
+✓ test/post.unit.test.ts
+```
+
+### Integration test を追加する
+
+Integration test では、Testcontainers の PostgreSQL、Drizzle ORM、Hono app を組み合わせます。Hono の `testClient()` を使うと、テストコードから型安全に API を呼び出せます。
+
+`test/posts.integration.test.ts` を作成します。
+
+```ts:test/posts.integration.test.ts
+import { testClient } from "hono/testing";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import type { AppType } from "../src/app.js";
+import {
+  resetTestDatabase,
+  setupTestDatabase,
+  stopTestDatabase
+} from "./test-db.js";
+
+let app: AppType;
+
+beforeAll(async () => {
+  await setupTestDatabase();
+  app = (await import("../src/app.js")).app;
+}, 60_000);
+
+beforeEach(async () => {
+  await resetTestDatabase();
+});
+
+afterAll(async () => {
+  await stopTestDatabase();
+});
+
+describe("GET /api/posts", () => {
+  it("DB に保存された投稿を新しい順で返す", async () => {
+    const { createPost } = await import("../src/post.js");
+
+    await createPost({
+      content: "Integration test から作った投稿です",
+      authorUid: "test-user",
+      authorName: "Test User"
+    });
+
+    const client = testClient(app);
+    const res = await client.api.posts.$get();
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.posts).toHaveLength(1);
+    expect(body.posts[0]).toMatchObject({
+      id: 1,
+      content: "Integration test から作った投稿です",
+      authorUid: "test-user",
+      authorName: "Test User"
+    });
+  });
+});
+```
+
+`setupTestDatabase()` のあとに `src/app.ts` を dynamic import しています。これは、`src/db.ts` が import される前に `DATABASE_URL` を Testcontainers の PostgreSQL に向けるためです。
+
+Integration test を実行します。
+
+```bash
+npm run test:integration
+```
+
+**期待される出力:**
+
+```text
+✓ test/posts.integration.test.ts
+```
+
+### API E2E test を追加する
+
+E2E test では、API の入口から見た振る舞いを確認します。ここでは実ブラウザではなく、Hono の request boundary を `testClient()` で叩きます。
+
+`test/api.e2e.test.ts` を作成します。
+
+```ts:test/api.e2e.test.ts
+import { testClient } from "hono/testing";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import type { AppType } from "../src/app.js";
+import {
+  resetTestDatabase,
+  setupTestDatabase,
+  stopTestDatabase
+} from "./test-db.js";
+
+let app: AppType;
+
+beforeAll(async () => {
+  await setupTestDatabase();
+  app = (await import("../src/app.js")).app;
+}, 60_000);
+
+beforeEach(async () => {
+  await resetTestDatabase();
+});
+
+afterAll(async () => {
+  await stopTestDatabase();
+});
+
+describe("API E2E", () => {
+  it("health check が成功する", async () => {
+    const client = testClient(app);
+    const res = await client.api.health.$get();
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
+
+  it("ログインなしの投稿作成を 401 で拒否する", async () => {
+    const client = testClient(app);
+    const res = await client.api.posts.$post({
+      json: {
+        content: "ログインなしの投稿"
+      }
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(401);
+    expect(body).toEqual({ error: "Bearer token is required." });
+  });
+});
+```
+
+Firebase ID トークンを本物の Google ログインから取得して検証するテストは、CI で安定させるために別設計が必要です。ここでは、まず「認可なしのリクエストが拒否される」という重要な振る舞いを固定します。
+
+E2E test を実行します。
+
+```bash
+npm run test:e2e
+```
+
+**期待される出力:**
+
+```text
+✓ test/api.e2e.test.ts
+```
+
+### すべてのテストを実行する
+
+最後に、3種類のテストをまとめて実行します。
+
+```bash
+npm run test:all
+```
+
+**期待される出力:**
+
+```text
+✓ test/post.unit.test.ts
+✓ test/posts.integration.test.ts
+✓ test/api.e2e.test.ts
+```
+
+これで、Zod schema の Unit test、PostgreSQL まで含む Integration test、API の入口から確認する E2E test がそろいました。今後、投稿削除や投稿編集を追加したら、成功ケースだけでなく、`401`、`403`、`404`、validation error、境界値も追加していきます。
+
+### 現時点のコードベース
+
+この時点のディレクトリ構成は次のようになります。
+
+```text
+.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle
+│   ├── 0000_....sql
+│   └── meta
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── app.ts
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── firebase.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── test
+│   ├── api.e2e.test.ts
+│   ├── post.unit.test.ts
+│   ├── posts.integration.test.ts
+│   └── test-db.ts
+├── tsconfig.json
+└── vite.config.ts
+```
+
 
 ## Extra: 投稿を削除する
 

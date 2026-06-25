@@ -3821,6 +3821,622 @@ cloud-run-source-deploy  DOCKER  STANDARD_REPOSITORY
 
       </google-codelab-step>
     
+      <google-codelab-step label="Extra: API をテストする" duration="30">
+        <p>この Extra では、API の Unit test、Integration test、E2E test を追加します。Vitest、Hono の <code>testClient()</code>、Testcontainers PostgreSQL、Drizzle ORM、<code>drizzle-kit migrate</code> を組み合わせ、テストごとに DB を空にしてから検証します。</p>
+<h2 is-upgraded>ソフトウェアテストを考える</h2>
+<p>実装に入る前に、次の問題を考えてください。</p>
+<p><strong>問い:</strong> 3つの整数 <code>a</code>, <code>b</code>, <code>c</code> を受け取り、それらが三角形の3辺として成立するか、成立するなら正三角形・二等辺三角形・不等辺三角形のどれかを判定するプログラムがあります。以下のプログラムをテストするために十分なテストケースを考えてください。</p>
+<p>これは、ソフトウェアテストの古典的な練習問題である Myers の三角形問題です。単に <code>3, 3, 3</code> や <code>3, 4, 5</code> だけを試すと、明らかな成功ケースしか確認できません。</p>
+<p>たとえば、次のような観点があります。</p>
+<ul>
+<li>正三角形</li>
+<li>二等辺三角形</li>
+<li>不等辺三角形</li>
+<li>三角形不成立</li>
+<li>0、負数、小数、文字列のような不正入力</li>
+<li><code>a + b = c</code> のような境界</li>
+<li>入力順序を入れ替えた場合</li>
+<li>非常に大きい数</li>
+</ul>
+<p>Myers の問題では、22個程度のテストケースで主要な観点を網羅できるとかなり高い水準です。それより大きく増える場合は、同じ意味のテストを重複していないか見直します。テストは多ければ多いほどよいのではなく、欠陥を見つけやすい観点を過不足なく置くことが大切です。</p>
+<p>テストする目的は、主に次の3つです。</p>
+<ul>
+<li>欠陥を防ぐ: バグだらけの製品をリリースしないため</li>
+<li>ユーザーの期待を満たしているか確認する: 要件を満たすかどうかを確かめるため</li>
+<li>変更による破壊を検知する: コード変更で以前の動作が壊れたことに気づくため</li>
+</ul>
+<h2 is-upgraded>テストの種類を整理する</h2>
+<p>Unit test は、関数や小さなモジュールを単体で検証します。今回なら、Zod schema が空文字や長すぎる投稿を拒否することを確認します。</p>
+<p>Integration test は、複数の部品を組み合わせて検証します。今回なら、Hono API、Drizzle、PostgreSQL をつないで、DB に入れた投稿を API から取得できることを確認します。</p>
+<p>E2E test は、利用者に近い入口からシステム全体の振る舞いを検証します。今回なら、Hono の request boundary を通して <code>GET /api/health</code> や <code>POST /api/posts</code> の認可エラーまで確認します。ブラウザ操作まで含める場合は Playwright などを追加しますが、この Extra では API E2E に絞ります。</p>
+<p>ほかにも、Mutation test、Property-based test、Alloy のような形式手法・モデル検査など、さまざまなテストや検証の方法があります。</p>
+<p>ホワイトボックステストは、内部構造を知ったうえで分岐や関数をテストします。ブラックボックステストは、内部実装ではなく入力と出力、つまり振る舞いをテストします。今回の Unit test はややホワイトボックス寄り、API の Integration / E2E test はブラックボックス寄りです。</p>
+<p>ソフトウェアテストの七原則も押さえておきます。</p>
+<ol type="1">
+<li>テストは欠陥があることは示せるが、欠陥がないことは示せない</li>
+<li>全数テストは不可能</li>
+<li>早期テストで時間とコストを削減できる</li>
+<li>欠陥は偏在する</li>
+<li>同じテストだけでは新しい欠陥を見つけにくくなる</li>
+<li>テストは条件次第で変わる</li>
+<li>バグゼロでもユーザーの役に立たなければ意味がない</li>
+</ol>
+<p>テストケースを考えるときは、同値分割法と境界値分析がよく使われます。同値分割法は「同じ扱いになる入力」をグループ化し、代表値を選ぶ技法です。境界値分析は、<code>0</code> と <code>1</code>、<code>280</code> と <code>281</code> のように、条件が切り替わる境界の前後を重点的に試す技法です。</p>
+<h2 is-upgraded>テストライブラリを追加する</h2>
+<p>Vitest と Testcontainers を追加します。Hono の <code>testClient()</code> は <code>hono/testing</code> から import できるため、追加インストールは不要です。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm install -D vitest testcontainers @testcontainers/postgresql
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">added ... packages
+</code></pre>
+</div>
+<aside class="special"><p><strong>補足: </strong><code>@hono/vitest-helper</code> を使う構成もありますが、この Extra では Hono 本体に含まれる <code>hono/testing</code> の <code>testClient()</code> を使います。</p></aside>
+<h2 is-upgraded>npm scripts を追加する</h2>
+<p><code>package.json</code> の <code>scripts</code> にテスト用コマンドを追加します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">package.json</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json claat-diff-code" data-claat-diff="true" data-claat-diff-language="json">   &#34;scripts&#34;: {
+     &#34;dev&#34;: &#34;tsx watch src/index.ts&#34;,
+     &#34;build&#34;: &#34;npx vite build &amp;&amp; tsc&#34;,
+-    &#34;start&#34;: &#34;node dist/index.js&#34;
++    &#34;start&#34;: &#34;node dist/index.js&#34;,
++    &#34;test:unit&#34;: &#34;vitest run test/**/*.unit.test.ts&#34;,
++    &#34;test:integration&#34;: &#34;vitest run test/**/*.integration.test.ts&#34;,
++    &#34;test:e2e&#34;: &#34;vitest run test/**/*.e2e.test.ts&#34;,
++    &#34;test:all&#34;: &#34;npm run test:unit &amp;&amp; npm run test:integration &amp;&amp; npm run test:e2e&#34;
+   },
+</code></pre>
+</div>
+<p><code>test:unit</code> は速い検証、<code>test:integration</code> は DB まで含む検証、<code>test:e2e</code> は API の入口から見る検証です。<code>test:all</code> は3種類を順番に実行します。</p>
+<h2 is-upgraded>Hono app をテストしやすく分離する</h2>
+<p>今の <code>src/index.ts</code> は、app の定義と <code>serve()</code> によるサーバー起動が同じファイルにあります。テストで import しただけでサーバーが起動しないように、app の定義を <code>src/app.ts</code> に分けます。</p>
+<p><code>src/app.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/app.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { existsSync } from &#34;node:fs&#34;;
+import { readFile } from &#34;node:fs/promises&#34;;
+import { join } from &#34;node:path&#34;;
+import { serveStatic } from &#34;@hono/node-server/serve-static&#34;;
+import { Hono } from &#34;hono&#34;;
+import { logger } from &#34;hono/logger&#34;;
+import { postRoutes } from &#34;./post.js&#34;;
+
+const publicDir = join(process.cwd(), &#34;dist&#34;, &#34;public&#34;);
+const indexHtml = join(publicDir, &#34;index.html&#34;);
+
+export const app = new Hono()
+  .use(logger())
+  .get(&#34;/api/health&#34;, (c) =&gt; c.json({ ok: true }))
+  .route(&#34;/api/posts&#34;, postRoutes)
+  .use(
+    &#34;/*&#34;,
+    serveStatic({
+      root: &#34;./dist/public&#34;
+    })
+  )
+  .get(&#34;*&#34;, async (c) =&gt; {
+    if (c.req.path.startsWith(&#34;/api/&#34;)) {
+      return c.json({ error: &#34;API route is not implemented yet.&#34; }, 404);
+    }
+
+    if (!existsSync(indexHtml)) {
+      return c.text(
+        &#34;React SPA is not built yet. Run `npx vite build` first.&#34;,
+        404
+      );
+    }
+
+    return c.html(await readFile(indexHtml, &#34;utf8&#34;));
+  });
+
+export type AppType = typeof app;
+</code></pre>
+</div>
+<p><code>testClient()</code> の型推論を効かせるため、<code>new Hono()</code> から <code>.get()</code>、<code>.route()</code> をつなげて app を作っています。</p>
+<p><code>src/index.ts</code> は、サーバー起動だけを担当するファイルにします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/index.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { serve } from &#34;@hono/node-server&#34;;
+import { app } from &#34;./app.js&#34;;
+
+const port = Number(process.env.PORT ?? 3000);
+
+serve(
+  {
+    fetch: app.fetch,
+    port
+  },
+  (info) =&gt; {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  }
+);
+</code></pre>
+</div>
+<p>テストでは <code>src/app.ts</code> を import します。ローカル開発や Cloud Run では、これまでどおり <code>src/index.ts</code> からサーバーを起動します。</p>
+<h2 is-upgraded>migration SQL を用意する</h2>
+<p>Testcontainers で起動した PostgreSQL にも、本番と同じテーブルを作る必要があります。Drizzle の migration SQL がまだない場合は作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npx drizzle-kit generate
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[✓] Your SQL migration file ➜ drizzle/0000_....sql
+</code></pre>
+</div>
+<p>すでに migration がある場合は、<code>No schema changes, nothing to migrate</code> と表示されることがあります。その場合は、既存の <code>drizzle/*.sql</code> を使います。</p>
+<h2 is-upgraded>テスト用 DB ヘルパーを作成する</h2>
+<p><code>test</code> フォルダを作成し、Testcontainers PostgreSQL を起動するヘルパーを作ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">mkdir -p test
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">出力がなければ成功です。
+</code></pre>
+</div>
+<p><code>test/test-db.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">test/test-db.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { execFileSync } from &#34;node:child_process&#34;;
+import { PostgreSqlContainer } from &#34;@testcontainers/postgresql&#34;;
+import type { StartedPostgreSqlContainer } from &#34;@testcontainers/postgresql&#34;;
+import pg from &#34;pg&#34;;
+
+let container: StartedPostgreSqlContainer | undefined;
+let pool: pg.Pool | undefined;
+
+export const setupTestDatabase = async () =&gt; {
+  if (container &amp;&amp; pool) {
+    return;
+  }
+
+  container = await new PostgreSqlContainer(&#34;postgres:17-alpine&#34;)
+    .withDatabase(&#34;hono_board&#34;)
+    .withUsername(&#34;hono&#34;)
+    .withPassword(&#34;hono&#34;)
+    .start();
+
+  process.env.DATABASE_URL = container.getConnectionUri();
+
+  execFileSync(&#34;npx&#34;, [&#34;drizzle-kit&#34;, &#34;migrate&#34;], {
+    stdio: &#34;inherit&#34;,
+    env: {
+      ...process.env,
+      DATABASE_URL: process.env.DATABASE_URL
+    }
+  });
+
+  pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL
+  });
+};
+
+export const resetTestDatabase = async () =&gt; {
+  if (!pool) {
+    throw new Error(&#34;Test database is not started.&#34;);
+  }
+
+  await pool.query(&#34;TRUNCATE TABLE posts RESTART IDENTITY CASCADE&#34;);
+};
+
+export const stopTestDatabase = async () =&gt; {
+  await import(&#34;../src/db.js&#34;)
+    .then(({ closeDb }) =&gt; closeDb())
+    .catch(() =&gt; undefined);
+
+  await pool?.end();
+  await container?.stop();
+
+  pool = undefined;
+  container = undefined;
+};
+</code></pre>
+</div>
+<p><code>setupTestDatabase()</code> は PostgreSQL コンテナを起動し、<code>DATABASE_URL</code> をそのコンテナに向け、<code>drizzle-kit migrate</code> でテーブルを作ります。<code>resetTestDatabase()</code> は各テスト前に <code>TRUNCATE TABLE posts RESTART IDENTITY CASCADE</code> を実行し、投稿データと ID 採番を初期化します。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting:</strong> Testcontainers は Docker を使います。<code>Could not find a working container runtime strategy</code> のようなエラーが出た場合は、Docker Desktop が起動しているか確認してください。</p></aside>
+<h2 is-upgraded>Unit test を追加する</h2>
+<p>Unit test では、DB や HTTP を使わず、Zod schema だけを検証します。</p>
+<p><code>test/post.unit.test.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">test/post.unit.test.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { describe, expect, it } from &#34;vitest&#34;;
+import { createPostSchema } from &#34;../src/post.js&#34;;
+
+describe(&#34;createPostSchema&#34;, () =&gt; {
+  it(&#34;投稿内容の前後の空白を取り除く&#34;, () =&gt; {
+    const result = createPostSchema.parse({ content: &#34;  hello  &#34; });
+
+    expect(result.content).toBe(&#34;hello&#34;);
+  });
+
+  it(&#34;空文字を拒否する&#34;, () =&gt; {
+    const result = createPostSchema.safeParse({ content: &#34;&#34; });
+
+    expect(result.success).toBe(false);
+  });
+
+  it(&#34;281文字の投稿を拒否する&#34;, () =&gt; {
+    const result = createPostSchema.safeParse({
+      content: &#34;a&#34;.repeat(281)
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+</code></pre>
+</div>
+<p>空文字と281文字は境界値分析の例です。<code>0文字</code>、<code>1文字</code>、<code>280文字</code>、<code>281文字</code> のように、条件が切り替わる前後を狙うと、少ないテストで欠陥を見つけやすくなります。</p>
+<p>Unit test を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run test:unit
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✓ test/post.unit.test.ts
+</code></pre>
+</div>
+<h2 is-upgraded>Integration test を追加する</h2>
+<p>Integration test では、Testcontainers の PostgreSQL、Drizzle ORM、Hono app を組み合わせます。Hono の <code>testClient()</code> を使うと、テストコードから型安全に API を呼び出せます。</p>
+<p><code>test/posts.integration.test.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">test/posts.integration.test.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { testClient } from &#34;hono/testing&#34;;
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from &#34;vitest&#34;;
+import type { AppType } from &#34;../src/app.js&#34;;
+import {
+  resetTestDatabase,
+  setupTestDatabase,
+  stopTestDatabase
+} from &#34;./test-db.js&#34;;
+
+let app: AppType;
+
+beforeAll(async () =&gt; {
+  await setupTestDatabase();
+  app = (await import(&#34;../src/app.js&#34;)).app;
+}, 60_000);
+
+beforeEach(async () =&gt; {
+  await resetTestDatabase();
+});
+
+afterAll(async () =&gt; {
+  await stopTestDatabase();
+});
+
+describe(&#34;GET /api/posts&#34;, () =&gt; {
+  it(&#34;DB に保存された投稿を新しい順で返す&#34;, async () =&gt; {
+    const { createPost } = await import(&#34;../src/post.js&#34;);
+
+    await createPost({
+      content: &#34;Integration test から作った投稿です&#34;,
+      authorUid: &#34;test-user&#34;,
+      authorName: &#34;Test User&#34;
+    });
+
+    const client = testClient(app);
+    const res = await client.api.posts.$get();
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.posts).toHaveLength(1);
+    expect(body.posts[0]).toMatchObject({
+      id: 1,
+      content: &#34;Integration test から作った投稿です&#34;,
+      authorUid: &#34;test-user&#34;,
+      authorName: &#34;Test User&#34;
+    });
+  });
+});
+</code></pre>
+</div>
+<p><code>setupTestDatabase()</code> のあとに <code>src/app.ts</code> を dynamic import しています。これは、<code>src/db.ts</code> が import される前に <code>DATABASE_URL</code> を Testcontainers の PostgreSQL に向けるためです。</p>
+<p>Integration test を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run test:integration
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✓ test/posts.integration.test.ts
+</code></pre>
+</div>
+<h2 is-upgraded>API E2E test を追加する</h2>
+<p>E2E test では、API の入口から見た振る舞いを確認します。ここでは実ブラウザではなく、Hono の request boundary を <code>testClient()</code> で叩きます。</p>
+<p><code>test/api.e2e.test.ts</code> を作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">test/api.e2e.test.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { testClient } from &#34;hono/testing&#34;;
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from &#34;vitest&#34;;
+import type { AppType } from &#34;../src/app.js&#34;;
+import {
+  resetTestDatabase,
+  setupTestDatabase,
+  stopTestDatabase
+} from &#34;./test-db.js&#34;;
+
+let app: AppType;
+
+beforeAll(async () =&gt; {
+  await setupTestDatabase();
+  app = (await import(&#34;../src/app.js&#34;)).app;
+}, 60_000);
+
+beforeEach(async () =&gt; {
+  await resetTestDatabase();
+});
+
+afterAll(async () =&gt; {
+  await stopTestDatabase();
+});
+
+describe(&#34;API E2E&#34;, () =&gt; {
+  it(&#34;health check が成功する&#34;, async () =&gt; {
+    const client = testClient(app);
+    const res = await client.api.health.$get();
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
+
+  it(&#34;ログインなしの投稿作成を 401 で拒否する&#34;, async () =&gt; {
+    const client = testClient(app);
+    const res = await client.api.posts.$post({
+      json: {
+        content: &#34;ログインなしの投稿&#34;
+      }
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(401);
+    expect(body).toEqual({ error: &#34;Bearer token is required.&#34; });
+  });
+});
+</code></pre>
+</div>
+<p>Firebase ID トークンを本物の Google ログインから取得して検証するテストは、CI で安定させるために別設計が必要です。ここでは、まず「認可なしのリクエストが拒否される」という重要な振る舞いを固定します。</p>
+<p>E2E test を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run test:e2e
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✓ test/api.e2e.test.ts
+</code></pre>
+</div>
+<h2 is-upgraded>すべてのテストを実行する</h2>
+<p>最後に、3種類のテストをまとめて実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run test:all
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✓ test/post.unit.test.ts
+✓ test/posts.integration.test.ts
+✓ test/api.e2e.test.ts
+</code></pre>
+</div>
+<p>これで、Zod schema の Unit test、PostgreSQL まで含む Integration test、API の入口から確認する E2E test がそろいました。今後、投稿削除や投稿編集を追加したら、成功ケースだけでなく、<code>401</code>、<code>403</code>、<code>404</code>、validation error、境界値も追加していきます。</p>
+<h2 is-upgraded>現時点のコードベース</h2>
+<p>この時点のディレクトリ構成は次のようになります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">.
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── drizzle
+│   ├── 0000_....sql
+│   └── meta
+├── drizzle.config.ts
+├── index.html
+├── package-lock.json
+├── package.json
+├── src
+│   ├── app.ts
+│   ├── client.tsx
+│   ├── db.ts
+│   ├── firebase.ts
+│   ├── index.ts
+│   └── post.ts
+├── style.css
+├── tailwind.config.ts
+├── test
+│   ├── api.e2e.test.ts
+│   ├── post.unit.test.ts
+│   ├── posts.integration.test.ts
+│   └── test-db.ts
+├── tsconfig.json
+└── vite.config.ts
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
       <google-codelab-step label="Extra: 投稿を削除する" duration="0">
         <p>ここからは早く終わった人向けの拡張課題です。</p>
 <h2 is-upgraded>ゴール</h2>
