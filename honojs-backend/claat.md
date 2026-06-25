@@ -2063,6 +2063,838 @@ docker compose down
 
 今日作った `serviceAccount.json` は秘密鍵です。不要になったら削除してください。
 
+## Extra: Cloud Run + Cloud SQL にデプロイする
+
+Duration: 0:00:00
+
+この Extra では、本編で作った Hono + React + PostgreSQL アプリを Google Cloud Run と Cloud SQL for PostgreSQL にデプロイします。本編では全員共通の Firebase project を使いましたが、このステップでは自分で作成した Google Cloud project と Firebase project を使います。
+
+Cloud Run は HTTP リクエストが来たときだけコンテナを起動できる実行環境です。Cloud SQL は Google Cloud が管理する PostgreSQL です。この構成にすると、Hono サーバーは Cloud Run で動き、投稿データは Cloud SQL に保存されます。
+
+> **Warning:** このステップでは課金が発生する Google Cloud リソースを作成します。最後の「クリーンアップ」まで実行し、Cloud Run、Cloud SQL、Artifact Registry などの有料リソースを削除してください。
+
+### このステップで使う名前を決める
+
+このステップでは、次の名前を使います。`PROJECT_ID` だけは世界中で一意にする必要があります。`your-name-hono-2026` のように、自分の名前や日付を入れてください。
+
+```bash
+export PROJECT_ID="your-project-id"
+export REGION="asia-northeast2"
+export SERVICE_NAME="honojs-backend"
+export INSTANCE_NAME="hono-postgres"
+export DB_NAME="hono_board"
+export DB_USER="hono"
+export DB_PASSWORD="change-this-password"
+export SERVICE_ACCOUNT_NAME="hono-cloud-run"
+```
+
+**期待される出力:**
+
+```text
+出力がなければ成功です。
+```
+
+以降のコマンドは、この変数を使って実行します。新しいターミナルを開いた場合は、もう一度このブロックを実行してください。
+
+> **Tips:** `DB_PASSWORD` はそのまま使わず、自分だけが知っている長い文字列に変更してください。記号を含める場合、シェルで特別な意味を持つ文字は避けると詰まりにくいです。
+
+### gcloud CLI にログインする
+
+Google Cloud の操作には `gcloud` CLI を使います。まだ入っていない場合は、公式ドキュメントから Google Cloud CLI をインストールします。
+
+<button>
+  [Google Cloud CLI のインストール手順を開く](https://cloud.google.com/sdk/docs/install)
+</button>
+
+インストール後、ターミナルでログインします。
+
+```bash
+gcloud auth login
+```
+
+ブラウザが開いたら、自分の Google アカウントでログインします。ログインできたら、アカウントを確認します。
+
+```bash
+gcloud auth list
+```
+
+**期待される出力:**
+
+```text
+Credentialed Accounts
+ACTIVE  ACCOUNT
+*       your-email@example.com
+```
+
+`ACTIVE` に `*` が付いているアカウントが、以降の Google Cloud 操作に使われます。
+
+### Google Cloud project を作成する
+
+この Extra 用の Google Cloud project を作成します。本編の Firebase project とは別に、自分の project を使います。
+
+```bash
+gcloud projects create "$PROJECT_ID" \
+  --name="Hono Backend Workshop"
+```
+
+**期待される出力:**
+
+```text
+Create in progress for [https://cloudresourcemanager.googleapis.com/v1/projects/your-project-id].
+Waiting for [operations/...] to finish...done.
+```
+
+作成した project を `gcloud` のデフォルトに設定します。
+
+```bash
+gcloud config set project "$PROJECT_ID"
+```
+
+**期待される出力:**
+
+```text
+Updated property [core/project].
+```
+
+設定できているか確認します。
+
+```bash
+gcloud config list project
+```
+
+**期待される出力:**
+
+```text
+[core]
+project = your-project-id
+```
+
+### 課金アカウントを設定する
+
+Cloud Run、Cloud SQL、Cloud Build、Artifact Registry を使うには、Google Cloud project に課金アカウントを紐づける必要があります。
+
+まず、利用できる課金アカウントを確認します。
+
+```bash
+gcloud billing accounts list
+```
+
+**期待される出力:**
+
+```text
+ACCOUNT_ID            NAME                OPEN  MASTER_ACCOUNT_ID
+XXXXXX-XXXXXX-XXXXXX  My Billing Account  True
+```
+
+`ACCOUNT_ID` を変数に入れます。
+
+```bash
+export BILLING_ACCOUNT_ID="XXXXXX-XXXXXX-XXXXXX"
+```
+
+Google Cloud project に課金アカウントを紐づけます。
+
+```bash
+gcloud billing projects link "$PROJECT_ID" \
+  --billing-account="$BILLING_ACCOUNT_ID"
+```
+
+**期待される出力:**
+
+```text
+billingAccountName: billingAccounts/XXXXXX-XXXXXX-XXXXXX
+billingEnabled: true
+name: projects/your-project-id/billingInfo
+projectId: your-project-id
+```
+
+> **Warning:** 課金アカウントを紐づけると、この project で作った有料リソースに料金が発生します。このステップの最後に削除コマンドを実行してください。
+
+### この構成の費用を確認する
+
+今回の Cloud Run は `--min-instances=0` にするため、アクセスがない間は Cloud Run の実行インスタンス料金がかかりません。小さなワークショップ利用であれば、Cloud Run のリクエスト、CPU、メモリは無料枠に収まることが多いです。ただし、`gcloud run deploy --source .` では Cloud Build と Artifact Registry も使うため、保存されたコンテナイメージが増えると Artifact Registry の保存料金が発生することがあります。
+
+Cloud SQL は、アクセスがなくてもインスタンスが起動している間は課金されます。今回の最低性能構成では、主な費用は次のとおりです。
+
+| リソース | 設定 | 目安 |
+| --- | --- | --- |
+| Cloud Run | 0.08 vCPU、128 MiB、最小インスタンス 0 | アイドル時は実行インスタンス料金なし |
+| Cloud SQL instance | `db-f1-micro` | `$0.0105/hour`、約 `$0.252/day` |
+| Cloud SQL SSD storage | 10 GiB | `$0.000232877/GiB-hour`、約 `$0.056/day` |
+| 合計 | Cloud SQL が中心 | 約 `$0.31/day` |
+
+この金額は税、為替、リージョン、無料枠、将来の価格変更で変わります。正確な金額は Google Cloud の請求画面と Pricing Calculator で確認してください。
+
+参考:
+
+- [Cloud Run pricing](https://cloud.google.com/run/pricing)
+- [Cloud Run CPU limits](https://docs.cloud.google.com/run/docs/configuring/services/cpu)
+- [Cloud SQL pricing](https://cloud.google.com/sql/pricing)
+- [Cloud SQL from Cloud Run](https://docs.cloud.google.com/sql/docs/postgres/connect-run)
+- [Firebase Admin SDK setup](https://firebase.google.com/docs/admin/setup)
+- [Firebase Auth IAM roles](https://docs.cloud.google.com/iam/docs/roles-permissions/firebaseauth)
+
+### 必要な API を有効化する
+
+Cloud Run、Cloud SQL、Cloud Build、Artifact Registry、Firebase を使うために API を有効化します。
+
+```bash
+gcloud services enable \
+  run.googleapis.com \
+  sqladmin.googleapis.com \
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com \
+  firebase.googleapis.com \
+  identitytoolkit.googleapis.com \
+  iam.googleapis.com \
+  serviceusage.googleapis.com \
+  cloudresourcemanager.googleapis.com
+```
+
+**期待される出力:**
+
+```text
+Operation "operations/..." finished successfully.
+```
+
+エラーが出なければ成功です。API の有効化には数十秒かかることがあります。
+
+### Firebase project を作成する
+
+Firebase Console を開き、作成した Google Cloud project に Firebase を追加します。
+
+<button>
+  [Firebase Console を開く](https://console.firebase.google.com/)
+</button>
+
+次の順に進めます。
+
+1. **プロジェクトを追加** を押します。
+2. 画面下部の **Google Cloud プロジェクトに Firebase を追加** を選びます。
+3. `PROJECT_ID` に設定した project を選びます。
+4. Google Analytics は、このコードラボでは無効でかまいません。
+5. **Firebase を追加** を押します。
+
+Firebase project が開けたら成功です。Firebase project と Google Cloud project は同じ project ID を共有します。
+
+### Firebase Authentication を有効化する
+
+Firebase Console で Google ログインを有効にします。
+
+1. 左メニューの **Authentication** を開きます。
+2. **始める** を押します。
+3. **Sign-in method** タブを開きます。
+4. **Google** を選びます。
+5. **有効にする** をオンにします。
+6. サポートメールに自分のメールアドレスを選びます。
+7. **保存** を押します。
+
+Google provider が `有効` と表示されれば成功です。
+
+> **補足:** 本編では講師が用意した Firebase project を使いました。この Extra では、自分の Cloud Run URL からログインできるように、自分の Firebase project 側で Google ログインを有効化します。
+
+### Firebase Web アプリを追加する
+
+Firebase Console の project overview に戻り、Web アプリを追加します。
+
+1. `</>` アイコンを押します。
+2. アプリのニックネームに `honojs-backend-web` と入力します。
+3. Firebase Hosting は有効にしません。
+4. **アプリを登録** を押します。
+5. 表示された `firebaseConfig` をコピーします。
+
+`src/client.tsx` の `firebaseConfig` を、自分の Firebase project の値に置き換えます。
+
+```diff ts:src/client.tsx
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.firebasestorage.app",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+この設定は、ブラウザ側の Firebase Web SDK がどの Firebase project に接続するかを決めます。秘密鍵ではないためブラウザに含まれても問題ありませんが、自分の project の値を正しく入れる必要があります。
+
+### Firebase Admin SDK の秘密鍵を作成する
+
+ローカル開発では、Firebase Admin SDK が ID トークンを検証するために `serviceAccount.json` を使います。Firebase Console で秘密鍵を作成します。
+
+1. Firebase Console の歯車アイコンから **プロジェクトの設定** を開きます。
+2. **サービス アカウント** タブを開きます。
+3. **新しい秘密鍵の生成** を押します。
+4. 確認画面で **キーを生成** を押します。
+5. ダウンロードした JSON を、プロジェクト直下に `serviceAccount.json` という名前で置きます。
+
+> **Warning:** `serviceAccount.json` は秘密鍵です。GitHub、Discord、SNS、スクリーンショットに載せないでください。本編の `.gitignore` では `serviceAccount.json` を除外していますが、`git status` でコミット対象になっていないことを必ず確認してください。
+
+ローカルで Firebase 認証がまだ動くか確認します。
+
+```bash
+npm run dev
+```
+
+ブラウザで [http://localhost:3000](http://localhost:3000) を開き、Google ログインして投稿します。投稿者名が表示されれば成功です。
+
+### Cloud Run 用に build script を変更する
+
+Cloud Run の source deploy では、Google Cloud 側で `npm run build` が実行され、そのあと `npm start` でサーバーが起動します。React SPA と Hono サーバーの両方をビルドするように、`build` script を変更します。
+
+```bash
+npm pkg set scripts.build="npx vite build && tsc"
+```
+
+**期待される出力:**
+
+```text
+出力がなければ成功です。
+```
+
+変更後、ローカルでビルドできるか確認します。
+
+```bash
+npm run build
+```
+
+**期待される出力:**
+
+```text
+✓ built in ...
+```
+
+`dist` フォルダが作成され、TypeScript のエラーが出なければ成功です。
+
+### Firebase Admin SDK を Cloud Run の認証情報に対応させる
+
+Cloud Run 上では、`serviceAccount.json` を置かず、Cloud Run のサービスアカウントを使って Firebase Admin SDK を初期化します。ローカルでは `serviceAccount.json`、Cloud Run では Application Default Credentials を使うように変更します。
+
+`src/firebase.ts` を以下の内容で上書きします。
+
+```ts:src/firebase.ts
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  applicationDefault,
+  cert,
+  getApps,
+  initializeApp
+} from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import type { MiddlewareHandler } from "hono";
+import { createMiddleware } from "hono/factory";
+
+export interface AuthUser {
+  uid: string;
+  name: string;
+  picture?: string;
+}
+
+export interface FirebaseVariables {
+  user: AuthUser;
+}
+
+const firebaseServiceAccountPath = resolve(
+  process.cwd(),
+  process.env.FIREBASE_SERVICE_ACCOUNT_PATH ?? "serviceAccount.json"
+);
+
+const getFirebaseApp = () => {
+  if (getApps().length > 0) {
+    return getApps()[0];
+  }
+
+  if (existsSync(firebaseServiceAccountPath)) {
+    return initializeApp({
+      credential: cert(firebaseServiceAccountPath)
+    });
+  }
+
+  return initializeApp({
+    credential: applicationDefault()
+  });
+};
+
+export const verifyIdToken = async (idToken: string): Promise<AuthUser> => {
+  const decoded = await getAuth(getFirebaseApp()).verifyIdToken(idToken);
+
+  return {
+    uid: decoded.uid,
+    name:
+      typeof decoded.name === "string" && decoded.name.length > 0
+        ? decoded.name
+        : "匿名ユーザー",
+    picture: typeof decoded.picture === "string" ? decoded.picture : undefined
+  };
+};
+
+export const requireFirebaseAuth: MiddlewareHandler<{
+  Variables: FirebaseVariables;
+}> = createMiddleware(async (c, next) => {
+  const authorization = c.req.header("authorization");
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) {
+    return c.json({ error: "Bearer token is required." }, 401);
+  }
+
+  try {
+    const user = await verifyIdToken(match[1]);
+    c.set("user", user);
+    await next();
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Firebase authentication failed.";
+    return c.json({ error: message }, 401);
+  }
+});
+```
+
+`applicationDefault()` は、Cloud Run の実行環境に割り当てたサービスアカウントを使うための設定です。これにより、Cloud Run に秘密鍵ファイルをアップロードせずに Firebase Admin SDK を使えます。
+
+### Cloud SQL 接続に対応させる
+
+ローカルでは `DATABASE_URL` で Docker の PostgreSQL に接続し、Cloud Run では Cloud SQL の Unix socket に接続します。`INSTANCE_CONNECTION_NAME` がある場合だけ Cloud SQL 接続に切り替えるようにします。
+
+`src/db.ts` を以下の内容で上書きします。
+
+```ts:src/db.ts
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
+
+const cloudSqlConnectionName = process.env.INSTANCE_CONNECTION_NAME;
+
+const connectionConfig = cloudSqlConnectionName
+  ? {
+      user: process.env.DB_USER ?? "hono",
+      password: process.env.DB_PASSWORD ?? "",
+      database: process.env.DB_NAME ?? "hono_board",
+      host: `/cloudsql/${cloudSqlConnectionName}`
+    }
+  : {
+      connectionString:
+        process.env.DATABASE_URL ??
+        "postgres://hono:hono@localhost:5432/hono_board"
+    };
+
+const pool = new pg.Pool(connectionConfig);
+
+export const db = drizzle(pool);
+
+export const closeDb = () => pool.end();
+```
+
+Cloud Run と Cloud SQL を接続すると、`/cloudsql/PROJECT_ID:REGION:INSTANCE_NAME` という Unix socket が使えるようになります。アプリはその socket を通して PostgreSQL に接続します。
+
+変更後、もう一度ビルドします。
+
+```bash
+npm run build
+```
+
+TypeScript のエラーが出なければ成功です。
+
+### Cloud Run 用サービスアカウントを作成する
+
+Cloud Run の実行時に使う専用サービスアカウントを作ります。
+
+```bash
+gcloud iam service-accounts create "$SERVICE_ACCOUNT_NAME" \
+  --display-name="Hono Cloud Run runtime"
+```
+
+**期待される出力:**
+
+```text
+Created service account [hono-cloud-run].
+```
+
+サービスアカウントのメールアドレスを変数に入れます。
+
+```bash
+export SERVICE_ACCOUNT_EMAIL="${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+```
+
+Cloud SQL に接続できるように、Cloud SQL Client ロールを付与します。
+
+```bash
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${SERVICE_ACCOUNT_EMAIL}" \
+  --role="roles/cloudsql.client"
+```
+
+**期待される出力:**
+
+```text
+Updated IAM policy for project [your-project-id].
+```
+
+Firebase Admin SDK が Firebase Auth を使えるように、Firebase Authentication Admin ロールを付与します。
+
+```bash
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${SERVICE_ACCOUNT_EMAIL}" \
+  --role="roles/firebaseauth.admin"
+```
+
+**期待される出力:**
+
+```text
+Updated IAM policy for project [your-project-id].
+```
+
+> **補足:** このコードでは ID トークンの検証が中心ですが、Cloud Run のサービスアカウントで Firebase Admin SDK を動かせるように IAM を明示します。より権限を絞る設計は、本番運用時に改めて検討します。
+
+### Cloud SQL PostgreSQL を作成する
+
+Cloud SQL for PostgreSQL のインスタンスを作成します。今回は費用を抑えるため、共有 CPU の `db-f1-micro`、10 GiB SSD、バックアップ無効、ストレージ自動増加無効にします。
+
+```bash
+gcloud sql instances create "$INSTANCE_NAME" \
+  --database-version=POSTGRES_17 \
+  --tier=db-f1-micro \
+  --region="$REGION" \
+  --availability-type=zonal \
+  --storage-type=SSD \
+  --storage-size=10 \
+  --no-storage-auto-increase \
+  --no-backup
+```
+
+**期待される出力:**
+
+```text
+Creating Cloud SQL instance for POSTGRES_17...done.
+Created [https://sqladmin.googleapis.com/sql/v1beta4/projects/your-project-id/instances/hono-postgres].
+```
+
+作成には数分かかります。完了したら、アプリ用のデータベースを作成します。
+
+```bash
+gcloud sql databases create "$DB_NAME" \
+  --instance="$INSTANCE_NAME"
+```
+
+**期待される出力:**
+
+```text
+Created database [hono_board].
+```
+
+アプリ用ユーザーを作成します。
+
+```bash
+gcloud sql users create "$DB_USER" \
+  --instance="$INSTANCE_NAME" \
+  --password="$DB_PASSWORD"
+```
+
+**期待される出力:**
+
+```text
+Created user [hono].
+```
+
+Cloud SQL の接続名を取得します。
+
+```bash
+export INSTANCE_CONNECTION_NAME="$(gcloud sql instances describe "$INSTANCE_NAME" --format='value(connectionName)')"
+echo "$INSTANCE_CONNECTION_NAME"
+```
+
+**期待される出力:**
+
+```text
+your-project-id:asia-northeast2:hono-postgres
+```
+
+この接続名を Cloud Run の環境変数と Cloud SQL 接続設定で使います。
+
+### Drizzle の migration SQL を作成する
+
+Cloud SQL に本番用テーブルを作ります。ここでは `drizzle-kit push` で直接 DB に反映するのではなく、migration SQL を作成し、Cloud SQL Studio で手動実行します。
+
+```bash
+npx drizzle-kit generate
+```
+
+**期待される出力:**
+
+```text
+[✓] Your SQL migration file ➜ drizzle/0000_....sql
+```
+
+作成された SQL ファイルを確認します。
+
+```bash
+ls drizzle
+```
+
+**期待される出力:**
+
+```text
+0000_....sql
+meta
+```
+
+`drizzle/0000_....sql` を VS Code で開きます。`CREATE TABLE "posts"` を含む SQL が表示されれば成功です。
+
+> **Troubleshooting:** `No schema changes, nothing to migrate` と表示された場合は、すでに `drizzle` フォルダに migration がある可能性があります。その場合は既存の `drizzle/*.sql` を使って次に進みます。
+
+### Cloud SQL Studio で migration SQL を実行する
+
+Google Cloud Console で Cloud SQL Studio を開きます。
+
+<button>
+  [Cloud SQL instances を開く](https://console.cloud.google.com/sql/instances)
+</button>
+
+次の順に進めます。
+
+1. `hono-postgres` インスタンスを開きます。
+2. 左メニューの **Cloud SQL Studio** を開きます。
+3. Database に `hono_board` を選びます。
+4. User に `hono` を入力します。
+5. Password に `DB_PASSWORD` に設定した値を入力します。
+6. **Authenticate** を押します。
+7. SQL エディタに `drizzle/0000_....sql` の内容を貼り付けます。
+8. **Run** を押します。
+
+実行後、`posts` テーブルが作成されれば成功です。
+
+確認用に、Cloud SQL Studio で次の SQL を実行します。
+
+```sql
+select table_name
+from information_schema.tables
+where table_schema = 'public';
+```
+
+**期待される出力:**
+
+```text
+posts
+```
+
+### Cloud Run にデプロイする
+
+Cloud Run に source deploy します。Cloud Build がソースコードからコンテナイメージを作り、Cloud Run に配置します。
+
+```bash
+gcloud run deploy "$SERVICE_NAME" \
+  --source . \
+  --region="$REGION" \
+  --service-account="$SERVICE_ACCOUNT_EMAIL" \
+  --add-cloudsql-instances="$INSTANCE_CONNECTION_NAME" \
+  --set-env-vars="INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},DB_NAME=${DB_NAME},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD}" \
+  --cpu=0.08 \
+  --memory=128Mi \
+  --concurrency=1 \
+  --execution-environment=gen1 \
+  --min-instances=0 \
+  --allow-unauthenticated
+```
+
+**期待される出力:**
+
+```text
+Deploying from source requires an Artifact Registry Docker repository to store built containers.
+Do you want to continue (Y/n)?
+```
+
+`Y` を入力して Enter を押します。デプロイが終わると、次のように URL が表示されます。
+
+```text
+Service [honojs-backend] revision [...] has been deployed and is serving 100 percent of traffic.
+Service URL: https://honojs-backend-....a.run.app
+```
+
+URL を変数に入れます。
+
+```bash
+export SERVICE_URL="$(gcloud run services describe "$SERVICE_NAME" \
+  --region="$REGION" \
+  --format='value(status.url)')"
+echo "$SERVICE_URL"
+```
+
+**期待される出力:**
+
+```text
+https://honojs-backend-....a.run.app
+```
+
+### Firebase Authentication の承認済みドメインを追加する
+
+Cloud Run の URL で Google ログインできるように、Firebase Authentication に承認済みドメインを追加します。
+
+1. Firebase Console で **Authentication** を開きます。
+2. **Settings** タブを開きます。
+3. **Authorized domains** を開きます。
+4. **Add domain** を押します。
+5. Cloud Run URL のホスト名だけを入力します。
+
+たとえば `SERVICE_URL` が次の場合:
+
+```text
+https://honojs-backend-abc123-uc.a.run.app
+```
+
+追加するドメインは次です。
+
+```text
+honojs-backend-abc123-uc.a.run.app
+```
+
+`https://` や末尾の `/` は入れません。保存できたら、Cloud Run 上のアプリで Firebase ログインを使えるようになります。
+
+### デプロイしたアプリを確認する
+
+まず API の health check を確認します。
+
+```bash
+curl "$SERVICE_URL/api/health"
+```
+
+**期待される出力:**
+
+```json
+{"ok":true}
+```
+
+次に投稿一覧 API を確認します。
+
+```bash
+curl "$SERVICE_URL/api/posts"
+```
+
+**期待される出力:**
+
+```json
+{"posts":[]}
+```
+
+ブラウザで `SERVICE_URL` を開きます。Google ログインし、投稿フォームから `Cloud Run から投稿しています` と投稿します。投稿一覧に表示されれば、Cloud Run から Cloud SQL に保存できています。
+
+> **Troubleshooting:** `Firebase authentication failed.` が出る場合は、Firebase Web app の `firebaseConfig` が自分の project の値か、Cloud Run のサービスアカウントに `roles/firebaseauth.admin` が付いているか、Firebase Authentication の承認済みドメインに Cloud Run のホスト名を追加したかを確認してください。
+
+DB に保存されたことを Cloud SQL Studio でも確認できます。
+
+```sql
+select id, content, author_name, created_at
+from posts
+order by created_at desc;
+```
+
+**期待される出力:**
+
+```text
+Cloud Run から投稿しています
+```
+
+### クリーンアップ
+
+課金され続けないように、この Extra で作成した有料リソースを削除します。Cloud SQL は起動しているだけで課金されるため、必ず削除してください。
+
+まず Cloud Run service を削除します。
+
+```bash
+gcloud run services delete "$SERVICE_NAME" \
+  --region="$REGION" \
+  --quiet
+```
+
+**期待される出力:**
+
+```text
+Deleted service [honojs-backend].
+```
+
+Cloud SQL instance を削除します。中のデータベースと投稿データも削除されます。
+
+```bash
+gcloud sql instances delete "$INSTANCE_NAME" \
+  --quiet
+```
+
+**期待される出力:**
+
+```text
+Deleted [hono-postgres].
+```
+
+Artifact Registry に作られた Cloud Run source deploy 用リポジトリを確認します。
+
+```bash
+gcloud artifacts repositories list \
+  --location="$REGION"
+```
+
+**期待される出力:**
+
+```text
+REPOSITORY  FORMAT  MODE                 DESCRIPTION
+cloud-run-source-deploy  DOCKER  STANDARD_REPOSITORY
+```
+
+リポジトリがある場合は削除します。
+
+```bash
+gcloud artifacts repositories delete cloud-run-source-deploy \
+  --location="$REGION" \
+  --quiet
+```
+
+**期待される出力:**
+
+```text
+Deleted repository [cloud-run-source-deploy].
+```
+
+Cloud Run 用サービスアカウントを削除します。
+
+```bash
+gcloud iam service-accounts delete "$SERVICE_ACCOUNT_EMAIL" \
+  --quiet
+```
+
+**期待される出力:**
+
+```text
+Deleted service account [hono-cloud-run@your-project-id.iam.gserviceaccount.com].
+```
+
+最後に、project ごと削除する場合は次を実行します。Firebase project も同じ Google Cloud project に紐づいているため、一緒に削除されます。
+
+> **Warning:** `gcloud projects delete` は project 内のリソースをまとめて削除する強い操作です。この Extra 専用に作った project であることを確認してから実行してください。既存の project を使った場合は、project 全体ではなく Cloud Run、Cloud SQL、Artifact Registry など、このステップで作ったリソースだけを削除します。
+
+```bash
+gcloud projects delete "$PROJECT_ID" \
+  --quiet
+```
+
+**期待される出力:**
+
+```text
+Deleted [https://cloudresourcemanager.googleapis.com/v1/projects/your-project-id].
+```
+
+ローカルの秘密鍵も不要になったら削除します。
+
+```bash
+rm -f serviceAccount.json
+```
+
+**期待される出力:**
+
+```text
+出力がなければ成功です。
+```
+
+
 ## Extra: 投稿を削除する
 
 Duration: 0:00:00

@@ -2513,6 +2513,1314 @@ import { db } from &#34;./db.js&#34;;
 
       </google-codelab-step>
     
+      <google-codelab-step label="Extra: Cloud Run &#43; Cloud SQL にデプロイする" duration="0">
+        <p>この Extra では、本編で作った Hono + React + PostgreSQL アプリを Google Cloud Run と Cloud SQL for PostgreSQL にデプロイします。本編では全員共通の Firebase project を使いましたが、このステップでは自分で作成した Google Cloud project と Firebase project を使います。</p>
+<p>Cloud Run は HTTP リクエストが来たときだけコンテナを起動できる実行環境です。Cloud SQL は Google Cloud が管理する PostgreSQL です。この構成にすると、Hono サーバーは Cloud Run で動き、投稿データは Cloud SQL に保存されます。</p>
+<aside class="warning"><p><strong>Warning:</strong> このステップでは課金が発生する Google Cloud リソースを作成します。最後の「クリーンアップ」まで実行し、Cloud Run、Cloud SQL、Artifact Registry などの有料リソースを削除してください。</p></aside>
+<h2 is-upgraded>このステップで使う名前を決める</h2>
+<p>このステップでは、次の名前を使います。<code>PROJECT_ID</code> だけは世界中で一意にする必要があります。<code>your-name-hono-2026</code> のように、自分の名前や日付を入れてください。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">export PROJECT_ID=&#34;your-project-id&#34;
+export REGION=&#34;asia-northeast2&#34;
+export SERVICE_NAME=&#34;honojs-backend&#34;
+export INSTANCE_NAME=&#34;hono-postgres&#34;
+export DB_NAME=&#34;hono_board&#34;
+export DB_USER=&#34;hono&#34;
+export DB_PASSWORD=&#34;change-this-password&#34;
+export SERVICE_ACCOUNT_NAME=&#34;hono-cloud-run&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">出力がなければ成功です。
+</code></pre>
+</div>
+<p>以降のコマンドは、この変数を使って実行します。新しいターミナルを開いた場合は、もう一度このブロックを実行してください。</p>
+<aside class="special"><p><strong>Tips: </strong><code>DB_PASSWORD</code> はそのまま使わず、自分だけが知っている長い文字列に変更してください。記号を含める場合、シェルで特別な意味を持つ文字は避けると詰まりにくいです。</p></aside>
+<h2 is-upgraded>gcloud CLI にログインする</h2>
+<p>Google Cloud の操作には <code>gcloud</code> CLI を使います。まだ入っていない場合は、公式ドキュメントから Google Cloud CLI をインストールします。</p>
+<p><a href="https://cloud.google.com/sdk/docs/install" target="_blank"><paper-button class="colored" raised>Google Cloud CLI のインストール手順を開く</paper-button></a></p>
+<p>インストール後、ターミナルでログインします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud auth login
+</code></pre>
+</div>
+<p>ブラウザが開いたら、自分の Google アカウントでログインします。ログインできたら、アカウントを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud auth list
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Credentialed Accounts
+ACTIVE  ACCOUNT
+*       your-email@example.com
+</code></pre>
+</div>
+<p><code>ACTIVE</code> に <code>*</code> が付いているアカウントが、以降の Google Cloud 操作に使われます。</p>
+<h2 is-upgraded>Google Cloud project を作成する</h2>
+<p>この Extra 用の Google Cloud project を作成します。本編の Firebase project とは別に、自分の project を使います。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud projects create &#34;$PROJECT_ID&#34; \
+  --name=&#34;Hono Backend Workshop&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Create in progress for [https://cloudresourcemanager.googleapis.com/v1/projects/your-project-id].
+Waiting for [operations/...] to finish...done.
+</code></pre>
+</div>
+<p>作成した project を <code>gcloud</code> のデフォルトに設定します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud config set project &#34;$PROJECT_ID&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Updated property [core/project].
+</code></pre>
+</div>
+<p>設定できているか確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud config list project
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[core]
+project = your-project-id
+</code></pre>
+</div>
+<h2 is-upgraded>課金アカウントを設定する</h2>
+<p>Cloud Run、Cloud SQL、Cloud Build、Artifact Registry を使うには、Google Cloud project に課金アカウントを紐づける必要があります。</p>
+<p>まず、利用できる課金アカウントを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud billing accounts list
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">ACCOUNT_ID            NAME                OPEN  MASTER_ACCOUNT_ID
+XXXXXX-XXXXXX-XXXXXX  My Billing Account  True
+</code></pre>
+</div>
+<p><code>ACCOUNT_ID</code> を変数に入れます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">export BILLING_ACCOUNT_ID=&#34;XXXXXX-XXXXXX-XXXXXX&#34;
+</code></pre>
+</div>
+<p>Google Cloud project に課金アカウントを紐づけます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud billing projects link &#34;$PROJECT_ID&#34; \
+  --billing-account=&#34;$BILLING_ACCOUNT_ID&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">billingAccountName: billingAccounts/XXXXXX-XXXXXX-XXXXXX
+billingEnabled: true
+name: projects/your-project-id/billingInfo
+projectId: your-project-id
+</code></pre>
+</div>
+<aside class="warning"><p><strong>Warning:</strong> 課金アカウントを紐づけると、この project で作った有料リソースに料金が発生します。このステップの最後に削除コマンドを実行してください。</p></aside>
+<h2 is-upgraded>この構成の費用を確認する</h2>
+<p>今回の Cloud Run は <code>--min-instances=0</code> にするため、アクセスがない間は Cloud Run の実行インスタンス料金がかかりません。小さなワークショップ利用であれば、Cloud Run のリクエスト、CPU、メモリは無料枠に収まることが多いです。ただし、<code>gcloud run deploy --source .</code> では Cloud Build と Artifact Registry も使うため、保存されたコンテナイメージが増えると Artifact Registry の保存料金が発生することがあります。</p>
+<p>Cloud SQL は、アクセスがなくてもインスタンスが起動している間は課金されます。今回の最低性能構成では、主な費用は次のとおりです。</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>リソース</p>
+</td><td colspan="1" rowspan="1"><p>設定</p>
+</td><td colspan="1" rowspan="1"><p>目安</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Cloud Run</p>
+</td><td colspan="1" rowspan="1"><p>0.08 vCPU、128 MiB、最小インスタンス 0</p>
+</td><td colspan="1" rowspan="1"><p>アイドル時は実行インスタンス料金なし</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Cloud SQL instance</p>
+</td><td colspan="1" rowspan="1"><p><code>db-f1-micro</code></p>
+</td><td colspan="1" rowspan="1"><p><code>$0.0105/hour</code>、約 <code>$0.252/day</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Cloud SQL SSD storage</p>
+</td><td colspan="1" rowspan="1"><p>10 GiB</p>
+</td><td colspan="1" rowspan="1"><p><code>$0.000232877/GiB-hour</code>、約 <code>$0.056/day</code></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>合計</p>
+</td><td colspan="1" rowspan="1"><p>Cloud SQL が中心</p>
+</td><td colspan="1" rowspan="1"><p>約 <code>$0.31/day</code></p>
+</td></tr>
+</table>
+<p>この金額は税、為替、リージョン、無料枠、将来の価格変更で変わります。正確な金額は Google Cloud の請求画面と Pricing Calculator で確認してください。</p>
+<p>参考:</p>
+<ul>
+<li><a href="https://cloud.google.com/run/pricing" target="_blank">Cloud Run pricing</a></li>
+<li><a href="https://docs.cloud.google.com/run/docs/configuring/services/cpu" target="_blank">Cloud Run CPU limits</a></li>
+<li><a href="https://cloud.google.com/sql/pricing" target="_blank">Cloud SQL pricing</a></li>
+<li><a href="https://docs.cloud.google.com/sql/docs/postgres/connect-run" target="_blank">Cloud SQL from Cloud Run</a></li>
+<li><a href="https://firebase.google.com/docs/admin/setup" target="_blank">Firebase Admin SDK setup</a></li>
+<li><a href="https://docs.cloud.google.com/iam/docs/roles-permissions/firebaseauth" target="_blank">Firebase Auth IAM roles</a></li>
+</ul>
+<h2 is-upgraded>必要な API を有効化する</h2>
+<p>Cloud Run、Cloud SQL、Cloud Build、Artifact Registry、Firebase を使うために API を有効化します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud services enable \
+  run.googleapis.com \
+  sqladmin.googleapis.com \
+  cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com \
+  firebase.googleapis.com \
+  identitytoolkit.googleapis.com \
+  iam.googleapis.com \
+  serviceusage.googleapis.com \
+  cloudresourcemanager.googleapis.com
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Operation &#34;operations/...&#34; finished successfully.
+</code></pre>
+</div>
+<p>エラーが出なければ成功です。API の有効化には数十秒かかることがあります。</p>
+<h2 is-upgraded>Firebase project を作成する</h2>
+<p>Firebase Console を開き、作成した Google Cloud project に Firebase を追加します。</p>
+<p><a href="https://console.firebase.google.com/" target="_blank"><paper-button class="colored" raised>Firebase Console を開く</paper-button></a></p>
+<p>次の順に進めます。</p>
+<ol type="1">
+<li><strong>プロジェクトを追加</strong> を押します。</li>
+<li>画面下部の <strong>Google Cloud プロジェクトに Firebase を追加</strong> を選びます。</li>
+<li><code>PROJECT_ID</code> に設定した project を選びます。</li>
+<li>Google Analytics は、このコードラボでは無効でかまいません。</li>
+<li><strong>Firebase を追加</strong> を押します。</li>
+</ol>
+<p>Firebase project が開けたら成功です。Firebase project と Google Cloud project は同じ project ID を共有します。</p>
+<h2 is-upgraded>Firebase Authentication を有効化する</h2>
+<p>Firebase Console で Google ログインを有効にします。</p>
+<ol type="1">
+<li>左メニューの <strong>Authentication</strong> を開きます。</li>
+<li><strong>始める</strong> を押します。</li>
+<li><strong>Sign-in method</strong> タブを開きます。</li>
+<li><strong>Google</strong> を選びます。</li>
+<li><strong>有効にする</strong> をオンにします。</li>
+<li>サポートメールに自分のメールアドレスを選びます。</li>
+<li><strong>保存</strong> を押します。</li>
+</ol>
+<p>Google provider が <code>有効</code> と表示されれば成功です。</p>
+<aside class="special"><p><strong>補足:</strong> 本編では講師が用意した Firebase project を使いました。この Extra では、自分の Cloud Run URL からログインできるように、自分の Firebase project 側で Google ログインを有効化します。</p></aside>
+<h2 is-upgraded>Firebase Web アプリを追加する</h2>
+<p>Firebase Console の project overview に戻り、Web アプリを追加します。</p>
+<ol type="1">
+<li><code>&lt;/&gt;</code> アイコンを押します。</li>
+<li>アプリのニックネームに <code>honojs-backend-web</code> と入力します。</li>
+<li>Firebase Hosting は有効にしません。</li>
+<li><strong>アプリを登録</strong> を押します。</li>
+<li>表示された <code>firebaseConfig</code> をコピーします。</li>
+</ol>
+<p><code>src/client.tsx</code> の <code>firebaseConfig</code> を、自分の Firebase project の値に置き換えます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/client.tsx</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts claat-diff-code" data-claat-diff="true" data-claat-diff-language="ts">const firebaseConfig = {
+  apiKey: &#34;YOUR_API_KEY&#34;,
+  authDomain: &#34;your-project-id.firebaseapp.com&#34;,
+  projectId: &#34;your-project-id&#34;,
+  storageBucket: &#34;your-project-id.firebasestorage.app&#34;,
+  messagingSenderId: &#34;YOUR_MESSAGING_SENDER_ID&#34;,
+  appId: &#34;YOUR_APP_ID&#34;
+};
+</code></pre>
+</div>
+<p>この設定は、ブラウザ側の Firebase Web SDK がどの Firebase project に接続するかを決めます。秘密鍵ではないためブラウザに含まれても問題ありませんが、自分の project の値を正しく入れる必要があります。</p>
+<h2 is-upgraded>Firebase Admin SDK の秘密鍵を作成する</h2>
+<p>ローカル開発では、Firebase Admin SDK が ID トークンを検証するために <code>serviceAccount.json</code> を使います。Firebase Console で秘密鍵を作成します。</p>
+<ol type="1">
+<li>Firebase Console の歯車アイコンから <strong>プロジェクトの設定</strong> を開きます。</li>
+<li><strong>サービス アカウント</strong> タブを開きます。</li>
+<li><strong>新しい秘密鍵の生成</strong> を押します。</li>
+<li>確認画面で <strong>キーを生成</strong> を押します。</li>
+<li>ダウンロードした JSON を、プロジェクト直下に <code>serviceAccount.json</code> という名前で置きます。</li>
+</ol>
+<aside class="warning"><p><strong>Warning: </strong><code>serviceAccount.json</code> は秘密鍵です。GitHub、Discord、SNS、スクリーンショットに載せないでください。本編の <code>.gitignore</code> では <code>serviceAccount.json</code> を除外していますが、<code>git status</code> でコミット対象になっていないことを必ず確認してください。</p></aside>
+<p>ローカルで Firebase 認証がまだ動くか確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run dev
+</code></pre>
+</div>
+<p>ブラウザで <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> を開き、Google ログインして投稿します。投稿者名が表示されれば成功です。</p>
+<h2 is-upgraded>Cloud Run 用に build script を変更する</h2>
+<p>Cloud Run の source deploy では、Google Cloud 側で <code>npm run build</code> が実行され、そのあと <code>npm start</code> でサーバーが起動します。React SPA と Hono サーバーの両方をビルドするように、<code>build</code> script を変更します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm pkg set scripts.build=&#34;npx vite build &amp;&amp; tsc&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">出力がなければ成功です。
+</code></pre>
+</div>
+<p>変更後、ローカルでビルドできるか確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run build
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">✓ built in ...
+</code></pre>
+</div>
+<p><code>dist</code> フォルダが作成され、TypeScript のエラーが出なければ成功です。</p>
+<h2 is-upgraded>Firebase Admin SDK を Cloud Run の認証情報に対応させる</h2>
+<p>Cloud Run 上では、<code>serviceAccount.json</code> を置かず、Cloud Run のサービスアカウントを使って Firebase Admin SDK を初期化します。ローカルでは <code>serviceAccount.json</code>、Cloud Run では Application Default Credentials を使うように変更します。</p>
+<p><code>src/firebase.ts</code> を以下の内容で上書きします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/firebase.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { existsSync } from &#34;node:fs&#34;;
+import { resolve } from &#34;node:path&#34;;
+import {
+  applicationDefault,
+  cert,
+  getApps,
+  initializeApp
+} from &#34;firebase-admin/app&#34;;
+import { getAuth } from &#34;firebase-admin/auth&#34;;
+import type { MiddlewareHandler } from &#34;hono&#34;;
+import { createMiddleware } from &#34;hono/factory&#34;;
+
+export interface AuthUser {
+  uid: string;
+  name: string;
+  picture?: string;
+}
+
+export interface FirebaseVariables {
+  user: AuthUser;
+}
+
+const firebaseServiceAccountPath = resolve(
+  process.cwd(),
+  process.env.FIREBASE_SERVICE_ACCOUNT_PATH ?? &#34;serviceAccount.json&#34;
+);
+
+const getFirebaseApp = () =&gt; {
+  if (getApps().length &gt; 0) {
+    return getApps()[0];
+  }
+
+  if (existsSync(firebaseServiceAccountPath)) {
+    return initializeApp({
+      credential: cert(firebaseServiceAccountPath)
+    });
+  }
+
+  return initializeApp({
+    credential: applicationDefault()
+  });
+};
+
+export const verifyIdToken = async (idToken: string): Promise&lt;AuthUser&gt; =&gt; {
+  const decoded = await getAuth(getFirebaseApp()).verifyIdToken(idToken);
+
+  return {
+    uid: decoded.uid,
+    name:
+      typeof decoded.name === &#34;string&#34; &amp;&amp; decoded.name.length &gt; 0
+        ? decoded.name
+        : &#34;匿名ユーザー&#34;,
+    picture: typeof decoded.picture === &#34;string&#34; ? decoded.picture : undefined
+  };
+};
+
+export const requireFirebaseAuth: MiddlewareHandler&lt;{
+  Variables: FirebaseVariables;
+}&gt; = createMiddleware(async (c, next) =&gt; {
+  const authorization = c.req.header(&#34;authorization&#34;);
+  const match = authorization?.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) {
+    return c.json({ error: &#34;Bearer token is required.&#34; }, 401);
+  }
+
+  try {
+    const user = await verifyIdToken(match[1]);
+    c.set(&#34;user&#34;, user);
+    await next();
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : &#34;Firebase authentication failed.&#34;;
+    return c.json({ error: message }, 401);
+  }
+});
+</code></pre>
+</div>
+<p><code>applicationDefault()</code> は、Cloud Run の実行環境に割り当てたサービスアカウントを使うための設定です。これにより、Cloud Run に秘密鍵ファイルをアップロードせずに Firebase Admin SDK を使えます。</p>
+<h2 is-upgraded>Cloud SQL 接続に対応させる</h2>
+<p>ローカルでは <code>DATABASE_URL</code> で Docker の PostgreSQL に接続し、Cloud Run では Cloud SQL の Unix socket に接続します。<code>INSTANCE_CONNECTION_NAME</code> がある場合だけ Cloud SQL 接続に切り替えるようにします。</p>
+<p><code>src/db.ts</code> を以下の内容で上書きします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-filename">src/db.ts</div>
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-ts" class="language-ts">import { drizzle } from &#34;drizzle-orm/node-postgres&#34;;
+import pg from &#34;pg&#34;;
+
+const cloudSqlConnectionName = process.env.INSTANCE_CONNECTION_NAME;
+
+const connectionConfig = cloudSqlConnectionName
+  ? {
+      user: process.env.DB_USER ?? &#34;hono&#34;,
+      password: process.env.DB_PASSWORD ?? &#34;&#34;,
+      database: process.env.DB_NAME ?? &#34;hono_board&#34;,
+      host: `/cloudsql/${cloudSqlConnectionName}`
+    }
+  : {
+      connectionString:
+        process.env.DATABASE_URL ??
+        &#34;postgres://hono:hono@localhost:5432/hono_board&#34;
+    };
+
+const pool = new pg.Pool(connectionConfig);
+
+export const db = drizzle(pool);
+
+export const closeDb = () =&gt; pool.end();
+</code></pre>
+</div>
+<p>Cloud Run と Cloud SQL を接続すると、<code>/cloudsql/PROJECT_ID:REGION:INSTANCE_NAME</code> という Unix socket が使えるようになります。アプリはその socket を通して PostgreSQL に接続します。</p>
+<p>変更後、もう一度ビルドします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npm run build
+</code></pre>
+</div>
+<p>TypeScript のエラーが出なければ成功です。</p>
+<h2 is-upgraded>Cloud Run 用サービスアカウントを作成する</h2>
+<p>Cloud Run の実行時に使う専用サービスアカウントを作ります。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud iam service-accounts create &#34;$SERVICE_ACCOUNT_NAME&#34; \
+  --display-name=&#34;Hono Cloud Run runtime&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Created service account [hono-cloud-run].
+</code></pre>
+</div>
+<p>サービスアカウントのメールアドレスを変数に入れます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">export SERVICE_ACCOUNT_EMAIL=&#34;${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com&#34;
+</code></pre>
+</div>
+<p>Cloud SQL に接続できるように、Cloud SQL Client ロールを付与します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud projects add-iam-policy-binding &#34;$PROJECT_ID&#34; \
+  --member=&#34;serviceAccount:${SERVICE_ACCOUNT_EMAIL}&#34; \
+  --role=&#34;roles/cloudsql.client&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Updated IAM policy for project [your-project-id].
+</code></pre>
+</div>
+<p>Firebase Admin SDK が Firebase Auth を使えるように、Firebase Authentication Admin ロールを付与します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud projects add-iam-policy-binding &#34;$PROJECT_ID&#34; \
+  --member=&#34;serviceAccount:${SERVICE_ACCOUNT_EMAIL}&#34; \
+  --role=&#34;roles/firebaseauth.admin&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Updated IAM policy for project [your-project-id].
+</code></pre>
+</div>
+<aside class="special"><p><strong>補足:</strong> このコードでは ID トークンの検証が中心ですが、Cloud Run のサービスアカウントで Firebase Admin SDK を動かせるように IAM を明示します。より権限を絞る設計は、本番運用時に改めて検討します。</p></aside>
+<h2 is-upgraded>Cloud SQL PostgreSQL を作成する</h2>
+<p>Cloud SQL for PostgreSQL のインスタンスを作成します。今回は費用を抑えるため、共有 CPU の <code>db-f1-micro</code>、10 GiB SSD、バックアップ無効、ストレージ自動増加無効にします。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud sql instances create &#34;$INSTANCE_NAME&#34; \
+  --database-version=POSTGRES_17 \
+  --tier=db-f1-micro \
+  --region=&#34;$REGION&#34; \
+  --availability-type=zonal \
+  --storage-type=SSD \
+  --storage-size=10 \
+  --no-storage-auto-increase \
+  --no-backup
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Creating Cloud SQL instance for POSTGRES_17...done.
+Created [https://sqladmin.googleapis.com/sql/v1beta4/projects/your-project-id/instances/hono-postgres].
+</code></pre>
+</div>
+<p>作成には数分かかります。完了したら、アプリ用のデータベースを作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud sql databases create &#34;$DB_NAME&#34; \
+  --instance=&#34;$INSTANCE_NAME&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Created database [hono_board].
+</code></pre>
+</div>
+<p>アプリ用ユーザーを作成します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud sql users create &#34;$DB_USER&#34; \
+  --instance=&#34;$INSTANCE_NAME&#34; \
+  --password=&#34;$DB_PASSWORD&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Created user [hono].
+</code></pre>
+</div>
+<p>Cloud SQL の接続名を取得します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">export INSTANCE_CONNECTION_NAME=&#34;$(gcloud sql instances describe &#34;$INSTANCE_NAME&#34; --format=&#39;value(connectionName)&#39;)&#34;
+echo &#34;$INSTANCE_CONNECTION_NAME&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">your-project-id:asia-northeast2:hono-postgres
+</code></pre>
+</div>
+<p>この接続名を Cloud Run の環境変数と Cloud SQL 接続設定で使います。</p>
+<h2 is-upgraded>Drizzle の migration SQL を作成する</h2>
+<p>Cloud SQL に本番用テーブルを作ります。ここでは <code>drizzle-kit push</code> で直接 DB に反映するのではなく、migration SQL を作成し、Cloud SQL Studio で手動実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">npx drizzle-kit generate
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">[✓] Your SQL migration file ➜ drizzle/0000_....sql
+</code></pre>
+</div>
+<p>作成された SQL ファイルを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">ls drizzle
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">0000_....sql
+meta
+</code></pre>
+</div>
+<p><code>drizzle/0000_....sql</code> を VS Code で開きます。<code>CREATE TABLE "posts"</code> を含む SQL が表示されれば成功です。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>No schema changes, nothing to migrate</code> と表示された場合は、すでに <code>drizzle</code> フォルダに migration がある可能性があります。その場合は既存の <code>drizzle/*.sql</code> を使って次に進みます。</p></aside>
+<h2 is-upgraded>Cloud SQL Studio で migration SQL を実行する</h2>
+<p>Google Cloud Console で Cloud SQL Studio を開きます。</p>
+<p><a href="https://console.cloud.google.com/sql/instances" target="_blank"><paper-button class="colored" raised>Cloud SQL instances を開く</paper-button></a></p>
+<p>次の順に進めます。</p>
+<ol type="1">
+<li><code>hono-postgres</code> インスタンスを開きます。</li>
+<li>左メニューの <strong>Cloud SQL Studio</strong> を開きます。</li>
+<li>Database に <code>hono_board</code> を選びます。</li>
+<li>User に <code>hono</code> を入力します。</li>
+<li>Password に <code>DB_PASSWORD</code> に設定した値を入力します。</li>
+<li><strong>Authenticate</strong> を押します。</li>
+<li>SQL エディタに <code>drizzle/0000_....sql</code> の内容を貼り付けます。</li>
+<li><strong>Run</strong> を押します。</li>
+</ol>
+<p>実行後、<code>posts</code> テーブルが作成されれば成功です。</p>
+<p>確認用に、Cloud SQL Studio で次の SQL を実行します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-sql" class="language-sql">select table_name
+from information_schema.tables
+where table_schema = &#39;public&#39;;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">posts
+</code></pre>
+</div>
+<h2 is-upgraded>Cloud Run にデプロイする</h2>
+<p>Cloud Run に source deploy します。Cloud Build がソースコードからコンテナイメージを作り、Cloud Run に配置します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud run deploy &#34;$SERVICE_NAME&#34; \
+  --source . \
+  --region=&#34;$REGION&#34; \
+  --service-account=&#34;$SERVICE_ACCOUNT_EMAIL&#34; \
+  --add-cloudsql-instances=&#34;$INSTANCE_CONNECTION_NAME&#34; \
+  --set-env-vars=&#34;INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},DB_NAME=${DB_NAME},DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD}&#34; \
+  --cpu=0.08 \
+  --memory=128Mi \
+  --concurrency=1 \
+  --execution-environment=gen1 \
+  --min-instances=0 \
+  --allow-unauthenticated
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deploying from source requires an Artifact Registry Docker repository to store built containers.
+Do you want to continue (Y/n)?
+</code></pre>
+</div>
+<p><code>Y</code> を入力して Enter を押します。デプロイが終わると、次のように URL が表示されます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Service [honojs-backend] revision [...] has been deployed and is serving 100 percent of traffic.
+Service URL: https://honojs-backend-....a.run.app
+</code></pre>
+</div>
+<p>URL を変数に入れます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">export SERVICE_URL=&#34;$(gcloud run services describe &#34;$SERVICE_NAME&#34; \
+  --region=&#34;$REGION&#34; \
+  --format=&#39;value(status.url)&#39;)&#34;
+echo &#34;$SERVICE_URL&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">https://honojs-backend-....a.run.app
+</code></pre>
+</div>
+<h2 is-upgraded>Firebase Authentication の承認済みドメインを追加する</h2>
+<p>Cloud Run の URL で Google ログインできるように、Firebase Authentication に承認済みドメインを追加します。</p>
+<ol type="1">
+<li>Firebase Console で <strong>Authentication</strong> を開きます。</li>
+<li><strong>Settings</strong> タブを開きます。</li>
+<li><strong>Authorized domains</strong> を開きます。</li>
+<li><strong>Add domain</strong> を押します。</li>
+<li>Cloud Run URL のホスト名だけを入力します。</li>
+</ol>
+<p>たとえば <code>SERVICE_URL</code> が次の場合:</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">https://honojs-backend-abc123-uc.a.run.app
+</code></pre>
+</div>
+<p>追加するドメインは次です。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">honojs-backend-abc123-uc.a.run.app
+</code></pre>
+</div>
+<p><code>https://</code> や末尾の <code>/</code> は入れません。保存できたら、Cloud Run 上のアプリで Firebase ログインを使えるようになります。</p>
+<h2 is-upgraded>デプロイしたアプリを確認する</h2>
+<p>まず API の health check を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl &#34;$SERVICE_URL/api/health&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{&#34;ok&#34;:true}
+</code></pre>
+</div>
+<p>次に投稿一覧 API を確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">curl &#34;$SERVICE_URL/api/posts&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-json" class="language-json">{&#34;posts&#34;:[]}
+</code></pre>
+</div>
+<p>ブラウザで <code>SERVICE_URL</code> を開きます。Google ログインし、投稿フォームから <code>Cloud Run から投稿しています</code> と投稿します。投稿一覧に表示されれば、Cloud Run から Cloud SQL に保存できています。</p>
+<aside class="troubleshooting"><p><strong>Troubleshooting: </strong><code>Firebase authentication failed.</code> が出る場合は、Firebase Web app の <code>firebaseConfig</code> が自分の project の値か、Cloud Run のサービスアカウントに <code>roles/firebaseauth.admin</code> が付いているか、Firebase Authentication の承認済みドメインに Cloud Run のホスト名を追加したかを確認してください。</p></aside>
+<p>DB に保存されたことを Cloud SQL Studio でも確認できます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-sql" class="language-sql">select id, content, author_name, created_at
+from posts
+order by created_at desc;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Cloud Run から投稿しています
+</code></pre>
+</div>
+<h2 is-upgraded>クリーンアップ</h2>
+<p>課金され続けないように、この Extra で作成した有料リソースを削除します。Cloud SQL は起動しているだけで課金されるため、必ず削除してください。</p>
+<p>まず Cloud Run service を削除します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud run services delete &#34;$SERVICE_NAME&#34; \
+  --region=&#34;$REGION&#34; \
+  --quiet
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deleted service [honojs-backend].
+</code></pre>
+</div>
+<p>Cloud SQL instance を削除します。中のデータベースと投稿データも削除されます。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud sql instances delete &#34;$INSTANCE_NAME&#34; \
+  --quiet
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deleted [hono-postgres].
+</code></pre>
+</div>
+<p>Artifact Registry に作られた Cloud Run source deploy 用リポジトリを確認します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud artifacts repositories list \
+  --location=&#34;$REGION&#34;
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">REPOSITORY  FORMAT  MODE                 DESCRIPTION
+cloud-run-source-deploy  DOCKER  STANDARD_REPOSITORY
+</code></pre>
+</div>
+<p>リポジトリがある場合は削除します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud artifacts repositories delete cloud-run-source-deploy \
+  --location=&#34;$REGION&#34; \
+  --quiet
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deleted repository [cloud-run-source-deploy].
+</code></pre>
+</div>
+<p>Cloud Run 用サービスアカウントを削除します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud iam service-accounts delete &#34;$SERVICE_ACCOUNT_EMAIL&#34; \
+  --quiet
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deleted service account [hono-cloud-run@your-project-id.iam.gserviceaccount.com].
+</code></pre>
+</div>
+<p>最後に、project ごと削除する場合は次を実行します。Firebase project も同じ Google Cloud project に紐づいているため、一緒に削除されます。</p>
+<aside class="warning"><p><strong>Warning: </strong><code>gcloud projects delete</code> は project 内のリソースをまとめて削除する強い操作です。この Extra 専用に作った project であることを確認してから実行してください。既存の project を使った場合は、project 全体ではなく Cloud Run、Cloud SQL、Artifact Registry など、このステップで作ったリソースだけを削除します。</p></aside>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">gcloud projects delete &#34;$PROJECT_ID&#34; \
+  --quiet
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">Deleted [https://cloudresourcemanager.googleapis.com/v1/projects/your-project-id].
+</code></pre>
+</div>
+<p>ローカルの秘密鍵も不要になったら削除します。</p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-bash" class="language-bash">rm -f serviceAccount.json
+</code></pre>
+</div>
+<p><strong>期待される出力:</strong></p>
+<div class="claat-code-block" data-code-theme="light">
+<div class="claat-code-toolbar" aria-label="Code block actions">
+  <button class="claat-code-button claat-toggle-code-theme" type="button" aria-label="Use dark code theme" title="Use dark code theme">
+    <span class="material-icons" aria-hidden="true">dark_mode</span>
+  </button>
+  <button class="claat-code-button claat-copy-code" type="button" aria-label="Copy code" title="Copy code">
+    <span class="material-icons" aria-hidden="true">content_copy</span>
+  </button>
+</div>
+<pre><code language="language-text" class="language-text">出力がなければ成功です。
+</code></pre>
+</div>
+
+
+      </google-codelab-step>
+    
       <google-codelab-step label="Extra: 投稿を削除する" duration="0">
         <p>ここからは早く終わった人向けの拡張課題です。</p>
 <h2 is-upgraded>ゴール</h2>
