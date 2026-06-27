@@ -310,6 +310,96 @@ LOCAL_STYLE = f"""<style id="{STYLE_ID}">
     border-left-width: 4px;
   }}
 
+  google-codelab #drawer ol li a {{
+    transition:
+      color 300ms ease-in-out,
+      background 300ms ease-in-out,
+      border-color 300ms ease-in-out,
+      box-shadow 300ms ease-in-out;
+  }}
+
+  google-codelab #drawer ol li .step {{
+    width: 100%;
+    min-width: 0;
+  }}
+
+  google-codelab #drawer ol li .step > span {{
+    min-width: 0;
+  }}
+
+  google-codelab #drawer .claat-step-nav-content {{
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+  }}
+
+  google-codelab #drawer .claat-step-nav-title {{
+    overflow-wrap: anywhere;
+  }}
+
+  google-codelab #drawer .claat-step-nav-outline {{
+    display: block;
+    max-height: 0;
+    margin: 0 6px 0 44px;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      max-height 260ms ease,
+      margin-bottom 260ms ease,
+      opacity 180ms ease,
+      transform 220ms ease,
+      padding-bottom 260ms ease;
+  }}
+
+  google-codelab #drawer ol li[selected] .claat-step-nav-outline {{
+    max-height: 360px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    opacity: 1;
+    transform: translateY(0);
+  }}
+
+  google-codelab #drawer .claat-step-nav-heading {{
+    display: block;
+    color: #5f6368;
+    font-weight: 400;
+    line-height: 18px;
+    margin: 1px 0;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }}
+
+  google-codelab #drawer .claat-step-nav-heading:hover,
+  google-codelab #drawer .claat-step-nav-heading:focus-visible {{
+    background: #f1f3f4;
+    color: #202124;
+    outline: none;
+  }}
+
+  google-codelab #drawer .claat-step-nav-heading.is-active {{
+    background: #e8eaed;
+    color: #202124;
+    font-weight: 500;
+  }}
+
+  google-codelab #drawer .claat-step-nav-heading-level-3 {{
+    margin-left: 0;
+    font-size: 12px;
+  }}
+
+  google-codelab #drawer .claat-step-nav-heading-level-4 {{
+    margin-left: 14px;
+    font-size: 11px;
+  }}
+
   @media (max-width: 640px) {{
     google-codelab-step .instructions .claat-code-filename {{
       max-width: calc(100% - 72px);
@@ -439,6 +529,218 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
     }});
   }}
 
+  function normalizeText(value) {{
+    return (value || '').replace(/\\s+/g, ' ').trim();
+  }}
+
+  function headingOutlineForStep(step, stepIndex) {{
+    var headings = Array.prototype.slice.call(
+      step.querySelectorAll('.instructions [data-claat-source-heading-level="3"], .instructions [data-claat-source-heading-level="4"]')
+    );
+
+    return headings.map(function (heading, index) {{
+      var level = Number(heading.dataset.claatSourceHeadingLevel);
+      if (!heading.id) {{
+        heading.id = 'claat-section-' + stepIndex + '-' + index;
+      }}
+      return {{
+        id: heading.id,
+        level: level,
+        text: normalizeText(heading.textContent)
+      }};
+    }}).filter(function (item) {{
+      return item.text;
+    }});
+  }}
+
+  function prepareDrawerStepContent(item) {{
+    var step = item.querySelector('.step');
+    if (!step) return null;
+
+    var content = step.querySelector('.claat-step-nav-content');
+    if (content) return content;
+
+    var titleSource = step.firstElementChild;
+    if (!titleSource) return null;
+
+    content = document.createElement('span');
+    content.className = 'claat-step-nav-content';
+
+    var title = document.createElement('span');
+    title.className = 'claat-step-nav-title';
+    while (titleSource.firstChild) {{
+      title.appendChild(titleSource.firstChild);
+    }}
+
+    content.appendChild(title);
+    step.replaceChild(content, titleSource);
+    return content;
+  }}
+
+  function renderDrawerStepOutline(item, outline) {{
+    prepareDrawerStepContent(item);
+
+    var outlineKey = JSON.stringify(outline);
+    if (item.dataset.claatStepNavOutline === outlineKey) return;
+    item.dataset.claatStepNavOutline = outlineKey;
+
+    var existing = item.querySelector('.claat-step-nav-outline');
+    if (existing) existing.remove();
+    if (!outline.length) return;
+
+    var container = document.createElement('span');
+    container.className = 'claat-step-nav-outline';
+
+    outline.forEach(function (heading) {{
+      var row = document.createElement('span');
+      row.className = 'claat-step-nav-heading claat-step-nav-heading-level-' + heading.level;
+      row.dataset.claatSectionId = heading.id;
+      row.setAttribute('role', 'button');
+      row.setAttribute('tabindex', '0');
+      row.textContent = heading.text;
+      row.addEventListener('click', activateDrawerSection);
+      row.addEventListener('keydown', function (event) {{
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        activateDrawerSection(event);
+      }});
+      container.appendChild(row);
+    }});
+
+    item.appendChild(container);
+  }}
+
+  function selectedStepIndex(codelab) {{
+    var selectedItem = codelab.querySelector('#drawer .steps ol li[selected]');
+    if (!selectedItem) return -1;
+    return Array.prototype.indexOf.call(selectedItem.parentNode.children, selectedItem);
+  }}
+
+  function selectedStep(codelab) {{
+    var index = selectedStepIndex(codelab);
+    var steps = codelab.querySelectorAll('google-codelab-step');
+    return index >= 0 ? steps[index] : null;
+  }}
+
+  function scrollSelectedStepToSection(sectionId) {{
+    var codelab = document.querySelector('google-codelab');
+    if (!codelab || !sectionId) return;
+
+    var step = selectedStep(codelab);
+    var heading = document.getElementById(sectionId);
+    if (step && heading && !step.contains(heading)) heading = null;
+    if (!step || !heading) return;
+
+    var stepRect = step.getBoundingClientRect();
+    var headingRect = heading.getBoundingClientRect();
+    var top = step.scrollTop + headingRect.top - stepRect.top - 20;
+    if (typeof step.scrollTo === 'function') {{
+      step.scrollTo({{ top: top, behavior: 'smooth' }});
+    }} else {{
+      step.scrollTop = top;
+    }}
+    updateActiveDrawerSection(codelab);
+  }}
+
+  function updateActiveDrawerSection(root) {{
+    var codelab = root || document.querySelector('google-codelab');
+    if (!codelab) return;
+
+    var step = selectedStep(codelab);
+    var selectedItem = codelab.querySelector('#drawer .steps ol li[selected]');
+    if (!step || !selectedItem) return;
+
+    var outlineRows = Array.prototype.slice.call(selectedItem.querySelectorAll('.claat-step-nav-heading'));
+    if (!outlineRows.length) return;
+
+    var headings = Array.prototype.slice.call(
+      step.querySelectorAll('.instructions [data-claat-source-heading-level="3"], .instructions [data-claat-source-heading-level="4"]')
+    ).filter(function (heading) {{
+      return heading.id;
+    }});
+    if (!headings.length) return;
+
+    var stepTop = step.getBoundingClientRect().top;
+    var activeHeading = headings[0];
+    headings.forEach(function (heading) {{
+      if (heading.getBoundingClientRect().top - stepTop <= 72) activeHeading = heading;
+    }});
+
+    outlineRows.forEach(function (row) {{
+      row.classList.toggle('is-active', row.dataset.claatSectionId === activeHeading.id);
+    }});
+  }}
+
+  function attachStepScrollListeners(codelab) {{
+    Array.prototype.slice.call(codelab.querySelectorAll('google-codelab-step')).forEach(function (step) {{
+      if (step.dataset.claatSectionScrollObserver === 'true') return;
+      step.dataset.claatSectionScrollObserver = 'true';
+      step.addEventListener('scroll', function () {{
+        window.requestAnimationFrame(function () {{
+          updateActiveDrawerSection(codelab);
+        }});
+      }}, {{ passive: true }});
+    }});
+  }}
+
+  function enhanceDrawerStepOutlines(root) {{
+    var codelab = root || document.querySelector('google-codelab');
+    if (!codelab) return false;
+
+    var items = Array.prototype.slice.call(codelab.querySelectorAll('#drawer .steps ol li'));
+    var steps = Array.prototype.slice.call(codelab.querySelectorAll('google-codelab-step'));
+    if (!items.length || !steps.length) return false;
+
+    items.forEach(function (item, index) {{
+      renderDrawerStepOutline(item, steps[index] ? headingOutlineForStep(steps[index], index) : []);
+    }});
+    attachStepScrollListeners(codelab);
+    updateActiveDrawerSection(codelab);
+    return true;
+  }}
+
+  function observeDrawerStepOutlines() {{
+    var codelab = document.querySelector('google-codelab');
+    if (!codelab) return;
+
+    enhanceDrawerStepOutlines(codelab);
+
+    var drawer = codelab.querySelector('#drawer');
+    if (!drawer || drawer.dataset.claatHeadingObserver === 'true') return;
+    drawer.dataset.claatHeadingObserver = 'true';
+
+    var scheduled = false;
+    var observer = new MutationObserver(function () {{
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(function () {{
+        scheduled = false;
+        enhanceDrawerStepOutlines(codelab);
+      }});
+    }});
+    observer.observe(drawer, {{ attributes: true, attributeFilter: ['selected'], childList: true, subtree: true }});
+  }}
+
+  function startDrawerStepOutlineEnhancement() {{
+    var attempts = 0;
+
+    function tryEnhance() {{
+      attempts += 1;
+      observeDrawerStepOutlines();
+      if (attempts >= 12 || document.querySelector('google-codelab #drawer .steps ol li')) return;
+      window.setTimeout(tryEnhance, 200);
+    }}
+
+    tryEnhance();
+  }}
+
+  function activateDrawerSection(event) {{
+    var section = event.currentTarget;
+    if (!section || !section.dataset) return;
+    event.preventDefault();
+    event.stopPropagation();
+    scrollSelectedStepToSection(section.dataset.claatSectionId);
+  }}
+
   document.addEventListener('click', function (event) {{
     var copyButton = event.target.closest('.claat-copy-code');
     var themeButton = event.target.closest('.claat-toggle-code-theme');
@@ -470,6 +772,7 @@ LOCAL_SCRIPT = f"""<script id="{SCRIPT_ID}">
       setTheme(block, block.dataset.codeTheme || 'light');
     }});
     enhanceDiffCodeBlocks();
+    startDrawerStepOutlineEnhancement();
   }});
 }}());
 </script>"""
@@ -539,6 +842,117 @@ def load_markdown_code_fences(source_md: str | None) -> list[dict[str, str]]:
         return []
 
     return parse_markdown_code_fences(path.read_text(encoding="utf-8"))
+
+
+def markdown_inline_to_text(value: str) -> str:
+    value = re.sub(r"!\[([^\]]*)\]\([^)]+\)", r"\1", value)
+    value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
+    value = re.sub(r"`([^`]*)`", lambda m: html_lib.escape(m.group(1)), value)
+    value = re.sub(r"[*_~]+", "", value)
+    value = re.sub(r"<[^>]+>", "", value)
+    return normalize_plain_text(value)
+
+
+def normalize_plain_text(value: str) -> str:
+    value = re.sub(r"<[^>]+>", "", value)
+    value = html_lib.unescape(value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def parse_markdown_step_headings(markdown: str) -> list[list[dict[str, str | int]]]:
+    steps: list[list[dict[str, str | int]]] = []
+    current: list[dict[str, str | int]] | None = None
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+
+    for line in markdown.splitlines():
+        fence_match = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if fence_match:
+            fence = fence_match.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_char = fence[0]
+                fence_len = len(fence)
+            elif fence[0] == fence_char and len(fence) >= fence_len:
+                in_fence = False
+            continue
+
+        if in_fence:
+            continue
+
+        step_match = re.match(r"^##\s+(?!#)(.+?)\s*$", line)
+        if step_match:
+            current = []
+            steps.append(current)
+            continue
+
+        heading_match = re.match(r"^(#{3,4})\s+(.+?)\s*$", line)
+        if heading_match and current is not None:
+            text = markdown_inline_to_text(heading_match.group(2))
+            if text:
+                current.append({"level": len(heading_match.group(1)), "text": text})
+
+    return steps
+
+
+def load_markdown_step_headings(source_md: str | None) -> list[list[dict[str, str | int]]]:
+    if not source_md:
+        return []
+
+    path = Path(source_md)
+    if not path.exists():
+        return []
+
+    return parse_markdown_step_headings(path.read_text(encoding="utf-8"))
+
+
+def annotate_source_headings(html: str, source_md: str | None) -> str:
+    step_headings = load_markdown_step_headings(source_md)
+    if not step_headings:
+        return html
+
+    step_pattern = re.compile(
+        r"(?P<open><google-codelab-step\b[^>]*>)(?P<body>.*?)(?P<close></google-codelab-step>)",
+        re.DOTALL | re.IGNORECASE,
+    )
+    heading_pattern = re.compile(
+        r"(?P<open><h[2-4]\b[^>]*>)(?P<body>.*?)(?P<close></h[2-4]>)",
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def annotate_step(match: re.Match) -> str:
+        step_index = annotate_step.index
+        annotate_step.index += 1
+        expected = step_headings[step_index] if step_index < len(step_headings) else []
+        if not expected:
+            return match.group(0)
+
+        expected_index = 0
+
+        def annotate_heading(heading_match: re.Match) -> str:
+            nonlocal expected_index
+            if expected_index >= len(expected):
+                return heading_match.group(0)
+
+            actual_text = normalize_plain_text(heading_match.group("body"))
+            expected_heading = expected[expected_index]
+            if actual_text != expected_heading["text"]:
+                return heading_match.group(0)
+
+            expected_index += 1
+            open_tag = set_or_append_attr(
+                heading_match.group("open"),
+                "data-claat-source-heading-level",
+                str(expected_heading["level"]),
+            )
+            return open_tag + heading_match.group("body") + heading_match.group("close")
+
+        body = heading_pattern.sub(annotate_heading, match.group("body"))
+        return match.group("open") + body + match.group("close")
+
+    annotate_step.index = 0  # type: ignore[attr-defined]
+    return step_pattern.sub(annotate_step, html)
 
 
 def parse_markdown_code_fences(markdown: str) -> list[dict[str, str]]:
@@ -1059,7 +1473,15 @@ def inject_local_assets(html: str) -> tuple[str, int, int]:
             html = LOCAL_STYLE + "\n" + html
             n_style = 1
 
-    if f'id="{SCRIPT_ID}"' not in html:
+    if f'id="{SCRIPT_ID}"' in html:
+        html, n_script = re.subn(
+            r'<script id="' + re.escape(SCRIPT_ID) + r'">.*?</script>',
+            lambda _m: LOCAL_SCRIPT,
+            html,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
         html, n_script = re.subn(r"</body>", lambda m: LOCAL_SCRIPT + "\n" + m.group(0), html, count=1)
         if n_script == 0:
             html = html + "\n" + LOCAL_SCRIPT + "\n"
@@ -1082,6 +1504,7 @@ def fix(
     html, n_download_buttons = repair_image_download_links(html)
     n_buttons += n_download_buttons
     html, n_links = linkify_bare_urls(html)
+    html = annotate_source_headings(html, source_md)
     html, n_ogp = inject_ogp(html, ogp_values(html, html_path, source_md))
     favicon_href = favicon_href_for(html_path) if html_path else "assets/favicon.png"
     html, n_favicon = inject_favicon(html, favicon_href)
